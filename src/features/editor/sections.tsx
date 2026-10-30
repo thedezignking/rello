@@ -1,6 +1,16 @@
 "use client";
 
-import { PlusIcon } from "lucide-react";
+import {
+  AlignLeftIcon,
+  AwardIcon,
+  BriefcaseIcon,
+  FolderOpenIcon,
+  GraduationCapIcon,
+  PlusIcon,
+  UserRoundIcon,
+  WrenchIcon,
+  type LucideIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldLabel } from "@/components/ui/field";
@@ -12,14 +22,80 @@ import { SkillsEditor } from "./skills-editor";
 
 type Props = { content: ResumeContent; update: Update };
 
-export const SECTIONS: { key: SectionKey; title: string; Body: (p: Props) => React.ReactNode; count?: (c: ResumeContent) => number }[] = [
-  { key: "personal", title: "Personal details", Body: PersonalSection },
-  { key: "summary", title: "Summary", Body: SummarySection },
-  { key: "experience", title: "Experience", Body: ExperienceSection, count: (c) => c.experience.length },
-  { key: "education", title: "Education", Body: EducationSection, count: (c) => c.education.length },
-  { key: "skills", title: "Skills", Body: SkillsSection, count: (c) => c.skills.length },
-  { key: "projects", title: "Projects", Body: ProjectsSection, count: (c) => c.projects.length },
-  { key: "certifications", title: "Certifications", Body: CertificationsSection, count: (c) => c.certifications.length },
+/** What a section header says about its contents: "Not started", "Done", "3 entries". */
+type SectionStatus = { done: boolean; label: string };
+
+const entries = (n: number, one: string, many: string): SectionStatus =>
+  n ? { done: true, label: `${n} ${n === 1 ? one : many}` } : { done: false, label: "Not started" };
+
+export const SECTIONS: {
+  key: SectionKey;
+  title: string;
+  Icon: LucideIcon;
+  Body: (p: Props) => React.ReactNode;
+  status: (c: ResumeContent) => SectionStatus;
+  count?: (c: ResumeContent) => number;
+}[] = [
+  {
+    key: "personal",
+    title: "Personal details",
+    Icon: UserRoundIcon,
+    Body: PersonalSection,
+    status: (c) =>
+      c.personal.name.trim()
+        ? { done: true, label: [c.personal.name, c.personal.headline].filter(Boolean).join(", ") }
+        : { done: false, label: "Add your name and contact details" },
+  },
+  {
+    key: "summary",
+    title: "Summary",
+    Icon: AlignLeftIcon,
+    Body: SummarySection,
+    status: (c) => {
+      const words = c.summary.trim() ? c.summary.trim().split(/\s+/).length : 0;
+      return words ? { done: true, label: `${words} words` } : { done: false, label: "Not started" };
+    },
+  },
+  {
+    key: "experience",
+    title: "Experience",
+    Icon: BriefcaseIcon,
+    Body: ExperienceSection,
+    count: (c) => c.experience.length,
+    status: (c) => entries(c.experience.length, "role", "roles"),
+  },
+  {
+    key: "education",
+    title: "Education",
+    Icon: GraduationCapIcon,
+    Body: EducationSection,
+    count: (c) => c.education.length,
+    status: (c) => entries(c.education.length, "entry", "entries"),
+  },
+  {
+    key: "skills",
+    title: "Skills",
+    Icon: WrenchIcon,
+    Body: SkillsSection,
+    count: (c) => c.skills.length,
+    status: (c) => entries(c.skills.length, "skill", "skills"),
+  },
+  {
+    key: "projects",
+    title: "Projects",
+    Icon: FolderOpenIcon,
+    Body: ProjectsSection,
+    count: (c) => c.projects.length,
+    status: (c) => entries(c.projects.length, "project", "projects"),
+  },
+  {
+    key: "certifications",
+    title: "Certifications",
+    Icon: AwardIcon,
+    Body: CertificationsSection,
+    count: (c) => c.certifications.length,
+    status: (c) => entries(c.certifications.length, "certification", "certifications"),
+  },
 ];
 
 function Grid({ children }: { children: React.ReactNode }) {

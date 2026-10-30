@@ -1,7 +1,8 @@
 "use client";
 
 import { createContext, use, useState } from "react";
-import { CheckIcon, MessageCircleQuestionIcon, RotateCcwIcon, SparklesIcon } from "lucide-react";
+import { CheckIcon, MessageCircleQuestionIcon, RotateCcwIcon } from "lucide-react";
+import { AiIcon } from "@/components/ai-icon";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -98,7 +99,7 @@ export function useImprove({
           )
         }
       >
-        {busy ? <Spinner /> : <SparklesIcon data-icon={compact ? undefined : "inline-start"} />}
+        {busy ? <Spinner /> : <AiIcon data-icon={compact ? undefined : "inline-start"} />}
         {!compact && "Improve"}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-44">
@@ -141,7 +142,7 @@ export function useImprove({
     const stale = state.from !== text;
     panel = (
       <Panel>
-        <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
+        <p className="text-xs text-muted-foreground">
           {ACTIONS.find((a) => a.id === state.action)?.label}
           {state.sample && " · sample"}
         </p>

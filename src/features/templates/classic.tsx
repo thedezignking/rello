@@ -1,3 +1,4 @@
+import { H1, H2 } from "./doc-headings";
 import {
   Bullets,
   contactItems,
@@ -17,9 +18,9 @@ export function ClassicTemplate({ content: c, hints, plain }: TemplateProps) {
   return (
     <div className="px-[60px] py-[52px] print:py-0 font-[family-name:var(--font-doc-serif)] text-[10.5pt] leading-[1.42] text-[#1b1b1b]">
       <header {...sectionAttrs("personal")} className="text-center">
-        <h1 className="text-[23pt] leading-tight font-semibold tracking-[-0.01em]">
+        <H1 className="text-[23pt] leading-tight font-semibold tracking-[-0.01em]">
           {c.personal.name || (hints && <span className="text-[#c4c4c4]">Your name</span>)}
-        </h1>
+        </H1>
         {(c.personal.headline || hints) && (
           <p className="mt-1 text-[11pt] italic text-[#444]">
             {c.personal.headline || (hints && <span className="text-[#c4c4c4]">Your headline</span>)}
@@ -140,9 +141,9 @@ function Section({
 }) {
   return (
     <section {...sectionAttrs(k)} className="mt-[16px]">
-      <h2 className="break-after-avoid mb-[6px] border-b border-[#bdbdbd] pb-[2px] text-[10pt] font-semibold tracking-[0.12em] uppercase">
+      <H2 className="break-after-avoid mb-[6px] border-b border-[#bdbdbd] pb-[2px] text-[10pt] font-semibold tracking-[0.12em] uppercase">
         {title}
-      </h2>
+      </H2>
       {children}
     </section>
   );

@@ -1,5 +1,6 @@
 import type { ResumeContent, TemplateId } from "@/features/resumes/schema";
 import { ClassicTemplate } from "./classic";
+import { PlainHeadingsProvider } from "./doc-headings";
 import { CompactTemplate } from "./compact";
 import { MinimalTemplate } from "./minimal";
 import { ModernTemplate } from "./modern";
@@ -43,5 +44,9 @@ export function ResumeDocument({
   plain?: boolean;
 }) {
   const { Component } = TEMPLATES[templateId] ?? TEMPLATES.classic;
-  return <Component content={content} hints={hints} plain={plain} />;
+  return (
+    <PlainHeadingsProvider plain={plain}>
+      <Component content={content} hints={hints} plain={plain} />
+    </PlainHeadingsProvider>
+  );
 }

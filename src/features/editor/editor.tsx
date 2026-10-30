@@ -2,14 +2,22 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeftIcon, CheckIcon, CloudOffIcon, DownloadIcon, SparklesIcon, TriangleAlertIcon } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  CloudCheckIcon,
+  CircleCheckIcon,
+  CircleDashedIcon,
+  CloudOffIcon,
+  DownloadIcon,
+  TriangleAlertIcon,
+} from "lucide-react";
+import { AiIcon } from "@/components/ai-icon";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import {
@@ -22,11 +30,11 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ViewTabs } from "@/components/view-tabs";
 import { toast } from "@/components/ui/toast";
 import { useAuth } from "@/features/auth/auth-provider";
 import { useDownloadPdf } from "@/features/pdf/use-download-pdf";
-import { TEMPLATE_IDS, type Resume, type SectionKey, type TemplateId } from "@/features/resumes/schema";
+import { isReadyForTailoring, TEMPLATE_IDS, type Resume, type SectionKey, type TemplateId } from "@/features/resumes/schema";
 import { getResumeStore } from "@/features/resumes/store";
 import { TEMPLATES } from "@/features/templates";
 import { PagePreview } from "@/features/templates/page-preview";
@@ -106,20 +114,22 @@ function Workspace({ resume }: { resume: Resume }) {
 
   return (
     <div className="flex h-dvh flex-col">
-      <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-card px-2 sm:gap-3 sm:px-4">
+      <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-card px-3 sm:gap-3 sm:px-4">
         <Button variant="ghost" size="icon" nativeButton={false} render={<Link href="/resumes" />} aria-label="Back to your resumes">
           <ArrowLeftIcon />
         </Button>
-        <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          onBlur={saveTitle}
-          onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
-          maxLength={200}
-          aria-label="Resume name"
-          className="h-8 min-w-0 flex-1 truncate rounded-md bg-transparent px-2 font-heading text-lg font-medium tracking-tight outline-none hover:bg-muted focus-visible:bg-background focus-visible:ring-3 focus-visible:ring-ring/50 sm:max-w-sm"
-        />
-        <SaveIndicator status={status} onRetry={retry} />
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onBlur={saveTitle}
+            onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+            maxLength={200}
+            aria-label="Resume name"
+            className="-mx-1.5 h-8 max-w-md min-w-[6ch] truncate rounded-md bg-transparent px-1.5 field-sizing-content font-heading text-lg leading-none font-medium tracking-tight outline-none hover:bg-muted focus-visible:bg-background focus-visible:ring-3 focus-visible:ring-ring/50"
+          />
+          <SaveIndicator status={status} onRetry={retry} />
+        </div>
         <div className="ml-auto flex items-center gap-2">
           <Button
             variant="outline"
@@ -127,7 +137,7 @@ function Workspace({ resume }: { resume: Resume }) {
             render={<Link href={`/r/${resume.id}/tailor`} />}
             aria-label={resume.sourceResumeId ? "Review suggestions" : "Tailor for a job"}
           >
-            <SparklesIcon data-icon="inline-start" />
+            <AiIcon data-icon="inline-start" />
             <span className="hidden md:inline">{resume.sourceResumeId ? "Suggestions" : "Tailor for a job"}</span>
           </Button>
           <Select
@@ -135,7 +145,7 @@ function Workspace({ resume }: { resume: Resume }) {
             onValueChange={(v) => v && changeTemplate(v as TemplateId)}
             items={TEMPLATE_IDS.map((t) => ({ value: t, label: TEMPLATES[t].name }))}
           >
-            <SelectTrigger aria-label="Template" className="w-[130px]">
+            <SelectTrigger aria-label="Template" className="w-fit">
               <SelectValue />
             </SelectTrigger>
             <SelectContent align="end">
@@ -166,46 +176,59 @@ function Workspace({ resume }: { resume: Resume }) {
 
       <GuestNotice />
 
-      <div className="border-b bg-card px-4 py-2 lg:hidden">
-        <Tabs value={view} onValueChange={(v) => setView(v as "edit" | "preview")}>
-          <TabsList className="w-full">
-            <TabsTrigger value="edit">Edit</TabsTrigger>
-            <TabsTrigger value="preview">Preview</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
+      <ViewTabs
+        value={view}
+        onChange={setView}
+        items={[
+          { value: "edit", label: "Edit" },
+          { value: "preview", label: "Preview" },
+        ]}
+      />
 
       <div className="flex min-h-0 flex-1">
         <div
           ref={formRef}
           className={cn(
-            "w-full overflow-y-auto border-r bg-card lg:block lg:w-[min(520px,46%)]",
+            "w-full overflow-y-auto border-r bg-card lg:block lg:w-[min(540px,46%)]",
             view === "preview" && "hidden",
           )}
         >
+          <ReadinessNote ready={isReadyForTailoring(content)} />
           <ImproveProvider value={{ resumeId: resume.id, content }}>
-          <Accordion multiple value={open} onValueChange={(v) => setOpen(v as string[])} className="pb-24">
-            {SECTIONS.map(({ key, title, Body, count }) => {
-              const n = count?.(content) ?? 0;
-              return (
-                <AccordionItem key={key} value={key} id={`section-${key}`} className="scroll-mt-2 px-4 sm:px-6">
-                  <AccordionTrigger className="py-4 text-[15px] hover:no-underline">
-                    <span className="flex items-center gap-2">
-                      {title}
-                      {n > 0 && (
-                        <Badge variant="secondary" className="tabular-nums">
-                          {n}
-                        </Badge>
-                      )}
-                    </span>
-                  </AccordionTrigger>
-                  <AccordionContent className="pb-6">
-                    <Body content={content} update={setContent} />
-                  </AccordionContent>
-                </AccordionItem>
-              );
-            })}
-          </Accordion>
+            <Accordion
+              multiple
+              value={open}
+              onValueChange={(v) => setOpen(v as string[])}
+              className="pb-24"
+            >
+              {SECTIONS.map(({ key, title, Icon, Body, status: describe }) => {
+                const s = describe(content);
+                return (
+                  <AccordionItem
+                    key={key}
+                    value={key}
+                    id={`section-${key}`}
+                    className="border-b"
+                  >
+                    <AccordionTrigger className="items-center px-4 py-4 text-[15px] hover:no-underline sm:px-6">
+                      <span className="flex items-center gap-3">
+                        <Icon
+                          className={cn("size-4 shrink-0", s.done ? "text-primary" : "text-muted-foreground")}
+                        />
+                        <span className="flex flex-col items-start gap-0.5">
+                          <span className="font-medium">{title}</span>
+                          <span className="text-xs font-normal text-muted-foreground tabular-nums">{s.label}</span>
+                        </span>
+                      </span>
+                    </AccordionTrigger>
+                    {/* Side padding inside the panel, which clips its overflow, so input focus rings aren't cut off. */}
+                    <AccordionContent className="px-4 pb-5 sm:px-6">
+                      <Body content={content} update={setContent} />
+                    </AccordionContent>
+                  </AccordionItem>
+                );
+              })}
+            </Accordion>
           </ImproveProvider>
         </div>
 
@@ -228,40 +251,72 @@ function Workspace({ resume }: { resume: Resume }) {
   );
 }
 
-export function SaveIndicator({ status, onRetry }: { status: SaveStatus; onRetry: () => void }) {
-  // Icon-only on phones for the calm states; problems are always spelled out.
-  const base = "flex shrink-0 items-center gap-1.5 text-xs";
-  if (status === "saving" || status === "unsaved")
-    return (
-      <span role="status" className={cn(base, "text-muted-foreground")}>
-        <Spinner className="size-3" />
-        <span className="sr-only sm:not-sr-only">Saving…</span>
-      </span>
-    );
-  if (status === "error")
-    return (
-      <span role="status" className={cn(base, "text-destructive")}>
-        <CloudOffIcon className="size-3.5" />
-        Couldn&apos;t save
-        <Button variant="link" size="xs" className="h-auto px-0" onClick={onRetry}>
-          Retry
-        </Button>
-      </span>
-    );
-  if (status === "conflict")
-    return (
-      <span role="status" className={cn(base, "text-destructive")}>
-        <TriangleAlertIcon className="size-3.5" />
-        Changed in another tab
-        <Button variant="link" size="xs" className="h-auto px-0" onClick={() => location.reload()}>
-          Reload
-        </Button>
-      </span>
-    );
+/** Top-of-form note: whether there's enough on the resume to tailor it. */
+function ReadinessNote({ ready }: { ready: boolean }) {
   return (
-    <span role="status" className={cn(base, "text-muted-foreground")}>
-      <CheckIcon className="size-3.5" />
-      <span className="sr-only sm:not-sr-only">Saved</span>
+    <p
+      className={cn(
+        "flex items-center gap-2 border-b px-4 py-3 text-xs sm:px-6",
+        ready ? "text-accent-foreground" : "text-muted-foreground",
+      )}
+    >
+      {ready ? <CircleCheckIcon className="size-3.5 shrink-0" /> : <CircleDashedIcon className="size-3.5 shrink-0" />}
+      {ready
+        ? "Ready to tailor. Use “Tailor for a job” whenever a role catches your eye."
+        : "Add your name, one role, school or project, and a few skills to start tailoring."}
+    </p>
+  );
+}
+
+/**
+ * Save state as a status chip beside the title, like a document app: a calm
+ * green "Saved", a neutral "Saving…", and red when something needs you. One
+ * element whose colours transition, so state changes read as feedback rather
+ * than text appearing and disappearing. Icon-only on phones for calm states.
+ */
+export function SaveIndicator({ status, onRetry }: { status: SaveStatus; onRetry: () => void }) {
+  const problem = status === "error" || status === "conflict";
+  const busy = status === "saving" || status === "unsaved";
+  return (
+    <span
+      role="status"
+      className={cn(
+        "inline-flex h-6 shrink-0 items-center gap-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors duration-200",
+        problem ? "px-2" : "w-6 justify-center sm:w-auto sm:px-2",
+        problem
+          ? "bg-destructive/10 text-destructive"
+          : busy
+            ? "bg-muted text-muted-foreground"
+            : "bg-success/10 text-success",
+      )}
+    >
+      {busy ? (
+        <>
+          <Spinner className="size-3" />
+          <span className="sr-only sm:not-sr-only">Saving…</span>
+        </>
+      ) : status === "error" ? (
+        <>
+          <CloudOffIcon className="size-3.5" />
+          Couldn&apos;t save
+          <button type="button" className="underline underline-offset-2 hover:no-underline" onClick={onRetry}>
+            Retry
+          </button>
+        </>
+      ) : status === "conflict" ? (
+        <>
+          <TriangleAlertIcon className="size-3.5" />
+          Changed in another tab
+          <button type="button" className="underline underline-offset-2 hover:no-underline" onClick={() => location.reload()}>
+            Reload
+          </button>
+        </>
+      ) : (
+        <>
+          <CloudCheckIcon className="size-3.5" />
+          <span className="sr-only sm:not-sr-only">Saved</span>
+        </>
+      )}
     </span>
   );
 }

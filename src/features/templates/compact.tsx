@@ -1,3 +1,4 @@
+import { H1, H2 } from "./doc-headings";
 import {
   Bullets,
   contactItems,
@@ -19,9 +20,9 @@ export function CompactTemplate({ content: c, hints, plain }: TemplateProps) {
     <div className="px-[44px] py-[38px] print:py-0 font-[family-name:var(--font-doc-plex)] text-[9.25pt] leading-[1.38] text-[#161616]">
       <header {...sectionAttrs("personal")} className="flex items-end justify-between gap-6 border-b-2 border-[#161616] pb-[8px]">
         <div className="min-w-0">
-          <h1 className="text-[19pt] leading-tight font-bold tracking-[-0.01em]">
+          <H1 className="text-[19pt] leading-tight font-bold tracking-[-0.01em]">
             {c.personal.name || (hints && <span className="text-[#c8c8c8]">Your name</span>)}
-          </h1>
+          </H1>
           {(c.personal.headline || hints) && (
             <p className="text-[10pt] text-[#3d3d3d]">
               {c.personal.headline || (hints && <span className="text-[#c8c8c8]">Your headline</span>)}
@@ -139,7 +140,7 @@ function Section({
 }) {
   return (
     <section {...sectionAttrs(k)} className="mt-[11px]">
-      <h2 className="break-after-avoid mb-[4px] text-[9.5pt] font-bold tracking-[0.06em] uppercase">{title}</h2>
+      <H2 className="break-after-avoid mb-[4px] text-[9.5pt] font-bold tracking-[0.06em] uppercase">{title}</H2>
       {children}
     </section>
   );

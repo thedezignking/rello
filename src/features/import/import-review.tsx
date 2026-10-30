@@ -13,7 +13,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ViewTabs } from "@/components/view-tabs";
 import { toast } from "@/components/ui/toast";
 import { EditorSkeleton } from "@/features/editor/editor";
 import type { Update } from "@/features/editor/fields";
@@ -115,14 +115,14 @@ function ImportEditor({ pending }: { pending: PendingImport }) {
         </Alert>
       </div>
 
-      <div className="border-b bg-card px-4 py-2 lg:hidden">
-        <Tabs value={view} onValueChange={(v) => setView(v as "edit" | "preview")}>
-          <TabsList className="w-full">
-            <TabsTrigger value="edit">Check details</TabsTrigger>
-            <TabsTrigger value="preview">Preview</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
+      <ViewTabs
+        value={view}
+        onChange={setView}
+        items={[
+          { value: "edit", label: "Check details" },
+          { value: "preview", label: "Preview" },
+        ]}
+      />
 
       <div className="flex min-h-0 flex-1">
         <div

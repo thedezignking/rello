@@ -10,9 +10,9 @@ import {
   MoreVerticalIcon,
   PencilIcon,
   PlusIcon,
-  SparklesIcon,
   Trash2Icon,
 } from "lucide-react";
+import { AiIcon } from "@/components/ai-icon";
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
@@ -96,6 +96,9 @@ export function HomeView() {
   }
 
   const originals = resumes?.filter((r) => !r.sourceResumeId) ?? [];
+  const tailored = resumes?.filter((r) => r.sourceResumeId) ?? [];
+  const byId = new Map((resumes ?? []).map((r) => [r.id, r]));
+  const copiesOf = (id: string) => tailored.filter((r) => r.sourceResumeId === id).length;
 
   function startTailor() {
     if (originals.length === 1) router.push(`/r/${originals[0].id}/tailor`);
@@ -131,22 +134,19 @@ export function HomeView() {
       </Dialog>
 
 
-      <section id="start" className="border-b bg-card/60">
-        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-sm font-medium text-muted-foreground">Start a new resume</h2>
-            <ImportButton />
-          </div>
-          <ul className="-mx-4 flex snap-x scroll-px-4 gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-5 sm:overflow-visible sm:px-0">
-            <li className="w-[132px] shrink-0 snap-start sm:w-auto">
+      <section id="start">
+        <div className="mx-auto max-w-6xl px-4 py-7 sm:px-6">
+          <h2 className="mb-4 text-sm font-medium text-muted-foreground">Start a new resume</h2>
+          <ul className="-mx-4 flex snap-x scroll-px-4 gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-[repeat(6,minmax(0,1fr))] sm:overflow-visible sm:px-0 lg:grid-cols-[repeat(6,minmax(0,148px))]">
+            <li className="w-[116px] shrink-0 snap-start sm:w-auto">
               <StartCard label="Blank" onClick={() => create("blank")} busy={creating === "blank"}>
                 <div className="flex aspect-[794/1123] items-center justify-center bg-white">
-                  <PlusIcon className="size-10 text-primary" strokeWidth={1.5} />
+                  <PlusIcon className="size-8 text-primary" strokeWidth={1.5} />
                 </div>
               </StartCard>
             </li>
             {TEMPLATE_IDS.map((id) => (
-              <li key={id} className="w-[132px] shrink-0 snap-start sm:w-auto">
+              <li key={id} className="w-[116px] shrink-0 snap-start sm:w-auto">
                 <StartCard
                   label={TEMPLATES[id].name}
                   hint={TEMPLATES[id].blurb}
@@ -157,18 +157,19 @@ export function HomeView() {
                 </StartCard>
               </li>
             ))}
+            <li className="w-[116px] shrink-0 snap-start sm:w-auto">
+              <ImportButton variant="tile" />
+            </li>
           </ul>
         </div>
       </section>
 
       <section className="mx-auto max-w-6xl px-4 pt-10 sm:px-6">
-        <div className="mb-6 flex items-end justify-between gap-4">
-          <h1 className="font-heading text-3xl font-medium tracking-tight sm:text-4xl">
-            Your resumes
-          </h1>
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+          <h1 className="font-heading text-3xl font-medium tracking-tight sm:text-4xl">Your resumes</h1>
           {originals.length > 0 && (
             <Button onClick={startTailor}>
-              <SparklesIcon data-icon="inline-start" />
+              <AiIcon data-icon="inline-start" />
               Tailor to a job
             </Button>
           )}
@@ -177,9 +178,7 @@ export function HomeView() {
         {isGuest && resumes && resumes.length > 0 && (
           <Alert className="mb-6">
             <AlertTitle>Saved in this browser only</AlertTitle>
-            <AlertDescription>
-              Sign in to keep your resumes safe and open them on any device.
-            </AlertDescription>
+            <AlertDescription>Sign in to keep your resumes safe and open them on any device.</AlertDescription>
             <AlertAction>
               <Button size="sm" onClick={() => openSignIn("Keep your resumes safe and open them anywhere.")}>
                 Sign in
@@ -197,27 +196,36 @@ export function HomeView() {
               </li>
             ))}
           </ul>
-        ) : resumes.length === 0 ? (
+        ) : originals.length === 0 ? (
           <Empty className="rounded-xl border border-dashed bg-card py-14">
             <EmptyHeader>
               <EmptyMedia variant="icon">
                 <FileTextIcon />
               </EmptyMedia>
               <EmptyTitle>Your next opportunity starts with one resume.</EmptyTitle>
-              <EmptyDescription>
-                Pick a template above, or start blank. You can switch templates any time.
-              </EmptyDescription>
+              <EmptyDescription>Pick a template above, start blank, or import the resume you already have.</EmptyDescription>
             </EmptyHeader>
           </Empty>
         ) : (
           <ul className="grid grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-3 lg:grid-cols-5">
-            {resumes.map((r) => (
-              <ResumeCard key={r.id} resume={r} onChanged={load} />
+            {originals.map((r) => (
+              <ResumeCard key={r.id} resume={r} copies={copiesOf(r.id)} onChanged={load} />
             ))}
           </ul>
         )}
       </section>
 
+      {tailored.length > 0 && (
+        <section className="mx-auto max-w-6xl px-4 pt-14 sm:px-6">
+          <h2 className="font-heading text-2xl font-medium tracking-tight">Tailored for jobs</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Each one is a copy made for a specific job. Your originals stay as they are.</p>
+          <ul className="mt-5 flex flex-col divide-y overflow-hidden rounded-xl border bg-card">
+            {tailored.map((r) => (
+              <TailoredRow key={r.id} resume={r} source={byId.get(r.sourceResumeId ?? "")} onChanged={load} />
+            ))}
+          </ul>
+        </section>
+      )}
     </main>
   );
 }
@@ -255,12 +263,99 @@ function StartCard({
   );
 }
 
-function ResumeCard({ resume, onChanged }: { resume: ResumeSummary; onChanged: () => void }) {
+function ResumeCard({ resume, copies, onChanged }: { resume: ResumeSummary; copies: number; onChanged: () => void }) {
+  return (
+    <li className="group relative flex flex-col gap-2.5">
+      <div className="relative">
+        <Link
+          href={`/r/${resume.id}`}
+          className="block overflow-hidden rounded-lg border border-border bg-white shadow-page transition-[border-color,transform] duration-200 ease-(--ease-out) outline-none [@media(hover:hover)]:hover:-translate-y-0.5 [@media(hover:hover)]:hover:border-primary focus-visible:ring-3 focus-visible:ring-ring/50"
+          aria-label={`Open ${resume.title}`}
+        >
+          <PagePreview templateId={resume.templateId} content={resume.content} mode="thumb" />
+        </Link>
+        {/* Quick action: shows on hover or keyboard focus; always on touch screens. */}
+        <Button
+          size="sm"
+          nativeButton={false}
+          render={<Link href={`/r/${resume.id}/tailor`} />}
+          aria-label={`Tailor ${resume.title} to a job`}
+          className="absolute inset-x-3 bottom-3 opacity-0 shadow-md transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100"
+        >
+          <AiIcon data-icon="inline-start" />
+          Tailor to a job
+        </Button>
+      </div>
+
+      <div className="flex items-start gap-1">
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium">{resume.title}</p>
+          <p className="text-xs text-muted-foreground">
+            {TEMPLATES[resume.templateId].name} · Edited {timeAgo(resume.updatedAt)}
+          </p>
+          {copies > 0 && (
+            <p className="mt-1 text-xs text-muted-foreground tabular-nums">
+              {copies} tailored {copies === 1 ? "version" : "versions"}
+            </p>
+          )}
+        </div>
+        <ResumeMenu resume={resume} onChanged={onChanged} />
+      </div>
+    </li>
+  );
+}
+
+function TailoredRow({
+  resume,
+  source,
+  onChanged,
+}: {
+  resume: ResumeSummary;
+  source?: ResumeSummary;
+  onChanged: () => void;
+}) {
+  const { download, busyId } = useDownloadPdf();
+  return (
+    <li className="group relative flex items-center gap-4 px-4 py-3 transition-colors [@media(hover:hover)]:hover:bg-muted/40">
+      <div className="w-10 shrink-0 overflow-hidden rounded-sm border bg-white">
+        <PagePreview templateId={resume.templateId} content={resume.content} mode="thumb" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <Link
+          href={`/r/${resume.id}/tailor`}
+          className="block truncate text-sm font-medium outline-none after:absolute after:inset-0 focus-visible:underline"
+        >
+          {resume.title}
+        </Link>
+        <p className="truncate text-xs text-muted-foreground">
+          {source ? `From ${source.title} · ` : ""}Edited {timeAgo(resume.updatedAt)}
+        </p>
+      </div>
+      <div className="relative z-10 flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="hidden sm:inline-flex"
+          onClick={() => download(resume)}
+          disabled={busyId === resume.id}
+        >
+          {busyId === resume.id ? <Spinner data-icon="inline-start" /> : <DownloadIcon data-icon="inline-start" />}
+          PDF
+        </Button>
+        <ResumeMenu resume={resume} onChanged={onChanged} />
+      </div>
+    </li>
+  );
+}
+
+/** The ⋯ menu shared by resume cards and tailored rows, with its dialogs. */
+function ResumeMenu({ resume, onChanged }: { resume: ResumeSummary; onChanged: () => void }) {
   const router = useRouter();
   const [renaming, setRenaming] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [title, setTitle] = useState(resume.title);
   const { download, busyId } = useDownloadPdf();
+  const tailored = !!resume.sourceResumeId;
 
   async function duplicate() {
     try {
@@ -297,88 +392,50 @@ function ResumeCard({ resume, onChanged }: { resume: ResumeSummary; onChanged: (
   }
 
   return (
-    <li className="group relative flex flex-col gap-2.5">
-      <div className="relative">
-        <Link
-          href={`/r/${resume.id}`}
-          className="block overflow-hidden rounded-lg border border-border shadow-page transition-[border-color,transform] duration-200 ease-(--ease-out) outline-none [@media(hover:hover)]:hover:-translate-y-0.5 [@media(hover:hover)]:hover:border-primary focus-visible:ring-3 focus-visible:ring-ring/50"
-          aria-label={`Open ${resume.title}`}
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={<Button variant="ghost" size="icon-sm" className="-mr-1.5" aria-label={`More actions for ${resume.title}`} />}
         >
-          <PagePreview templateId={resume.templateId} content={resume.content} mode="thumb" />
-        </Link>
-        {/* Quick action: shows on hover or keyboard focus; always on touch screens. */}
-        {!resume.sourceResumeId && (
-          <Button
-            size="sm"
-            nativeButton={false}
-            render={<Link href={`/r/${resume.id}/tailor`} />}
-            aria-label={`Tailor ${resume.title} to a job`}
-            className="absolute inset-x-3 bottom-3 opacity-0 shadow-md transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100"
-          >
-            <SparklesIcon data-icon="inline-start" />
-            Tailor to a job
-          </Button>
-        )}
-      </div>
-
-      <div className="flex items-start gap-1">
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium">{resume.title}</p>
-          <p className="text-xs text-muted-foreground">
-            {resume.sourceResumeId ? (
-              <span className="mr-1 rounded-sm bg-highlight-soft px-1 py-px font-medium text-foreground">Tailored</span>
-            ) : (
-              `${TEMPLATES[resume.templateId].name} · `
-            )}
-            Edited {timeAgo(resume.updatedAt)}
-          </p>
-        </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button variant="ghost" size="icon-sm" className="-mr-1.5" aria-label={`More actions for ${resume.title}`} />
-            }
-          >
-            <MoreVerticalIcon />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="min-w-40">
-            <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => router.push(`/r/${resume.id}`)}>
-                <FileTextIcon />
-                Open
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push(`/r/${resume.id}/tailor`)}>
-                <SparklesIcon />
-                {resume.sourceResumeId ? "Review suggestions" : "Tailor for a job"}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  setTitle(resume.title);
-                  setRenaming(true);
-                }}
-              >
-                <PencilIcon />
-                Rename
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={duplicate}>
-                <CopyIcon />
-                Duplicate
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => download(resume)} disabled={busyId === resume.id}>
-                <DownloadIcon />
-                Download PDF
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem variant="destructive" onClick={() => setDeleting(true)}>
-                <Trash2Icon />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+          <MoreVerticalIcon />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="min-w-44">
+          <DropdownMenuGroup>
+            <DropdownMenuItem onClick={() => router.push(`/r/${resume.id}`)}>
+              <PencilIcon />
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push(`/r/${resume.id}/tailor`)}>
+              <AiIcon />
+              {tailored ? "Review suggestions" : "Tailor to a job"}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => download(resume)} disabled={busyId === resume.id}>
+              <DownloadIcon />
+              Download PDF
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem
+              onClick={() => {
+                setTitle(resume.title);
+                setRenaming(true);
+              }}
+            >
+              <FileTextIcon />
+              Rename
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={duplicate}>
+              <CopyIcon />
+              Duplicate
+            </DropdownMenuItem>
+            <DropdownMenuItem variant="destructive" onClick={() => setDeleting(true)}>
+              <Trash2Icon />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       <Dialog open={renaming} onOpenChange={setRenaming}>
         <DialogContent>
@@ -411,7 +468,9 @@ function ResumeCard({ resume, onChanged }: { resume: ResumeSummary; onChanged: (
           <AlertDialogHeader>
             <AlertDialogTitle>Delete “{resume.title}”?</AlertDialogTitle>
             <AlertDialogDescription>
-              This removes the resume for good. Tailored copies made from it stay.
+              {tailored
+                ? "This removes this tailored copy for good. Your original resume stays."
+                : "This removes the resume for good. Tailored copies made from it stay."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -422,6 +481,6 @@ function ResumeCard({ resume, onChanged }: { resume: ResumeSummary; onChanged: (
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </li>
+    </>
   );
 }

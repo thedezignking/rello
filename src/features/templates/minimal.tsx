@@ -1,3 +1,4 @@
+import { H1, H2 } from "./doc-headings";
 import {
   Bullets,
   contactItems,
@@ -19,9 +20,9 @@ export function MinimalTemplate({ content: c, hints, plain }: TemplateProps) {
   return (
     <div className="px-[64px] py-[60px] print:py-0 font-[family-name:var(--font-doc-sans)] text-[9.75pt] leading-[1.55] text-[#222]">
       <header {...sectionAttrs("personal")}>
-        <h1 className="text-[26pt] leading-[1.05] font-light tracking-[-0.025em]">
+        <H1 className="text-[26pt] leading-[1.05] font-light tracking-[-0.025em]">
           {c.personal.name || (hints && <span className="text-[#cfcfcf]">Your name</span>)}
-        </h1>
+        </H1>
         {(c.personal.headline || hints) && (
           <p className="mt-1.5 text-[11pt] text-[#555]">
             {c.personal.headline || (hints && <span className="text-[#cfcfcf]">Your headline</span>)}
@@ -138,7 +139,7 @@ function Row({
 }) {
   return (
     <section {...sectionAttrs(k)} className="grid grid-cols-[118px_1fr] gap-x-[22px]">
-      <h2 className="break-after-avoid pt-[1px] text-[8.5pt] font-medium tracking-[0.08em] text-[#888] uppercase">{label}</h2>
+      <H2 className="break-after-avoid pt-[1px] text-[8.5pt] font-medium tracking-[0.08em] text-[#888] uppercase">{label}</H2>
       <div>{children}</div>
     </section>
   );

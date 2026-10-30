@@ -1,3 +1,4 @@
+import { H1, H2 } from "./doc-headings";
 import {
   Bullets,
   contactItems,
@@ -19,9 +20,9 @@ export function ModernTemplate({ content: c, hints, plain }: TemplateProps) {
   return (
     <div className="px-[56px] py-[50px] print:py-0 font-[family-name:var(--font-doc-sans)] text-[10pt] leading-[1.5] text-[#1d2330]">
       <header {...sectionAttrs("personal")}>
-        <h1 className="text-[25pt] leading-[1.1] font-semibold tracking-[-0.02em]">
+        <H1 className="text-[25pt] leading-[1.1] font-semibold tracking-[-0.02em]">
           {c.personal.name || (hints && <span className="text-[#c9ccd3]">Your name</span>)}
-        </h1>
+        </H1>
         {(c.personal.headline || hints) && (
           <p className="mt-1 text-[12pt] font-medium" style={{ color: ACCENT }}>
             {c.personal.headline || (hints && <span className="text-[#c9ccd3]">Your headline</span>)}
@@ -152,13 +153,13 @@ function Section({
 }) {
   return (
     <section {...sectionAttrs(k)} className="mt-[18px]">
-      <h2
+      <H2
         className="break-after-avoid mb-[7px] flex items-center gap-[10px] text-[9pt] font-semibold tracking-[0.14em] uppercase"
         style={{ color: ACCENT }}
       >
         {title}
         <span aria-hidden className="h-px flex-1 bg-[#dfe4ee]" />
-      </h2>
+      </H2>
       {children}
     </section>
   );

@@ -5,8 +5,8 @@ import {
   CircleCheckIcon,
   CircleDashedIcon,
   CircleIcon,
-  SparklesIcon,
 } from "lucide-react";
+import { AiIcon } from "@/components/ai-icon";
 import {
   Accordion,
   AccordionContent,
@@ -94,7 +94,7 @@ function HeroDemo() {
           three product teams.
         </p>
         <p className="mt-2 flex gap-1.5 text-xs text-muted-foreground">
-          <SparklesIcon className="mt-px size-3.5 shrink-0 text-primary" />
+          <AiIcon className="mt-px size-3.5 shrink-0 text-primary" />
           Names the tool the job asks for, with the same facts.
         </p>
         <div className="mt-3 flex gap-1.5">

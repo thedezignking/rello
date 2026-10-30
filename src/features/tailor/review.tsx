@@ -11,15 +11,15 @@ import {
   DownloadIcon,
   PencilIcon,
   RotateCcwIcon,
-  SparklesIcon,
   XIcon,
 } from "lucide-react";
+import { AiIcon } from "@/components/ai-icon";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ViewTabs } from "@/components/view-tabs";
 import { toast } from "@/components/ui/toast";
 import { SaveIndicator } from "@/features/editor/editor";
 import { useAutosave } from "@/features/editor/use-autosave";
@@ -29,7 +29,7 @@ import { getResumeStore } from "@/features/resumes/store";
 import { PagePreview } from "@/features/templates/page-preview";
 import { cn } from "@/lib/utils";
 import { requestLine, TailorError } from "./api";
-import { diffWords } from "./diff";
+import { diffInline } from "./diff";
 import {
   applyLine,
   rewritableLines,
@@ -156,15 +156,19 @@ export function Review({ resume, initial }: { resume: Resume; initial: TailorSes
 
   return (
     <div className="flex h-dvh flex-col">
-      <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-card px-2 sm:gap-3 sm:px-4">
+      <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-card px-3 sm:gap-3 sm:px-4">
         <Button variant="ghost" size="icon" nativeButton={false} render={<Link href="/resumes" />} aria-label="Back to your resumes">
           <ArrowLeftIcon />
         </Button>
-        <div className="min-w-0 flex-1">
-          <p className="truncate font-heading text-lg leading-tight font-medium tracking-tight">{resume.title}</p>
-          <p className="truncate text-xs text-muted-foreground">Tailored copy · your original is unchanged</p>
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <div className="flex min-w-0 items-center gap-2">
+            <p className="truncate font-heading text-lg leading-tight font-medium tracking-tight">{resume.title}</p>
+            <SaveIndicator status={status} onRetry={retry} />
+          </div>
+          <p className="truncate text-xs text-muted-foreground">
+            {jobLabel ? `Tailored for ${jobLabel}` : "Tailored copy"} · your original is unchanged
+          </p>
         </div>
-        <SaveIndicator status={status} onRetry={retry} />
         <Button variant="outline" nativeButton={false} render={<Link href={`/r/${resume.id}`} />} className="hidden sm:inline-flex">
           <PencilIcon data-icon="inline-start" />
           Edit
@@ -185,14 +189,14 @@ export function Review({ resume, initial }: { resume: Resume; initial: TailorSes
         </div>
       )}
 
-      <div className="border-b bg-card px-4 py-2 lg:hidden">
-        <Tabs value={view} onValueChange={(v) => setView(v as "suggestions" | "page")}>
-          <TabsList className="w-full">
-            <TabsTrigger value="suggestions">Suggestions{pending.length ? ` (${pending.length})` : ""}</TabsTrigger>
-            <TabsTrigger value="page">Page</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
+      <ViewTabs
+        value={view}
+        onChange={setView}
+        items={[
+          { value: "suggestions", label: "Suggestions", count: pending.length },
+          { value: "page", label: "Page" },
+        ]}
+      />
 
       <div className="flex min-h-0 flex-1">
         <aside className="hidden w-[300px] shrink-0 overflow-y-auto border-r bg-card xl:block">
@@ -220,16 +224,38 @@ export function Review({ resume, initial }: { resume: Resume; initial: TailorSes
             view === "page" && "hidden",
           )}
         >
-          <div className="flex flex-col gap-1 border-b px-5 py-4">
-            <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">Tailoring for</p>
-            <p className="font-medium">{jobLabel || "This job"}</p>
-            <p className="text-sm text-muted-foreground tabular-nums">
-              {total ? `${reviewed} of ${total} reviewed` : "No changes suggested"}
-            </p>
+          <div className="sticky top-0 z-10 flex flex-col gap-2.5 border-b bg-card/95 px-5 py-4 backdrop-blur-sm sm:px-6">
+            <div className="flex items-baseline justify-between gap-3">
+              <h2 className="font-heading text-lg leading-tight font-medium tracking-tight">Suggestions</h2>
+              {total > 0 && (
+                <p className="text-xs text-muted-foreground tabular-nums">
+                  {reviewed} of {total} reviewed
+                </p>
+              )}
+            </div>
+            {total > 0 ? (
+              <>
+                <div
+                  role="progressbar"
+                  aria-label="Suggestions reviewed"
+                  aria-valuemin={0}
+                  aria-valuemax={total}
+                  aria-valuenow={reviewed}
+                  className="h-1.5 overflow-hidden rounded-full bg-muted"
+                >
+                  <div
+                    className="h-full rounded-full bg-primary transition-[width] duration-300 ease-(--ease-out)"
+                    style={{ width: `${(reviewed / total) * 100}%` }}
+                  />
+                </div>
+              </>
+            ) : (
+              <p className="text-sm text-muted-foreground">No changes suggested</p>
+            )}
           </div>
 
           <details className="group border-b xl:hidden">
-            <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-3 text-sm font-medium">
+            <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-3.5 text-sm font-medium sm:px-6">
               Job match
               <span className="text-xs font-normal text-muted-foreground">
                 {session.requirements.filter((r) => r.status === "covered").length} of {session.requirements.length} covered
@@ -239,7 +265,7 @@ export function Review({ resume, initial }: { resume: Resume; initial: TailorSes
           </details>
 
           {allDone && (
-            <div className="m-4 flex flex-col gap-3 rounded-lg border border-success/30 bg-success/5 p-4">
+            <div className="flex flex-col gap-3 border-b bg-success/5 px-5 py-4 sm:px-6">
               <p className="flex items-center gap-2 font-medium">
                 <CircleCheckIcon className="size-4 text-success" />
                 All reviewed. Your tailored copy is saved.
@@ -260,20 +286,20 @@ export function Review({ resume, initial }: { resume: Resume; initial: TailorSes
           )}
 
           {total === 0 && (
-            <p className="px-5 py-6 text-sm text-muted-foreground">
+            <p className="px-5 py-6 text-sm text-muted-foreground sm:px-6">
               Your resume already reads well for this job. Check the job match for anything missing.
             </p>
           )}
 
-          <div className="flex flex-col gap-6 px-4 py-5">
+          <div className="pb-16">
             {groups.map(({ section, items }) => {
               const open = items.filter((s) => s.status === "pending").length;
               return (
-                <section key={section} className="flex flex-col gap-3">
-                  <div className="flex items-center justify-between gap-2 px-1">
-                    <h2 className="text-sm font-medium">
+                <section key={section}>
+                  <div className="flex h-12 items-end justify-between gap-2 border-b px-5 pb-2 sm:px-6">
+                    <h3 className="text-sm font-medium">
                       {SECTION_LABEL[section]} <span className="text-muted-foreground tabular-nums">· {items.length}</span>
-                    </h2>
+                    </h3>
                     {open > 1 && (
                       <div className="flex gap-1">
                         <Button size="xs" variant="ghost" onClick={() => bulk(section, "rejected")}>
@@ -291,6 +317,7 @@ export function Review({ resume, initial }: { resume: Resume; initial: TailorSes
                       s={s}
                       context={contexts.get(s.targetId) ?? ""}
                       busy={retrying === s.id}
+                      selected={active.includes(s.targetId)}
                       onHover={(on) => setActive(on ? [s.targetId] : [])}
                       onAccept={() => accept(s)}
                       onReject={() => reject(s)}
@@ -322,6 +349,7 @@ function SuggestionCard({
   s,
   context,
   busy,
+  selected,
   onHover,
   onAccept,
   onReject,
@@ -331,6 +359,7 @@ function SuggestionCard({
   s: Suggestion;
   context: string;
   busy: boolean;
+  selected: boolean;
   onHover: (on: boolean) => void;
   onAccept: () => void;
   onReject: () => void;
@@ -342,7 +371,7 @@ function SuggestionCard({
 
   if (s.status !== "pending") {
     return (
-      <div id={`sugg-${s.id}`} className="flex items-center gap-2 rounded-lg border border-dashed px-3 py-2 text-sm">
+      <div id={`sugg-${s.id}`} className="flex items-center gap-2.5 border-b px-5 py-3 text-sm sm:px-6">
         {s.status === "accepted" ? (
           <CheckIcon className="size-4 shrink-0 text-success" />
         ) : (
@@ -359,39 +388,43 @@ function SuggestionCard({
     );
   }
 
-  const parts = diffWords(s.original, s.suggested);
+  const parts = diffInline(s.original, s.suggested);
 
   return (
     <article
       id={`sugg-${s.id}`}
+      data-selected={selected || undefined}
       onMouseEnter={() => onHover(true)}
       onMouseLeave={() => onHover(false)}
       onFocusCapture={() => onHover(true)}
       onBlurCapture={() => onHover(false)}
-      className="flex scroll-my-4 flex-col gap-3 rounded-lg border bg-background/40 p-4 transition-colors hover:border-ring/40"
+      className="relative flex scroll-my-24 flex-col gap-3 border-b px-5 py-5 transition-colors duration-150 before:absolute before:inset-y-0 before:left-0 before:w-0.5 before:bg-primary before:opacity-0 before:transition-opacity data-selected:bg-accent/35 data-selected:before:opacity-100 sm:px-6"
     >
-      {context && <p className="truncate text-xs text-muted-foreground">{context}</p>}
-      <div className="flex flex-col gap-1">
-        <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">Now</p>
-        <p className="text-sm text-muted-foreground">{s.original}</p>
-      </div>
-      <div className="flex flex-col gap-1">
-        <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">Suggested</p>
-        <p className={cn("text-sm leading-relaxed", busy && "opacity-50")}>
-          {parts.map((p, i) =>
-            p.added ? (
-              <mark key={i} className="rounded-[2px] bg-highlight-soft px-0.5 text-inherit">
-                {p.text}
-              </mark>
-            ) : (
-              <span key={i}>{p.text}</span>
-            ),
-          )}
-        </p>
-      </div>
+      {context && <p className="truncate text-xs font-medium text-muted-foreground">{context}</p>}
+      {/* One inline edit, like suggesting mode in a document: what goes is struck through, what's new is marked. */}
+      <p className={cn("text-[15px] leading-relaxed transition-opacity", busy && "opacity-50")}>
+        {parts.map((p, i) => {
+          if (p.kind === "same") return <span key={i}>{p.text}</span>;
+          // Keep the trailing space outside the mark, so it doesn't strike or tint the gap.
+          const word = p.text.trimEnd();
+          // A removal followed straight by new words needs a gap between them.
+          const space = p.text.slice(word.length) || (p.kind === "removed" && parts[i + 1] ? " " : "");
+          return p.kind === "removed" ? (
+            <span key={i}>
+              <del className="text-muted-foreground decoration-destructive/60">{word}</del>
+              {space}
+            </span>
+          ) : (
+            <span key={i}>
+              <ins className="rounded-[3px] bg-highlight-soft px-0.5 no-underline">{word}</ins>
+              {space}
+            </span>
+          );
+        })}
+      </p>
       {s.reason && (
-        <p className="flex gap-1.5 text-xs text-muted-foreground">
-          <SparklesIcon className="mt-px size-3.5 shrink-0 text-primary" />
+        <p className="flex gap-2 text-xs leading-relaxed text-muted-foreground">
+          <AiIcon className="mt-0.5 size-3.5 shrink-0 text-primary" />
           {s.reason}
         </p>
       )}
@@ -421,7 +454,7 @@ function SuggestionCard({
         </form>
       )}
 
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-2">
         <Button size="sm" onClick={onAccept} disabled={busy}>
           <CheckIcon data-icon="inline-start" />
           Accept
@@ -453,7 +486,7 @@ function SkillsCard({
 }) {
   if (plan.status !== "pending") {
     return (
-      <div className="flex items-center gap-2 rounded-lg border border-dashed px-3 py-2 text-sm">
+      <div className="flex items-center gap-2.5 border-b px-5 py-3 text-sm sm:px-6">
         {plan.status === "accepted" ? <CheckIcon className="size-4 text-success" /> : <XIcon className="size-4 text-muted-foreground" />}
         <span className="flex-1 text-muted-foreground">
           Skills · {plan.status === "accepted" ? "Accepted" : "Kept as they were"}
@@ -470,8 +503,8 @@ function SkillsCard({
   const ordered = plan.order ? plan.order.map((id) => byId.get(id)).filter(Boolean) : [];
 
   return (
-    <section className="flex flex-col gap-3 rounded-lg border bg-background/40 p-4">
-      <h2 className="text-sm font-medium">Skills</h2>
+    <section className="flex flex-col gap-3 border-b px-5 py-5 sm:px-6">
+      <h3 className="text-sm font-medium">Skills</h3>
       {ordered.length > 0 && (
         <div className="flex flex-col gap-1.5">
           <p className="text-xs text-muted-foreground">Put the most relevant first:</p>
