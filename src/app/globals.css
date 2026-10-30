@@ -174,10 +174,12 @@
 }
 
 /*
- * Motion. Two motivated moments only:
- *   .rise    the hero's first paint, staggered with --i (0, 1, 2…)
- *   .reveal  landing sections easing in as they scroll into view
- * Both are skipped entirely for people who prefer reduced motion.
+ * CSS motion for the landing page (the richer pieces are Motion, in
+ * features/home/landing-motion.tsx):
+ *   .rise-word  the hero headline, word by word, staggered with --i
+ *   .rise       the rest of the hero's first paint, staggered with --i
+ *   .reveal     landing sections easing in as they scroll into view
+ * All are skipped entirely for people who prefer reduced motion.
  */
 @keyframes rise {
   from {
@@ -186,7 +188,24 @@
   }
 }
 
+@keyframes rise-word {
+  from {
+    opacity: 0;
+    transform: translateY(0.35em);
+    filter: blur(6px);
+  }
+}
+
+.rise-word {
+  display: inline-block;
+}
+
 @media (prefers-reduced-motion: no-preference) {
+  .rise-word {
+    animation: rise-word 800ms var(--ease-out) both;
+    animation-delay: calc(80ms + var(--i, 0) * 55ms);
+  }
+
   .rise {
     animation: rise 700ms var(--ease-out) both;
     animation-delay: calc(var(--i, 0) * 70ms);
