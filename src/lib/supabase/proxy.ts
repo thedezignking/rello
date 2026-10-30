@@ -6,6 +6,19 @@ import { NextResponse, type NextRequest } from "next/server";
 // Guests are allowed everywhere; pages that need a real account check it
 // themselves. The one redirect is landing → /resumes for returning visitors.
 export async function updateSession(request: NextRequest) {
+  // A sign-in email link can land on the homepage with ?code=… (when the
+  // callback URL isn't on Supabase's redirect allow-list). Hand it to the
+  // callback so the sign-in still completes.
+  const { pathname, searchParams } = request.nextUrl;
+  if (pathname === "/" && searchParams.has("code")) {
+    const to = request.nextUrl.clone();
+    to.pathname = "/auth/callback";
+    to.search = "";
+    to.searchParams.set("code", searchParams.get("code")!);
+    to.searchParams.set("next", "/resumes");
+    return NextResponse.redirect(to);
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(

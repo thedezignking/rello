@@ -58,15 +58,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isGuest = !!user?.is_anonymous;
   const hasAccount = !!user && !user.is_anonymous;
 
-  // Close the dialog and settle any waiting requireAccount() call once a
-  // real account appears.
-  useEffect(() => {
-    if (hasAccount && pending.current) {
-      pending.current(true);
-      pending.current = null;
-      setDialog({ open: false });
-    }
-  }, [hasAccount]);
+  // A code was accepted: close the dialog however it was opened, and let
+  // any feature waiting on requireAccount() carry on.
+  const onSignedIn = useCallback(() => {
+    pending.current?.(true);
+    pending.current = null;
+    setDialog({ open: false });
+  }, []);
 
   const ensureSession = useCallback(async () => {
     const { data } = await supabase.auth.getUser();
@@ -125,6 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         open={dialog.open}
         reason={dialog.reason}
         onOpenChange={onDialogChange}
+        onSignedIn={onSignedIn}
         supabase={supabase}
         isGuest={isGuest}
       />

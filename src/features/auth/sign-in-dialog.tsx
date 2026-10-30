@@ -33,12 +33,15 @@ export function SignInDialog({
   open,
   reason,
   onOpenChange,
+  onSignedIn,
   supabase,
   isGuest,
 }: {
   open: boolean;
   reason?: string;
   onOpenChange: (open: boolean) => void;
+  /** Called after a code is accepted; closes the dialog. */
+  onSignedIn: () => void;
   supabase: SupabaseClient;
   isGuest: boolean;
 }) {
@@ -81,9 +84,15 @@ export function SignInDialog({
     setBusy("email");
     setError(null);
 
+    // If the email template sends a link instead of (or as well as) a code,
+    // the link lands on our callback, which finishes signing in and comes
+    // back here.
+    const here = location.pathname === "/" ? "/resumes" : location.pathname + location.search;
+    const emailRedirectTo = `${location.origin}/auth/callback?next=${encodeURIComponent(here)}`;
+
     if (isGuest) {
       // Attach the email to the guest account so drafts stay put.
-      const { error } = await supabase.auth.updateUser({ email: address });
+      const { error } = await supabase.auth.updateUser({ email: address }, { emailRedirectTo });
       if (!error) {
         setBusy(null);
         setStep({ kind: "code", email: address, linking: true });
@@ -100,7 +109,7 @@ export function SignInDialog({
 
     const { error } = await supabase.auth.signInWithOtp({
       email: address,
-      options: { shouldCreateUser: true },
+      options: { shouldCreateUser: true, emailRedirectTo },
     });
     setBusy(null);
     if (error) {
@@ -127,6 +136,7 @@ export function SignInDialog({
     }
     toast.add({ title: "Signed in", description: step.email, type: "success" });
     reset();
+    onSignedIn();
   }
 
   return (
