@@ -39,7 +39,6 @@ export function Hero() {
               <ArrowRightIcon data-icon="inline-end" />
             </Button>
           </div>
-          <p className="text-sm text-muted-foreground">No account needed to start.</p>
         </div>
         <HeroDemo />
       </div>
