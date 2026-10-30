@@ -54,7 +54,6 @@ import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/components/ui/toast";
 import { useAuth } from "@/features/auth/auth-provider";
 import { ImportButton } from "@/features/import/import-button";
-import { Hero, HowItWorks } from "./landing";
 import { useDownloadPdf } from "@/features/pdf/use-download-pdf";
 import { TEMPLATE_IDS, type TemplateId } from "@/features/resumes/schema";
 import { getResumeStore, type ResumeSummary } from "@/features/resumes/store";
@@ -97,8 +96,6 @@ export function HomeView() {
   }
 
   const originals = resumes?.filter((r) => !r.sourceResumeId) ?? [];
-  const firstVisit = resumes?.length === 0;
-  const ResumesHeading = firstVisit ? "h2" : "h1";
 
   function startTailor() {
     if (originals.length === 1) router.push(`/r/${originals[0].id}/tailor`);
@@ -133,7 +130,6 @@ export function HomeView() {
         </DialogContent>
       </Dialog>
 
-      {firstVisit && <Hero onStart={() => create("blank")} starting={creating === "blank"} />}
 
       <section id="start" className="border-b bg-card/60">
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
@@ -167,10 +163,9 @@ export function HomeView() {
 
       <section className="mx-auto max-w-6xl px-4 pt-10 sm:px-6">
         <div className="mb-6 flex items-end justify-between gap-4">
-          {/* The hero owns the page's h1 on a first visit. */}
-          <ResumesHeading className="font-heading text-3xl font-medium tracking-tight sm:text-4xl">
+          <h1 className="font-heading text-3xl font-medium tracking-tight sm:text-4xl">
             Your resumes
-          </ResumesHeading>
+          </h1>
           {originals.length > 0 && (
             <Button onClick={startTailor}>
               <SparklesIcon data-icon="inline-start" />
@@ -223,7 +218,6 @@ export function HomeView() {
         )}
       </section>
 
-      {firstVisit && <HowItWorks />}
     </main>
   );
 }

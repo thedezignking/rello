@@ -58,7 +58,7 @@ export function Editor({ id }: { id: string }) {
             <EmptyTitle>We couldn&apos;t find this resume</EmptyTitle>
             <EmptyDescription>It may have been deleted, or it belongs to another account.</EmptyDescription>
           </EmptyHeader>
-          <Button nativeButton={false} render={<Link href="/" />}>Back to your resumes</Button>
+          <Button nativeButton={false} render={<Link href="/resumes" />}>Back to your resumes</Button>
         </Empty>
       </div>
     );
@@ -107,7 +107,7 @@ function Workspace({ resume }: { resume: Resume }) {
   return (
     <div className="flex h-dvh flex-col">
       <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-card px-2 sm:gap-3 sm:px-4">
-        <Button variant="ghost" size="icon" nativeButton={false} render={<Link href="/" />} aria-label="Back to your resumes">
+        <Button variant="ghost" size="icon" nativeButton={false} render={<Link href="/resumes" />} aria-label="Back to your resumes">
           <ArrowLeftIcon />
         </Button>
         <input

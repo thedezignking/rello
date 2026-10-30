@@ -71,9 +71,11 @@ export function PagePreview({
     if (target?.dataset.section) onSectionClick(target.dataset.section);
   }
 
-  const sel = (ids: string[]) => ids.map((id) => `[data-line="${CSS.escape(id)}"]`).join(",");
+  // Escapes for a quoted attribute value. Hand-rolled rather than CSS.escape
+  // so server and browser render the same <style> (no hydration mismatch).
+  const sel = (ids: string[]) => ids.map((id) => `[data-line="${id.replace(/["\\]/g, "\\$&")}"]`).join(",");
   const highlightCss =
-    highlight && typeof CSS !== "undefined"
+    highlight
       ? [
           highlight.ids.length &&
             `${sel(highlight.ids)}{background:linear-gradient(transparent 8%,var(--highlight-soft) 8%,var(--highlight-soft) 92%,transparent 92%);cursor:pointer;border-radius:2px;transition:background .15s}`,

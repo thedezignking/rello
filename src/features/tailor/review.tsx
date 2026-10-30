@@ -157,7 +157,7 @@ export function Review({ resume, initial }: { resume: Resume; initial: TailorSes
   return (
     <div className="flex h-dvh flex-col">
       <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-card px-2 sm:gap-3 sm:px-4">
-        <Button variant="ghost" size="icon" nativeButton={false} render={<Link href="/" />} aria-label="Back to your resumes">
+        <Button variant="ghost" size="icon" nativeButton={false} render={<Link href="/resumes" />} aria-label="Back to your resumes">
           <ArrowLeftIcon />
         </Button>
         <div className="min-w-0 flex-1">

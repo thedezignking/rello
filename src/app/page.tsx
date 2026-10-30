@@ -1,14 +1,23 @@
 import { Suspense } from "react";
-import { AppHeader } from "@/components/app-header";
+import { LandingHeader } from "@/components/landing-header";
 import { SiteFooter } from "@/components/site-footer";
 import { AuthNotice } from "@/features/auth/auth-notice";
-import { HomeView } from "@/features/home/home-view";
+import { Benefits, Faq, FinalCta, Hero, HowItWorks, Pricing } from "@/features/home/landing";
 
-export default function HomePage() {
+// Returning visitors with a session never see this page: the proxy sends
+// them straight to /resumes.
+export default function LandingPage() {
   return (
     <>
-      <AppHeader />
-      <HomeView />
+      <LandingHeader />
+      <main>
+        <Hero />
+        <HowItWorks />
+        <Benefits />
+        <Pricing />
+        <Faq />
+        <FinalCta />
+      </main>
       <SiteFooter />
       <Suspense>
         <AuthNotice />

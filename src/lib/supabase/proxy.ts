@@ -3,8 +3,8 @@ import { NextResponse, type NextRequest } from "next/server";
 
 // Refreshes the Supabase session cookie on every matched request so Server
 // Components and route handlers always see a valid token.
-// No redirects here: guests are allowed everywhere, and pages that need a
-// real account check it themselves.
+// Guests are allowed everywhere; pages that need a real account check it
+// themselves. The one redirect is landing → /resumes for returning visitors.
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
@@ -28,7 +28,18 @@ export async function updateSession(request: NextRequest) {
   );
 
   // Must run before anything else touches the response.
-  await supabase.auth.getClaims();
+  const { data } = await supabase.auth.getClaims();
+
+  // The landing page is for new visitors. Anyone with a session — signed in,
+  // or a guest who has already started — goes straight to their resumes.
+  if (data?.claims && request.nextUrl.pathname === "/" && !request.nextUrl.searchParams.has("auth")) {
+    const to = request.nextUrl.clone();
+    to.pathname = "/resumes";
+    const redirect = NextResponse.redirect(to);
+    // Keep any refreshed session cookies.
+    response.cookies.getAll().forEach((c) => redirect.cookies.set(c));
+    return redirect;
+  }
 
   return response;
 }

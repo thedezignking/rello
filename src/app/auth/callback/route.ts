@@ -21,6 +21,6 @@ export async function GET(request: NextRequest) {
 // Only allow same-site relative paths, so the callback can't be used as an
 // open redirect.
 function safeNext(value: string | null) {
-  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/";
+  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/resumes";
   return value;
 }

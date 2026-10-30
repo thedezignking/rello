@@ -43,7 +43,7 @@ export function TailorRoute({ id }: { id: string }) {
             <EmptyTitle>We couldn&apos;t find this resume</EmptyTitle>
             <EmptyDescription>It may have been deleted, or it belongs to another account.</EmptyDescription>
           </EmptyHeader>
-          <Button nativeButton={false} render={<Link href="/" />}>
+          <Button nativeButton={false} render={<Link href="/resumes" />}>
             Back to your resumes
           </Button>
         </Empty>

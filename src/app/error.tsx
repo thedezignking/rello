@@ -21,7 +21,7 @@ export default function Error({ error, retry }: { error: unknown; retry: () => v
         </EmptyHeader>
         <EmptyContent className="flex-row justify-center">
           <Button onClick={() => retry()}>Try again</Button>
-          <Button variant="outline" nativeButton={false} render={<Link href="/" />}>
+          <Button variant="outline" nativeButton={false} render={<Link href="/resumes" />}>
             Your resumes
           </Button>
         </EmptyContent>

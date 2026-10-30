@@ -49,7 +49,7 @@ export function ImportReview() {
   }, [raw]);
 
   useEffect(() => {
-    if (raw !== undefined && !pending) router.replace("/");
+    if (raw !== undefined && !pending) router.replace("/resumes");
   }, [raw, pending, router]);
 
   if (!pending) return <EditorSkeleton />;
@@ -84,7 +84,7 @@ function ImportEditor({ pending }: { pending: PendingImport }) {
 
   function discard() {
     sessionStorage.removeItem(IMPORT_KEY);
-    router.replace("/");
+    router.replace("/resumes");
   }
 
   return (

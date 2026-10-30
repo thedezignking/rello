@@ -14,7 +14,7 @@ export default function NotFound() {
           <EmptyDescription>The link may be old, or the page has moved.</EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button nativeButton={false} render={<Link href="/" />}>
+          <Button nativeButton={false} render={<Link href="/resumes" />}>
             Back to your resumes
           </Button>
         </EmptyContent>
