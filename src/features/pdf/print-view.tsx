@@ -21,7 +21,7 @@ export function PrintView() {
   useEffect(() => {
     window.__relloRender = async (next) => {
       // Becomes the PDF's document title.
-      document.title = next.content.personal.name ? `${next.content.personal.name} — Resume` : "Resume";
+      document.title = next.content.personal.name ? `${next.content.personal.name}, resume` : "Resume";
       flushSync(() => setPayload(next));
       await document.fonts.ready;
     };

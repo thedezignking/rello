@@ -25,7 +25,7 @@ export async function DELETE() {
   const { error } = await admin.auth.admin.deleteUser(data.user.id);
   if (error) {
     console.error("[account] delete failed", error);
-    return fail(500, "delete_failed", "We couldn't delete your account. Nothing was removed — try again.");
+    return fail(500, "delete_failed", "We couldn't delete your account. Nothing was removed. Try again.");
   }
   await supabase.auth.signOut().catch(() => {});
   return NextResponse.json({ ok: true });

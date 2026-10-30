@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { LandingHeader } from "@/components/landing-header";
 import { SiteFooter } from "@/components/site-footer";
 import { AuthNotice } from "@/features/auth/auth-notice";
-import { Benefits, Faq, FinalCta, Hero, HowItWorks, Pricing } from "@/features/home/landing";
+import { Faq, FinalCta, Hero, HowItWorks, Pricing, Templates, WhyRello } from "@/features/home/landing";
 
 // Returning visitors with a session never see this page: the proxy sends
 // them straight to /resumes.
@@ -10,15 +10,16 @@ export default function LandingPage() {
   return (
     <>
       <LandingHeader />
-      <main>
+      <main className="overflow-x-clip">
         <Hero />
         <HowItWorks />
-        <Benefits />
+        <WhyRello />
+        <Templates />
         <Pricing />
         <Faq />
         <FinalCta />
       </main>
-      <SiteFooter />
+      <SiteFooter bordered={false} />
       <Suspense>
         <AuthNotice />
       </Suspense>

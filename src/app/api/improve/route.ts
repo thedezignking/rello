@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
   try {
     const { result, usage } = await improveText(body.text, body.action, body.where);
     await logUsage(ctx, "improve", usage);
-    if (!result) return fail(422, "no_safe_rewrite", "This already reads well — we couldn't improve it without adding new facts.");
+    if (!result) return fail(422, "no_safe_rewrite", "This already reads well. We couldn't improve it without adding new facts.");
     return NextResponse.json(result);
   } catch (error) {
     await logUsage(ctx, "improve", null, false);

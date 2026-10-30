@@ -10,7 +10,7 @@ export default function TermsPage() {
 
       <h2>Your content</h2>
       <p>
-        Your resumes are yours. You give us permission to store and process them only to run Rello for you — saving,
+        Your resumes are yours. You give us permission to store and process them only to run Rello for you: saving,
         tailoring, improving and exporting them.
       </p>
 

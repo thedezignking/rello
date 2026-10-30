@@ -26,7 +26,7 @@ import { IMPORT_KEY, type PendingImport } from "./pending";
 
 function titleFor(content: ResumeContent, fileName: string) {
   const name = content.personal.name.trim();
-  if (name) return `${name} — Resume`;
+  if (name) return `${name}, resume`;
   return fileName.replace(/\.(pdf|docx)$/i, "") || "Imported resume";
 }
 
@@ -78,7 +78,7 @@ function ImportEditor({ pending }: { pending: PendingImport }) {
       router.replace(`/r/${resume.id}`);
     } catch {
       setSaving(false);
-      toast.add({ title: "Couldn't save", description: "Nothing was lost — try again.", type: "error" });
+      toast.add({ title: "Couldn't save", description: "Nothing was lost. Try again.", type: "error" });
     }
   }
 
@@ -109,7 +109,7 @@ function ImportEditor({ pending }: { pending: PendingImport }) {
           <AlertDescription>
             {pending.sample
               ? "This is a rough sample read (no AI key set), so most details will need filling in."
-              : "Imports aren't always perfect — fix anything that came through wrong or is missing."}
+              : "Imports aren't always perfect. Fix anything that came through wrong or is missing."}
             {pending.truncated && " Your file was long, so only the first part was read."}
           </AlertDescription>
         </Alert>

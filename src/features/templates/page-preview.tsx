@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { useId, useLayoutEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { ResumeContent, TemplateId } from "@/features/resumes/schema";
 import { ResumeDocument } from "./index";
@@ -31,6 +31,7 @@ export function PagePreview({
   onLineClick?: (lineId: string) => void;
   className?: string;
 }) {
+  const scope = useId();
   const frame = useRef<HTMLDivElement>(null);
   const doc = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0);
@@ -71,16 +72,19 @@ export function PagePreview({
     if (target?.dataset.section) onSectionClick(target.dataset.section);
   }
 
-  // Escapes for a quoted attribute value. Hand-rolled rather than CSS.escape
+  // <style> is global and several previews can share a page, so every rule
+  // is scoped to this preview. Escaping is hand-rolled rather than CSS.escape
   // so server and browser render the same <style> (no hydration mismatch).
-  const sel = (ids: string[]) => ids.map((id) => `[data-line="${id.replace(/["\\]/g, "\\$&")}"]`).join(",");
+  const esc = (v: string) => v.replace(/["\\]/g, "\\$&");
+  const sel = (ids: string[]) =>
+    ids.map((id) => `[data-preview="${esc(scope)}"] [data-line="${esc(id)}"]`).join(",");
   const highlightCss =
     highlight
       ? [
           highlight.ids.length &&
-            `${sel(highlight.ids)}{background:linear-gradient(transparent 8%,var(--highlight-soft) 8%,var(--highlight-soft) 92%,transparent 92%);cursor:pointer;border-radius:2px;transition:background .15s}`,
+            `${sel(highlight.ids)}{background:linear-gradient(transparent 8%,var(--paper-mark-soft) 8%,var(--paper-mark-soft) 92%,transparent 92%);cursor:pointer;border-radius:2px;transition:background .15s}`,
           highlight.active?.length &&
-            `${sel(highlight.active)}{background:linear-gradient(transparent 8%,var(--highlight) 8%,var(--highlight) 92%,transparent 92%)}`,
+            `${sel(highlight.active)}{background:linear-gradient(transparent 8%,var(--paper-mark) 8%,var(--paper-mark) 92%,transparent 92%)}`,
         ]
           .filter(Boolean)
           .join("")
@@ -94,6 +98,7 @@ export function PagePreview({
     >
       <div
         ref={doc}
+        data-preview={scope}
         onClick={handleClick}
         className={cn(
           "absolute top-0 left-0 origin-top-left bg-white text-left",

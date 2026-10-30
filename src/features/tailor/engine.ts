@@ -111,7 +111,7 @@ export async function resuggest(
   const line = rewritableLines(content).find((l) => l.id === targetId);
   if (!line) return null;
   if (!aiConfigured()) {
-    return { suggestion: { text: sampleRewrite(line.text, nudge), reason: "Sample suggestion — connect an AI key for real ones." }, usage: null };
+    return { suggestion: { text: sampleRewrite(line.text, nudge), reason: "Sample suggestion. Connect an AI key for real ones." }, usage: null };
   }
 
   const user = `<job_description>
@@ -288,7 +288,7 @@ function sampleTailor(
       section: l.section,
       original: l.text,
       suggested: sampleRewrite(l.text, ""),
-      reason: "Sample suggestion — connect an AI key for real ones.",
+      reason: "Sample suggestion. Connect an AI key for real ones.",
       status: "pending",
     }));
 

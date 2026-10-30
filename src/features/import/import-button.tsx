@@ -14,7 +14,8 @@ import { IMPORT_KEY, type PendingImport } from "./pending";
 const MAX_BYTES = 5 * 1024 * 1024;
 const ACCEPT = ".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
-export function ImportButton() {
+/** `tile` renders as a page-shaped card for the "Start a new resume" strip. */
+export function ImportButton({ variant = "button" }: { variant?: "button" | "tile" }) {
   const router = useRouter();
   const { ensureSession } = useAuth();
   const input = useRef<HTMLInputElement>(null);
@@ -57,10 +58,25 @@ export function ImportButton() {
 
   return (
     <>
-      <Button variant="outline" size="sm" onClick={() => input.current?.click()} disabled={!!reading}>
-        <UploadIcon data-icon="inline-start" />
-        Import PDF or DOCX
-      </Button>
+      {variant === "tile" ? (
+        <button
+          type="button"
+          onClick={() => input.current?.click()}
+          disabled={!!reading}
+          className="group flex w-full flex-col gap-2 rounded-lg text-left outline-none"
+        >
+          <span className="flex aspect-[794/1123] flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-input bg-card/50 text-muted-foreground transition-[border-color,color] duration-200 ease-(--ease-out) group-focus-visible:ring-3 group-focus-visible:ring-ring/50 [@media(hover:hover)]:group-hover:border-primary [@media(hover:hover)]:group-hover:text-primary">
+            <UploadIcon className="size-6" strokeWidth={1.5} />
+            <span className="px-3 text-center text-xs">PDF or Word</span>
+          </span>
+          <span className="text-sm font-medium">Import</span>
+        </button>
+      ) : (
+        <Button variant="outline" size="sm" onClick={() => input.current?.click()} disabled={!!reading}>
+          <UploadIcon data-icon="inline-start" />
+          Import PDF or DOCX
+        </Button>
+      )}
       <input
         ref={input}
         type="file"
@@ -80,7 +96,7 @@ export function ImportButton() {
             <Spinner className="size-6 text-primary" />
             <DialogTitle>Reading your resume…</DialogTitle>
             <DialogDescription>
-              Pulling the details out of {reading}. This usually takes 10–30 seconds.
+              Pulling the details out of {reading}. This usually takes 10 to 30 seconds.
             </DialogDescription>
           </DialogHeader>
         </DialogContent>

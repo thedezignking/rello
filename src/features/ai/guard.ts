@@ -76,5 +76,5 @@ export function aiFailure(error: unknown) {
     if (error.code === "not_configured") return fail(500, "not_configured", "This isn't available right now.");
   }
   console.error("[ai]", error);
-  return fail(502, "ai_failed", "We couldn't get an answer this time. Try again — nothing was changed.");
+  return fail(502, "ai_failed", "We couldn't get an answer this time. Try again. Nothing was changed.");
 }

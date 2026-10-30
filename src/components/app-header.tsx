@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/features/auth/auth-provider";
+import { ThemeToggle } from "@/features/theme/theme";
 
 export function AppHeader() {
   return (
@@ -28,7 +29,10 @@ export function AppHeader() {
         >
           rello<span className="text-primary">.</span>
         </Link>
-        <AccountArea />
+        <div className="flex items-center gap-1 sm:gap-2">
+          <ThemeToggle />
+          <AccountArea />
+        </div>
       </div>
     </header>
   );

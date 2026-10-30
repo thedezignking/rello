@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Rello — resumes that fit the job",
+    name: "Rello — Resumes that fit the job",
     short_name: "Rello",
     description: "Build a clean resume, then tailor a copy to any job line by line.",
     start_url: "/",

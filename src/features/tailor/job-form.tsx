@@ -26,10 +26,10 @@ const MIN_CHARS = 80;
 const MAX_CHARS = 15000;
 
 function copyTitle(job: { title: string; company: string }) {
-  if (job.title && job.company) return `${job.title} — ${job.company}`;
+  if (job.title && job.company) return `${job.title} at ${job.company}`;
   if (job.title || job.company) return job.title || job.company;
   const date = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-  return `Tailored resume — ${date}`;
+  return `Tailored resume, ${date}`;
 }
 
 export function JobForm({ source }: { source: Resume }) {
@@ -73,7 +73,7 @@ export function JobForm({ source }: { source: Resume }) {
       router.replace(`/r/${resume.id}/tailor`);
     } catch (err) {
       setBusy(false);
-      setError(err instanceof TailorError ? err.message : "We couldn't save your tailored copy. Try again — nothing was changed.");
+      setError(err instanceof TailorError ? err.message : "We couldn't save your tailored copy. Try again. Nothing was changed.");
     }
   }
 
@@ -136,7 +136,7 @@ export function JobForm({ source }: { source: Resume }) {
                     setDescription(e.target.value);
                     setError(null);
                   }}
-                  placeholder="Paste the whole posting — responsibilities, requirements, nice-to-haves."
+                  placeholder="Paste the whole posting: responsibilities, requirements, nice-to-haves."
                   aria-invalid={!!error || undefined}
                   className="min-h-64 bg-card"
                   disabled={!ready}

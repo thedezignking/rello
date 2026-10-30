@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Sans, Inter, Newsreader, Onest, Source_Serif_4 } from "next/font/google";
 import { Toaster } from "@/components/ui/toast";
 import { AuthProvider } from "@/features/auth/auth-provider";
+import { themeScript } from "@/features/theme/script";
 import "./globals.css";
 
 const onest = Onest({
@@ -26,16 +27,31 @@ const docPlex = IBM_Plex_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: "Rello — resumes that fit the job",
-    template: "%s · Rello",
+    default: "Rello — Resumes that fit the job",
+    template: "Rello — %s",
   },
   description:
-    "Build a clean, professional resume, then tailor a copy to any job line by line — you approve every change.",
+    "Make one clean resume, then tailor a copy to each job, line by line. You approve every change.",
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#eef0f3" },
+    { media: "(prefers-color-scheme: dark)", color: "#121417" },
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${onest.variable} ${newsreader.variable} ${docSerif.variable} ${docSans.variable} ${docPlex.variable}`}>
+    <html
+      lang="en"
+      className={`${onest.variable} ${newsreader.variable} ${docSerif.variable} ${docSans.variable} ${docPlex.variable}`}
+      // The theme script sets data-theme before React hydrates.
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="min-h-dvh">
         <Toaster>
           <AuthProvider>{children}</AuthProvider>

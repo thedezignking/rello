@@ -2,16 +2,19 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
+/* Dark mode: data-theme on <html>, set before paint from the saved choice or the system setting. */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 /*
  * Rello tokens, expressed through shadcn's semantic names so every
  * component picks them up without overrides.
  *
- *   background  the desk — cool grey behind everything
- *   card        the page — white surfaces, resume paper
- *   primary     ink blue — actions, focus, progress
- *   highlight   marker yellow — tailoring suggestions on the page, nothing else
+ *   background  the desk: cool grey behind everything
+ *   card        surfaces: panels, cards, dialogs
+ *   primary     ink blue: actions, focus, progress
+ *   highlight   marker yellow: tailoring suggestions on the page, nothing else
+ *
+ * Resume pages always render on white paper in both modes.
  */
 :root {
   --background: #eef0f3;
@@ -35,6 +38,10 @@
 
   --highlight: #ffe27a;
   --highlight-soft: #fff4c7;
+  /* Marks on the resume page itself. Paper is white in both themes, so these
+     never change with the theme. */
+  --paper-mark: #ffe27a;
+  --paper-mark-soft: #fff1b8;
   --success: #1f7a4d;
 
   --chart-1: #2546c8;
@@ -53,9 +60,13 @@
 
   --radius: 0.625rem;
   --shadow-page: 0 1px 2px rgb(21 23 28 / 0.06), 0 10px 28px -10px rgb(21 23 28 / 0.16);
+
+  /* Motion (Emil Kowalski's curves): ease-out for entering, ease-in-out for moving. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 }
 
-.dark {
+:root[data-theme="dark"] {
   --background: #121417;
   --foreground: #eceef2;
   --card: #1b1e23;
@@ -159,5 +170,33 @@
   }
   ::selection {
     @apply bg-accent;
+  }
+}
+
+/*
+ * Motion. Two motivated moments only:
+ *   .rise    the hero's first paint, staggered with --i (0, 1, 2…)
+ *   .reveal  landing sections easing in as they scroll into view
+ * Both are skipped entirely for people who prefer reduced motion.
+ */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rise {
+    animation: rise 700ms var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 70ms);
+  }
+
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
   }
 }

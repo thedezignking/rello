@@ -45,7 +45,9 @@ export async function updateSession(request: NextRequest) {
 
   // The landing page is for new visitors. Anyone with a session — signed in,
   // or a guest who has already started — goes straight to their resumes.
-  if (data?.claims && request.nextUrl.pathname === "/" && !request.nextUrl.searchParams.has("auth")) {
+  // ?home lets signed-in people open the landing page on purpose (footer link).
+  const { searchParams: q } = request.nextUrl;
+  if (data?.claims && request.nextUrl.pathname === "/" && !q.has("auth") && !q.has("home")) {
     const to = request.nextUrl.clone();
     to.pathname = "/resumes";
     const redirect = NextResponse.redirect(to);

@@ -26,7 +26,7 @@ async function post<T>(url: string, body: object, content: ResumeContent): Promi
   if (!res.ok) {
     throw new TailorError(
       data?.error?.code ?? "unknown",
-      data?.error?.message ?? "We couldn't get suggestions this time. Try again — nothing was changed.",
+      data?.error?.message ?? "We couldn't get suggestions this time. Try again. Nothing was changed.",
     );
   }
   return data as T;

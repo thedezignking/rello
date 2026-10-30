@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
         "bad_description",
         issue.message === "long"
           ? "That job description is very long. Paste just the role, responsibilities and requirements."
-          : "Paste the full job description — it looks too short to work from.",
+          : "Paste the full job description. This looks too short to work from.",
       );
     }
     return fail(400, "bad_request", "Something was wrong with that request.");

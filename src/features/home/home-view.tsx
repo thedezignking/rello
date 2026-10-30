@@ -242,7 +242,7 @@ function StartCard({
       title={hint}
       className="group flex w-full flex-col gap-2 rounded-lg text-left outline-none"
     >
-      <span className="relative block overflow-hidden rounded-lg border border-border shadow-page transition-[border-color,transform] duration-150 group-hover:-translate-y-0.5 group-hover:border-primary group-focus-visible:ring-3 group-focus-visible:ring-ring/50">
+      <span className="relative block overflow-hidden rounded-lg border border-border shadow-page transition-[border-color,transform] duration-200 ease-(--ease-out) [@media(hover:hover)]:group-hover:-translate-y-0.5 [@media(hover:hover)]:group-hover:border-primary group-focus-visible:ring-3 group-focus-visible:ring-ring/50">
         {children}
         {busy && (
           <span className="absolute inset-0 flex items-center justify-center bg-white/70">
@@ -301,7 +301,7 @@ function ResumeCard({ resume, onChanged }: { resume: ResumeSummary; onChanged: (
       <div className="relative">
         <Link
           href={`/r/${resume.id}`}
-          className="block overflow-hidden rounded-lg border border-border shadow-page transition-[border-color,transform] duration-150 outline-none hover:-translate-y-0.5 hover:border-primary focus-visible:ring-3 focus-visible:ring-ring/50"
+          className="block overflow-hidden rounded-lg border border-border shadow-page transition-[border-color,transform] duration-200 ease-(--ease-out) outline-none [@media(hover:hover)]:hover:-translate-y-0.5 [@media(hover:hover)]:hover:border-primary focus-visible:ring-3 focus-visible:ring-ring/50"
           aria-label={`Open ${resume.title}`}
         >
           <PagePreview templateId={resume.templateId} content={resume.content} mode="thumb" />

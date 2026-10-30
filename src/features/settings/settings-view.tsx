@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { LogOutIcon, Trash2Icon } from "lucide-react";
+import { LogOutIcon, MonitorIcon, MoonIcon, SunIcon, Trash2Icon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -19,7 +19,9 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/components/ui/toast";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useAuth } from "@/features/auth/auth-provider";
+import { useTheme, type ThemeChoice } from "@/features/theme/theme";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
@@ -55,6 +57,8 @@ export function SettingsView() {
           </CardFooter>
         </Card>
       )}
+
+      <AppearanceCard />
 
       <DeleteCard hasData={hasAccount || isGuest || !isSupabaseConfigured()} isGuest={isGuest} />
     </main>
@@ -120,6 +124,44 @@ function AccountCard({
           Save name
         </Button>
       </CardFooter>
+    </Card>
+  );
+}
+
+const THEMES: { value: ThemeChoice; label: string; Icon: typeof SunIcon }[] = [
+  { value: "system", label: "System", Icon: MonitorIcon },
+  { value: "light", label: "Light", Icon: SunIcon },
+  { value: "dark", label: "Dark", Icon: MoonIcon },
+];
+
+function AppearanceCard() {
+  const { theme, setTheme } = useTheme();
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Appearance</CardTitle>
+        <CardDescription>System follows your device. Resume pages always stay white, like paper.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ToggleGroup
+          value={[theme]}
+          onValueChange={(v) => v[0] && setTheme(v[0] as ThemeChoice)}
+          variant="outline"
+          aria-label="Theme"
+        >
+          {THEMES.map(({ value, label, Icon }) => (
+            <ToggleGroupItem
+              key={value}
+              value={value}
+              aria-label={label}
+              className="gap-1.5 px-3 data-pressed:border-primary/40 data-pressed:bg-accent data-pressed:text-accent-foreground"
+            >
+              <Icon data-icon="inline-start" />
+              {label}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      </CardContent>
     </Card>
   );
 }
