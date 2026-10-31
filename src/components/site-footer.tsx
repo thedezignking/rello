@@ -67,8 +67,7 @@ export function SiteFooter({ variant = "compact" }: { variant?: "full" | "compac
   }
 
   return (
-    // No top border: it continues the closing call to action's surface above it.
-    <footer className="bg-card/40">
+    <footer>
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="grid grid-cols-3 gap-x-6 gap-y-10 py-14 lg:grid-cols-[1fr_repeat(3,auto)] lg:gap-x-20">
           <div className="col-span-3 flex flex-col items-start gap-3 lg:col-span-1">

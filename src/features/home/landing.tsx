@@ -278,8 +278,7 @@ export function Faq() {
 
 export function FinalCta() {
   return (
-    // Shares the footer's surface, so the closing ask and the footer read as one ending.
-    <div className="mt-24 bg-card/40 sm:mt-32">
+    <div className="mt-24 sm:mt-32">
       <section className="reveal mx-auto flex max-w-3xl flex-col items-center px-4 pt-20 pb-6 text-center sm:px-6 sm:pt-28 sm:pb-12">
         <h2 className="font-heading text-4xl font-medium tracking-tight text-balance sm:text-5xl">
           One resume. Every opportunity.
