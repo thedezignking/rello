@@ -81,7 +81,10 @@ export function ImportButton({ variant = "button" }: { variant?: "button" | "til
         ref={input}
         type="file"
         accept={ACCEPT}
-        className="sr-only"
+        // Opened only from the button above, so it needn't take up space. (As
+        // sr-only it was placed outside the scrolling tile strip and widened the
+        // whole page on phones.)
+        className="hidden"
         tabIndex={-1}
         aria-hidden
         onChange={(e) => {

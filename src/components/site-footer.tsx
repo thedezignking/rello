@@ -70,8 +70,8 @@ export function SiteFooter({ variant = "compact" }: { variant?: "full" | "compac
     // No top border: it continues the closing call to action's surface above it.
     <footer className="bg-card/40">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="grid gap-10 py-14 sm:grid-cols-3 lg:grid-cols-[1.6fr_repeat(3,1fr)]">
-          <div className="flex flex-col items-start gap-3 sm:col-span-3 lg:col-span-1">
+        <div className="grid grid-cols-3 gap-x-6 gap-y-10 py-14 lg:grid-cols-[1fr_repeat(3,auto)] lg:gap-x-20">
+          <div className="col-span-3 flex flex-col items-start gap-3 lg:col-span-1">
             <Wordmark />
             <p className="max-w-xs text-sm text-muted-foreground">
               Make one clean resume, then tailor a copy to each job, line by line.
@@ -92,9 +92,12 @@ export function SiteFooter({ variant = "compact" }: { variant?: "full" | "compac
             </nav>
           ))}
         </div>
-        <div className="flex flex-col-reverse gap-4 pt-2 pb-8 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center justify-between gap-4 pt-2 pb-8 text-xs text-muted-foreground">
           <p>© Rello · Free while in beta</p>
-          <ThemeToggle />
+          {/* Pulled out by the button padding, so the icon lines up with the columns above. */}
+          <div className="-mr-2">
+            <ThemeToggle />
+          </div>
         </div>
       </div>
     </footer>

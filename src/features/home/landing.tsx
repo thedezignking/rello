@@ -3,10 +3,6 @@ import Link from "next/link";
 import { ArrowRightIcon } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { TEMPLATE_IDS } from "@/features/resumes/schema";
-import { TEMPLATES } from "@/features/templates";
-import { PagePreview } from "@/features/templates/page-preview";
-import { SAMPLE_CONTENT } from "@/features/templates/sample";
 import { cn } from "@/lib/utils";
 import {
   BlockedDemo,
@@ -21,6 +17,7 @@ import {
   StepDot,
   TimelineLine,
 } from "./landing-motion";
+import { TemplateDemo } from "./template-demo";
 
 // The public landing page. Server-rendered and data-free, so it's fast and
 // readable by search engines. Every call to action uses one label and leads
@@ -103,23 +100,9 @@ export function Templates() {
           All single-column with real, selectable text, so they read well on screen, on paper and in hiring systems.
         </p>
       </div>
-      <Stagger as="ul" className="mt-10 grid grid-cols-2 gap-x-5 gap-y-8 md:grid-cols-4">
-        {TEMPLATE_IDS.map((id, i) => (
-          <StaggerItem as="li" key={id} className="group">
-            <div
-              className={cn(
-                "overflow-hidden rounded-md border bg-white shadow-page transition-[transform,box-shadow] duration-300 ease-(--ease-out)",
-                "[@media(hover:hover)]:group-hover:-translate-y-1.5 [@media(hover:hover)]:group-hover:shadow-[0_18px_40px_-14px_rgb(21_23_28/0.28)]",
-                i % 2 ? "md:translate-y-6" : "",
-              )}
-            >
-              <PagePreview templateId={id} content={SAMPLE_CONTENT} mode="thumb" />
-            </div>
-            <p className={cn("mt-3 text-sm font-medium", i % 2 ? "md:mt-9" : "")}>{TEMPLATES[id].name}</p>
-            <p className="text-sm text-muted-foreground">{TEMPLATES[id].blurb}</p>
-          </StaggerItem>
-        ))}
-      </Stagger>
+      <div className="mt-10">
+        <TemplateDemo />
+      </div>
     </section>
   );
 }
@@ -281,8 +264,8 @@ export function Faq() {
 export function FinalCta() {
   return (
     // Shares the footer's surface, so the closing ask and the footer read as one ending.
-    <div className="mt-28 bg-card/40">
-      <section className="reveal mx-auto flex max-w-3xl flex-col items-center px-4 py-28 text-center sm:px-6">
+    <div className="mt-20 bg-card/40 sm:mt-28">
+      <section className="reveal mx-auto flex max-w-3xl flex-col items-center px-4 pt-20 pb-6 text-center sm:px-6 sm:pt-28 sm:pb-12">
         <h2 className="font-heading text-4xl font-medium tracking-tight text-balance sm:text-5xl">
           One resume. Every opportunity.
         </h2>

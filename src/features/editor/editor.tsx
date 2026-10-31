@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import {
   ArrowLeftIcon,
@@ -10,6 +10,7 @@ import {
   CloudOffIcon,
   DownloadIcon,
   TriangleAlertIcon,
+  XIcon,
 } from "lucide-react";
 import { AiIcon } from "@/components/ai-icon";
 import {
@@ -114,6 +115,7 @@ function Workspace({ resume }: { resume: Resume }) {
 
   return (
     <div className="flex h-dvh flex-col">
+      <GuestNotice />
       <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-card px-3 sm:gap-3 sm:px-4">
         <Button variant="ghost" size="icon" nativeButton={false} render={<Link href="/resumes" />} aria-label="Back to your resumes">
           <ArrowLeftIcon />
@@ -174,7 +176,6 @@ function Workspace({ resume }: { resume: Resume }) {
         </div>
       </header>
 
-      <GuestNotice />
 
       <ViewTabs
         value={view}
@@ -321,18 +322,57 @@ export function SaveIndicator({ status, onRetry }: { status: SaveStatus; onRetry
   );
 }
 
+const NOTICE_KEY = "rello.guestNoticeClosed";
+const NOTICE_EVENT = "rello-guest-notice";
+
+function subscribeNotice(onChange: () => void) {
+  window.addEventListener(NOTICE_EVENT, onChange);
+  return () => window.removeEventListener(NOTICE_EVENT, onChange);
+}
+
+function noticeClosed() {
+  try {
+    return sessionStorage.getItem(NOTICE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Announcement bar across the top for guests: their work lives only in this
+ * browser. Closing it hides it for this visit; it returns next time, since
+ * the risk hasn't gone away.
+ */
 function GuestNotice() {
   const { isGuest, openSignIn } = useAuth();
-  if (!isGuest) return null;
+  // Hidden on the server and until we know, so it never flashes for someone who closed it.
+  const closed = useSyncExternalStore(subscribeNotice, noticeClosed, () => true);
+  if (!isGuest || closed) return null;
   return (
-    <div className="flex items-center justify-center gap-2 border-b bg-accent px-4 py-1.5 text-center text-xs text-accent-foreground">
-      Saved in this browser only.
+    <div className="relative flex min-h-10 items-center justify-center bg-primary px-12 py-2 text-center text-sm text-primary-foreground">
+      <p>
+        Saved in this browser only.{" "}
+        <button
+          type="button"
+          className="font-medium underline underline-offset-2 hover:no-underline"
+          onClick={() => openSignIn("Keep this resume safe and open it on any device.")}
+        >
+          Sign in to keep it
+        </button>
+        <span className="hidden sm:inline">, or keep editing and do it later.</span>
+      </p>
       <button
         type="button"
-        className="font-medium underline underline-offset-2"
-        onClick={() => openSignIn("Keep this resume safe and open it on any device.")}
+        aria-label="Close this notice"
+        onClick={() => {
+          try {
+            sessionStorage.setItem(NOTICE_KEY, "1");
+          } catch {}
+          window.dispatchEvent(new Event(NOTICE_EVENT));
+        }}
+        className="absolute top-1/2 right-2 flex size-8 -translate-y-1/2 items-center justify-center rounded-md opacity-80 transition-opacity outline-none hover:opacity-100 focus-visible:ring-2 focus-visible:ring-primary-foreground/60"
       >
-        Sign in to keep it
+        <XIcon className="size-4" />
       </button>
     </div>
   );

@@ -137,7 +137,7 @@ export function HomeView() {
       <section id="start">
         <div className="mx-auto max-w-6xl px-4 py-7 sm:px-6">
           <h2 className="mb-4 text-sm font-medium text-muted-foreground">Start a new resume</h2>
-          <ul className="-mx-4 flex snap-x scroll-px-4 gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-[repeat(6,minmax(0,1fr))] sm:overflow-visible sm:px-0 lg:grid-cols-[repeat(6,minmax(0,148px))]">
+          <ul className="-mx-4 flex snap-x scroll-px-4 gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-[repeat(6,minmax(0,1fr))] sm:overflow-visible sm:px-0 lg:grid-cols-[repeat(6,minmax(0,148px))]">
             <li className="w-[116px] shrink-0 snap-start sm:w-auto">
               <StartCard label="Blank" onClick={() => create("blank")} busy={creating === "blank"}>
                 <div className="flex aspect-[794/1123] items-center justify-center bg-white">
@@ -274,13 +274,13 @@ function ResumeCard({ resume, copies, onChanged }: { resume: ResumeSummary; copi
         >
           <PagePreview templateId={resume.templateId} content={resume.content} mode="thumb" />
         </Link>
-        {/* Quick action: shows on hover or keyboard focus; always on touch screens. */}
+        {/* Quick action on hover or keyboard focus. Touch screens use the header button or the menu instead of covering the page. */}
         <Button
           size="sm"
           nativeButton={false}
           render={<Link href={`/r/${resume.id}/tailor`} />}
           aria-label={`Tailor ${resume.title} to a job`}
-          className="absolute inset-x-3 bottom-3 opacity-0 shadow-md transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100"
+          className="absolute inset-x-3 bottom-3 opacity-0 shadow-md transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:hidden"
         >
           <AiIcon data-icon="inline-start" />
           Tailor to a job
