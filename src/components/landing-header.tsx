@@ -12,6 +12,13 @@ import { ThemeToggle } from "@/features/theme/theme";
  * resumes; if you're already signed in (opened via "About Rello"), it offers
  * a way back instead.
  */
+const SECTIONS = [
+  { href: "#how", label: "How it works" },
+  { href: "#templates", label: "Templates" },
+  { href: "#pricing", label: "Pricing" },
+  { href: "#faq", label: "Questions" },
+];
+
 export function LandingHeader() {
   const router = useRouter();
   const { hasAccount, requireAccount } = useAuth();
@@ -23,14 +30,23 @@ export function LandingHeader() {
   return (
     <header className="sticky top-0 z-30 bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
-        <Link href="/?home" className="font-heading text-[26px] leading-none font-medium tracking-tight" aria-label="Rello home">
+        <Link
+          href="/?home"
+          className="font-heading text-[26px] leading-none font-medium tracking-tight"
+          aria-label="Rello home"
+        >
           rello<span className="text-primary">.</span>
         </Link>
-        <nav aria-label="Main" className="flex items-center gap-1 sm:gap-2">
+        {/* Page sections, for scanning ahead. Hidden on phones, where the page is one short scroll. */}
+        <nav aria-label="Sections" className="hidden items-center gap-7 text-sm text-muted-foreground md:flex">
+          {SECTIONS.map((l) => (
+            <a key={l.href} href={l.href} className="transition-colors duration-150 hover:text-foreground">
+              {l.label}
+            </a>
+          ))}
+        </nav>
+        <div className="flex items-center gap-1 sm:gap-2">
           <ThemeToggle />
-          <Button variant="ghost" className="hidden sm:inline-flex" nativeButton={false} render={<a href="#pricing" />}>
-            Pricing
-          </Button>
           {hasAccount ? (
             <Button nativeButton={false} render={<Link href="/resumes" />}>
               Your resumes
@@ -45,7 +61,7 @@ export function LandingHeader() {
               </Button>
             </>
           )}
-        </nav>
+        </div>
       </div>
     </header>
   );

@@ -416,7 +416,7 @@ function MatchMark({ status, delay }: { status: MatchRow["status"]; delay: numbe
       className={cn(
         "flex size-4 shrink-0 items-center justify-center rounded-full",
         status === "covered" && "bg-success text-white",
-        status === "partial" && "border-[1.5px] border-dashed border-primary",
+        status === "partial" && "border-[1.5px] border-primary bg-[linear-gradient(90deg,var(--primary)_50%,transparent_50%)]",
         status === "missing" && "border-[1.5px] border-muted-foreground/50",
       )}
       initial={{ scale: 0.4, opacity: 0 }}
@@ -488,12 +488,12 @@ export function BlockedDemo() {
 export function CopyDemo() {
   return (
     <div aria-hidden className="mt-auto flex items-end gap-3">
-      <div className="relative z-10 w-16 overflow-hidden rounded-sm border bg-white shadow-page">
+      <div className="relative z-10 w-24 overflow-hidden rounded-sm border bg-white shadow-page">
         <PagePreview templateId="classic" content={SAMPLE_CONTENT} mode="thumb" />
       </div>
       <motion.div
-        className="relative w-16"
-        initial={{ x: -76, rotate: 0, opacity: 0.6 }}
+        className="relative w-24"
+        initial={{ x: -108, rotate: 0, opacity: 0.6 }}
         whileInView={{ x: 0, rotate: 3, opacity: 1 }}
         viewport={{ once: true, amount: 0.8 }}
         transition={{ type: "spring", bounce: 0.25, visualDuration: 0.6, delay: inTurn(3.4) + 0.2 }}

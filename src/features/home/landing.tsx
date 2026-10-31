@@ -42,6 +42,21 @@ function StartButton({ className }: { className?: string }) {
   );
 }
 
+/** Every section opens the same way: a serif heading and one plain line under it. */
+function SectionHeader({ title, lede, className }: { title: string; lede: string; className?: string }) {
+  return (
+    <div className={cn("max-w-2xl", className)}>
+      <h2 className="font-heading text-[2rem] leading-[1.1] font-medium tracking-tight text-balance sm:text-[2.5rem]">
+        {title}
+      </h2>
+      <p className="mt-4 max-w-xl text-pretty text-muted-foreground sm:text-lg">{lede}</p>
+    </div>
+  );
+}
+
+// Space above each section, so the page keeps one beat from top to bottom.
+const SECTION = "mx-auto max-w-6xl scroll-mt-20 px-4 pt-24 sm:px-6 sm:pt-32";
+
 const HEADLINE = "Build a resume that opens doors.";
 
 /* Hero: split. Promise on the left, the product doing it on the right. */
@@ -62,7 +77,7 @@ export function Hero() {
             ))}
           </h1>
           <p
-            className="rise max-w-md text-lg text-pretty text-muted-foreground"
+            className="rise max-w-[30rem] text-lg text-pretty text-muted-foreground"
             style={{ "--i": 5 } as React.CSSProperties}
           >
             Make one clean resume, then tailor a copy to each job, line by line. You approve every change.
@@ -80,7 +95,7 @@ export function Hero() {
             </Button>
           </div>
         </div>
-        <div className="rise" style={{ "--i": 7 } as React.CSSProperties}>
+        <div className="rise" style={{ "--i": 8 } as React.CSSProperties}>
           <HeroDemo />
         </div>
       </div>
@@ -91,16 +106,12 @@ export function Hero() {
 /* Templates: a gallery of real renders. */
 export function Templates() {
   return (
-    <section id="templates" className="reveal mx-auto max-w-6xl scroll-mt-20 px-4 pt-24 sm:px-6">
-      <div className="max-w-xl">
-        <h2 className="font-heading text-3xl font-medium tracking-tight sm:text-4xl">
-          Four templates. Switch any time.
-        </h2>
-        <p className="mt-3 text-muted-foreground">
-          All single-column with real, selectable text, so they read well on screen, on paper and in hiring systems.
-        </p>
-      </div>
-      <div className="mt-10">
+    <section id="templates" className={cn("reveal", SECTION)}>
+      <SectionHeader
+        title="Four templates. Switch any time."
+        lede="Your words stay put while the design changes. All single-column with real, selectable text, so they read well on screen, on paper and in hiring systems."
+      />
+      <div className="mt-12">
         <TemplateDemo />
       </div>
     </section>
@@ -125,18 +136,18 @@ const STEPS = [
 /* How it works: a real sequence, so it's numbered. A timeline, not cards. */
 export function HowItWorks() {
   return (
-    <section id="how" className="mx-auto max-w-6xl scroll-mt-20 px-4 pt-28 sm:px-6">
-      <h2 className="font-heading text-3xl font-medium tracking-tight sm:text-4xl">How it works</h2>
+    <section id="how" className={SECTION}>
+      <SectionHeader title="How it works" lede="From the resume you have to one shaped for the job, in three steps." />
       {/* One thing at a time: the line draws, and each step lights up and appears as the line reaches it. */}
-      <ol className="relative mt-10 grid gap-10 md:grid-cols-3 md:gap-8">
+      <ol className="relative mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
         <span aria-hidden className="absolute top-4 right-8 left-8 hidden h-px bg-border md:block" />
         <TimelineLine />
         {STEPS.map((s, i) => (
           <li key={s.title} className="relative flex gap-4 md:flex-col md:gap-5">
             <StepDot n={i + 1} />
             <Appear step={i}>
-              <p className="font-medium">{s.title}</p>
-              <p className="mt-1.5 max-w-xs text-sm text-muted-foreground">{s.body}</p>
+              <h3 className="text-[17px] font-medium">{s.title}</h3>
+              <p className="mt-2 max-w-xs text-[15px] leading-relaxed text-pretty text-muted-foreground">{s.body}</p>
             </Appear>
           </li>
         ))}
@@ -148,20 +159,25 @@ export function HowItWorks() {
 const MATCH = [
   { status: "covered", text: "Figma and design systems" },
   { status: "covered", text: "User research and usability testing" },
+  { status: "covered", text: "Working closely with engineers" },
   { status: "partial", text: "4+ years in fintech" },
+  { status: "partial", text: "Mentoring other designers" },
   { status: "missing", text: "Data visualisation" },
 ] as const;
 
 /* Why Rello: a gapless three-cell bento (one 2x2, two 1x1). */
 export function WhyRello() {
   return (
-    <section className="mx-auto max-w-6xl px-4 pt-28 sm:px-6">
-      <h2 className="font-heading text-3xl font-medium tracking-tight sm:text-4xl">Tailoring you can trust</h2>
-      <div className="mt-10 grid grid-flow-dense gap-4 md:grid-cols-3 md:grid-rows-2">
+    <section className={SECTION}>
+      <SectionHeader
+        title="Tailoring you can trust"
+        lede="Rello rewords what's already true about you, and shows you every change before it lands."
+      />
+      <div className="mt-12 grid grid-flow-dense gap-4 md:grid-cols-3 md:grid-rows-2">
         <SpotlightCard className="flex flex-col justify-between gap-8 rounded-2xl border bg-card p-6 sm:p-8 md:col-span-2 md:row-span-2">
           <div className="max-w-md">
-            <h3 className="text-xl font-medium">See what the job wants</h3>
-            <p className="mt-2 text-muted-foreground">
+            <h3 className="text-lg font-medium">See what the job wants</h3>
+            <p className="mt-2 text-[15px] leading-relaxed text-pretty text-muted-foreground">
               Every requirement is checked against your resume, so you know what you show, what&apos;s thin and
               what&apos;s missing before you apply.
             </p>
@@ -171,7 +187,7 @@ export function WhyRello() {
 
         <SpotlightCard className="flex flex-col gap-4 rounded-2xl border bg-highlight-soft/30 p-6">
           <h3 className="text-lg font-medium">Nothing made up</h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-[15px] leading-relaxed text-pretty text-muted-foreground">
             Suggestions only use what&apos;s already on your resume. Invented numbers are blocked.
           </p>
           <BlockedDemo />
@@ -179,7 +195,7 @@ export function WhyRello() {
 
         <SpotlightCard className="flex flex-col gap-4 rounded-2xl border bg-accent/30 p-6">
           <h3 className="text-lg font-medium">Your original stays put</h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-[15px] leading-relaxed text-pretty text-muted-foreground">
             Each job gets its own copy, so your main resume never changes.
           </p>
           <CopyDemo />
@@ -199,20 +215,20 @@ const INCLUDED = [
 
 export function Pricing() {
   return (
-    <section id="pricing" className="reveal mx-auto max-w-6xl scroll-mt-20 px-4 pt-28 sm:px-6">
+    <section id="pricing" className={cn("reveal", SECTION)}>
       <SpotlightCard className="grid gap-10 rounded-2xl border bg-card p-6 sm:p-10 lg:grid-cols-[1fr_1.1fr] lg:items-center">
         <div className="flex flex-col items-start gap-4">
-          <h2 className="font-heading text-3xl font-medium tracking-tight sm:text-4xl">
+          <h2 className="font-heading text-[2rem] leading-[1.1] font-medium tracking-tight sm:text-[2.5rem]">
             Free while we&apos;re in beta
           </h2>
-          <p className="max-w-md text-muted-foreground">
+          <p className="max-w-md text-pretty text-muted-foreground sm:text-lg">
             Everything here costs nothing today. If paid options come later, you&apos;ll see the price before you pay.
           </p>
           <StartButton className="mt-2" />
         </div>
         <Stagger as="ul" className="flex flex-col gap-3.5">
           {INCLUDED.map((item) => (
-            <StaggerItem as="li" key={item} className="flex gap-3">
+            <StaggerItem as="li" key={item} className="flex gap-3 text-[15px]">
               <PopCheck className="mt-0.5 shrink-0 text-success" />
               {item}
             </StaggerItem>
@@ -244,16 +260,15 @@ const FAQ = [
 
 export function Faq() {
   return (
-    <section
-      id="faq"
-      className="reveal mx-auto grid max-w-6xl scroll-mt-20 gap-8 px-4 pt-28 sm:px-6 lg:grid-cols-[1fr_1.6fr]"
-    >
-      <h2 className="font-heading text-3xl font-medium tracking-tight sm:text-4xl">Questions</h2>
+    <section id="faq" className={cn("reveal grid gap-10 lg:grid-cols-[1fr_1.6fr] lg:gap-16", SECTION)}>
+      <SectionHeader title="Questions" lede="The things people ask before they start." />
       <Accordion>
         {FAQ.map((f) => (
           <AccordionItem key={f.q} value={f.q}>
-            <AccordionTrigger className="py-5 text-base hover:no-underline">{f.q}</AccordionTrigger>
-            <AccordionContent className="pb-5 text-muted-foreground">{f.a}</AccordionContent>
+            <AccordionTrigger className="py-5 text-[17px] font-medium hover:no-underline">{f.q}</AccordionTrigger>
+            <AccordionContent className="max-w-xl pb-6 text-[15px] leading-relaxed text-pretty text-muted-foreground">
+              {f.a}
+            </AccordionContent>
           </AccordionItem>
         ))}
       </Accordion>
@@ -264,12 +279,12 @@ export function Faq() {
 export function FinalCta() {
   return (
     // Shares the footer's surface, so the closing ask and the footer read as one ending.
-    <div className="mt-20 bg-card/40 sm:mt-28">
+    <div className="mt-24 bg-card/40 sm:mt-32">
       <section className="reveal mx-auto flex max-w-3xl flex-col items-center px-4 pt-20 pb-6 text-center sm:px-6 sm:pt-28 sm:pb-12">
         <h2 className="font-heading text-4xl font-medium tracking-tight text-balance sm:text-5xl">
           One resume. Every opportunity.
         </h2>
-        <p className="mt-4 max-w-md text-muted-foreground">
+        <p className="mt-4 max-w-md text-pretty text-muted-foreground sm:text-lg">
           Make it once, then shape a copy for each role you go after.
         </p>
         <StartButton className="mt-8" />

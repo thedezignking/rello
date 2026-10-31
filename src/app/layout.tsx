@@ -52,7 +52,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="min-h-dvh">
+      <body className="min-h-dvh antialiased">
         <Toaster>
           <AuthProvider>{children}</AuthProvider>
         </Toaster>
