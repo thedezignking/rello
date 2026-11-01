@@ -37,8 +37,9 @@ import { cn } from "@/lib/utils";
 const EASE_OUT = [0.23, 1, 0.32, 1] as const;
 const SCREEN = { w: 1280, h: 760 };
 
-type Phase = "idle" | "aim" | "open" | "hover" | "pick";
-const PHASE_MS: Record<Phase, number> = { idle: 1000, aim: 650, open: 300, hover: 400, pick: 800 };
+// After the pick, "view" takes the eye to the restyled page before the next round.
+type Phase = "idle" | "aim" | "open" | "hover" | "pick" | "view";
+const PHASE_MS: Record<Phase, number> = { idle: 700, aim: 650, open: 300, hover: 400, pick: 300, view: 1400 };
 
 // Screen coordinates. Header is 56px tall with 16px side padding; on the
 // right sit the Download button (150px), the Template menu (124px) and the
@@ -46,23 +47,26 @@ const PHASE_MS: Record<Phase, number> = { idle: 1000, aim: 650, open: 300, hover
 const SELECT = { x: 1280 - 16 - 150 - 8 - 124, y: 12, w: 124, h: 32 };
 const MENU = { x: SELECT.x + SELECT.w - 176, y: SELECT.y + SELECT.h + 6, w: 176 };
 const POINTER = {
-  rest: { x: 430, y: 330 },
+  // Between rounds the pointer waits in the margin beside the page, not over the form.
+  rest: { x: 1210, y: 300 },
   trigger: { x: SELECT.x + 70, y: SELECT.y + 20 },
   item: (i: number) => ({ x: MENU.x + 92, y: MENU.y + 4 + 16 + i * 32 + 4 }),
 };
 
-// Camera: how far it zooms, and the screen point it centres on while zoomed.
-const ZOOM = 1.8;
-const FOCUS = { x: MENU.x + MENU.w / 2, y: MENU.y + 60 };
+// Camera: in close on the menu while the pointer works it, then onto the
+// restyled page, then out.
+const MENU_SHOT = { zoom: 1.8, focus: { x: MENU.x + MENU.w / 2, y: MENU.y + 60 } };
+const PAGE_SHOT = { zoom: 1.3, focus: { x: 910, y: 330 } };
+const WIDE_SHOT = { zoom: 1, focus: { x: SCREEN.w / 2, y: SCREEN.h / 2 } };
 const CAMERA_SPRING = { type: "spring", bounce: 0, visualDuration: 0.7 } as const;
 
 /** Zoom toward `focus`, keeping the screen's edges inside the window. */
-function camera(zoom: number) {
+function camera({ zoom, focus }: { zoom: number; focus: { x: number; y: number } }) {
   const clamp = (v: number, min: number) => Math.min(0, Math.max(min, v));
   return {
     scale: zoom,
-    x: clamp(SCREEN.w / 2 - zoom * FOCUS.x, SCREEN.w - zoom * SCREEN.w),
-    y: clamp(SCREEN.h / 2 - zoom * FOCUS.y, SCREEN.h - zoom * SCREEN.h),
+    x: clamp(SCREEN.w / 2 - zoom * focus.x, SCREEN.w - zoom * SCREEN.w),
+    y: clamp(SCREEN.h / 2 - zoom * focus.y, SCREEN.h - zoom * SCREEN.h),
   };
 }
 
@@ -112,17 +116,23 @@ export function TemplateDemo() {
       else if (phase === "hover") {
         setIndex(next); // the click: the page switches here
         setPhase("pick");
-      } else setPhase("idle");
+      } else if (phase === "pick") setPhase("view");
+      else setPhase("idle");
     }, PHASE_MS[phase]);
     return () => clearTimeout(t);
   }, [active, phase, next]);
 
   const id = TEMPLATE_IDS[index];
   const menuOpen = active && (phase === "open" || phase === "hover");
-  // In close while the pointer heads for the menu and picks; out again for the result.
-  const zoomed = active && (phase === "aim" || phase === "open" || phase === "hover");
+  const shot = !active
+    ? WIDE_SHOT
+    : phase === "aim" || phase === "open" || phase === "hover"
+      ? MENU_SHOT
+      : phase === "view"
+        ? PAGE_SHOT
+        : WIDE_SHOT;
   const at =
-    !active || phase === "idle"
+    !active || phase === "idle" || phase === "view"
       ? { ...POINTER.rest, scale: 1 }
       : phase === "aim" || phase === "open"
         ? { ...POINTER.trigger, scale: phase === "open" ? 0.88 : 1 }
@@ -161,7 +171,7 @@ export function TemplateDemo() {
           <motion.div
             className="absolute inset-0 origin-top-left"
             initial={false}
-            animate={camera(zoomed ? ZOOM : 1)}
+            animate={camera(shot)}
             transition={CAMERA_SPRING}
           >
             {/* Editor header */}

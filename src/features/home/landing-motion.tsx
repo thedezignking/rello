@@ -487,21 +487,34 @@ export function BlockedDemo() {
 /** The tailored copy slides out from behind the original; hovering the card pulls it a little further. */
 export function CopyDemo() {
   return (
-    <div aria-hidden className="mt-auto flex items-end gap-3">
-      <div className="relative z-10 w-24 overflow-hidden rounded-sm border bg-white shadow-page">
-        <PagePreview templateId="classic" content={SAMPLE_CONTENT} mode="thumb" />
-      </div>
-      <motion.div
-        className="relative w-24"
-        initial={{ x: -108, rotate: 0, opacity: 0.6 }}
-        whileInView={{ x: 0, rotate: 3, opacity: 1 }}
+    <div aria-hidden className="mt-auto flex items-start gap-4">
+      <figure className="relative z-10 flex w-24 flex-col gap-2">
+        <div className="overflow-hidden rounded-sm border bg-white shadow-page">
+          <PagePreview templateId="classic" content={SAMPLE_CONTENT} mode="thumb" />
+        </div>
+        <figcaption className="text-xs leading-snug">
+          <span className="block font-medium">Your resume</span>
+          <span className="text-muted-foreground">Unchanged</span>
+        </figcaption>
+      </figure>
+      {/* The tailored copy slides out from behind the original. */}
+      <motion.figure
+        className="flex w-24 flex-col gap-2"
+        initial={{ x: -112, opacity: 0.5 }}
+        whileInView={{ x: 0, opacity: 1 }}
         viewport={{ once: true, amount: 0.8 }}
-        transition={{ type: "spring", bounce: 0.25, visualDuration: 0.6, delay: inTurn(3.4) + 0.2 }}
+        transition={{ type: "spring", bounce: 0.2, visualDuration: 0.6, delay: inTurn(1.2) + 0.3 }}
       >
-        <div className="overflow-hidden rounded-sm border bg-white shadow-page transition-transform duration-300 ease-(--ease-out) [@media(hover:hover)]:group-hover/spot:translate-x-2 [@media(hover:hover)]:group-hover/spot:rotate-2">
+        <div className="overflow-hidden rounded-sm border bg-white shadow-page transition-transform duration-300 ease-(--ease-out) [@media(hover:hover)]:group-hover/spot:-translate-y-1">
           <PagePreview templateId="classic" content={SAMPLE_CONTENT} mode="thumb" highlight={{ ids: ["summary", "s_b2"] }} />
         </div>
-      </motion.div>
+        <figcaption className="text-xs leading-snug">
+          <span className="block font-medium">Copy for Acme Pay</span>
+          <span className="inline-flex items-center gap-1 text-muted-foreground">
+            <span className="size-2 rounded-[2px] bg-highlight" />2 lines tailored
+          </span>
+        </figcaption>
+      </motion.figure>
     </div>
   );
 }
