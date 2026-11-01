@@ -17,10 +17,16 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/features/auth/auth-provider";
 import { ThemeToggle } from "@/features/theme/theme";
+import { useScrolled } from "@/lib/use-scrolled";
 
 export function AppHeader() {
+  const scrolled = useScrolled();
   return (
-    <header className="sticky top-0 z-30 border-b bg-background/85 backdrop-blur-md">
+    // The bottom edge appears only once content scrolls under the header.
+    <header
+      data-scrolled={scrolled || undefined}
+      className="sticky top-0 z-30 border-b border-transparent bg-background/85 backdrop-blur-md transition-colors duration-200 data-scrolled:border-border"
+    >
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link
           href="/resumes"
@@ -57,8 +63,7 @@ function AccountArea() {
   }
 
   const name =
-    (user?.user_metadata?.full_name as string | undefined) ??
-    (user?.user_metadata?.name as string | undefined);
+    (user?.user_metadata?.full_name as string | undefined) ?? (user?.user_metadata?.name as string | undefined);
   const email = user?.email ?? "";
   const avatarUrl = user?.user_metadata?.avatar_url as string | undefined;
   const initials = (name ?? email).slice(0, 1).toUpperCase();

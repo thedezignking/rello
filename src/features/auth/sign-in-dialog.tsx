@@ -171,7 +171,7 @@ export function SignInDialog({
                 Continue with Google
               </Button>
 
-              <FieldSeparator>or</FieldSeparator>
+              <FieldSeparator className="*:data-[slot=field-separator-content]:bg-popover">or</FieldSeparator>
 
               <form onSubmit={sendCode} className="contents">
                 <Field data-invalid={!!error || undefined}>

@@ -385,14 +385,26 @@ export function EditorSkeleton() {
         <Skeleton className="size-8 rounded-lg" />
         <Skeleton className="h-5 w-48" />
       </div>
-      <div className="flex flex-1">
-        <div className="hidden w-[min(520px,46%)] flex-col gap-4 border-r bg-card p-6 lg:flex">
-          {Array.from({ length: 6 }, (_, i) => (
-            <Skeleton key={i} className="h-10 w-full" />
+      {/* Same shape as the loaded editor: a flat list of section rows beside the page. */}
+      <div className="flex min-h-0 flex-1">
+        <div className="w-full border-r bg-card lg:w-[min(540px,46%)]">
+          <div className="border-b px-4 py-3 sm:px-6">
+            <Skeleton className="h-3.5 w-64" />
+          </div>
+          {Array.from({ length: 7 }, (_, i) => (
+            <div key={i} className="flex items-center gap-3 border-b px-4 py-4 sm:px-6">
+              <Skeleton className="size-4 rounded" />
+              <div className="flex flex-col gap-1.5">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-20" />
+              </div>
+            </div>
           ))}
         </div>
-        <div className="flex-1 p-10">
-          <Skeleton className="mx-auto aspect-[794/1123] w-full max-w-[760px]" />
+        <div className="hidden flex-1 overflow-hidden lg:block">
+          <div className="mx-auto w-full max-w-[820px] px-8 py-10">
+            <Skeleton className="aspect-[794/1123] w-full rounded-sm" />
+          </div>
         </div>
       </div>
     </div>

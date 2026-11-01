@@ -272,7 +272,7 @@ function ResumeCard({ resume, copies, onChanged }: { resume: ResumeSummary; copi
           className="block overflow-hidden rounded-lg border border-border bg-white shadow-page transition-[border-color,transform] duration-200 ease-(--ease-out) outline-none [@media(hover:hover)]:hover:-translate-y-0.5 [@media(hover:hover)]:hover:border-primary focus-visible:ring-3 focus-visible:ring-ring/50"
           aria-label={`Open ${resume.title}`}
         >
-          <PagePreview templateId={resume.templateId} content={resume.content} mode="thumb" />
+          <PagePreview templateId={resume.templateId} content={resume.content} mode="thumb" hints />
         </Link>
         {/* Quick action on hover or keyboard focus. Touch screens use the header button or the menu instead of covering the page. */}
         <Button
@@ -318,7 +318,7 @@ function TailoredRow({
   return (
     <li className="group relative flex items-center gap-4 px-4 py-3 transition-colors [@media(hover:hover)]:hover:bg-muted/40">
       <div className="w-10 shrink-0 overflow-hidden rounded-sm border bg-white">
-        <PagePreview templateId={resume.templateId} content={resume.content} mode="thumb" />
+        <PagePreview templateId={resume.templateId} content={resume.content} mode="thumb" hints />
       </div>
       <div className="min-w-0 flex-1">
         <Link

@@ -161,6 +161,11 @@
   * {
     @apply border-border outline-ring/50;
   }
+  /* Thin scrollbars in the theme's colours, so side-by-side panes (form and page) don't carry heavy system bars. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--foreground) 20%, transparent) transparent;
+  }
   html {
     -webkit-text-size-adjust: 100%;
     @apply font-sans;
