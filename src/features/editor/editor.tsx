@@ -114,7 +114,7 @@ function Workspace({ resume }: { resume: Resume }) {
   }
 
   return (
-    <div className="flex h-dvh flex-col">
+    <div className="page-in flex h-dvh flex-col">
       <GuestNotice />
       <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-card px-3 sm:gap-3 sm:px-4">
         <Button variant="ghost" size="icon" nativeButton={false} render={<Link href="/resumes" />} aria-label="Back to your resumes">
@@ -298,7 +298,7 @@ export function SaveIndicator({ status, onRetry }: { status: SaveStatus; onRetry
         </>
       ) : status === "error" ? (
         <>
-          <CloudOffIcon className="size-3.5" />
+          <CloudOffIcon className="pop-in size-3.5" />
           Couldn&apos;t save
           <button type="button" className="underline underline-offset-2 hover:no-underline" onClick={onRetry}>
             Retry
@@ -306,7 +306,7 @@ export function SaveIndicator({ status, onRetry }: { status: SaveStatus; onRetry
         </>
       ) : status === "conflict" ? (
         <>
-          <TriangleAlertIcon className="size-3.5" />
+          <TriangleAlertIcon className="pop-in size-3.5" />
           Changed in another tab
           <button type="button" className="underline underline-offset-2 hover:no-underline" onClick={() => location.reload()}>
             Reload
@@ -314,7 +314,7 @@ export function SaveIndicator({ status, onRetry }: { status: SaveStatus; onRetry
         </>
       ) : (
         <>
-          <CloudCheckIcon className="size-3.5" />
+          <CloudCheckIcon className="pop-in size-3.5" />
           <span className="sr-only sm:not-sr-only">Saved</span>
         </>
       )}

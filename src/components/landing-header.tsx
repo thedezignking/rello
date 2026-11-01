@@ -45,7 +45,11 @@ export function LandingHeader() {
         {/* Page sections, for scanning ahead. Hidden on phones, where the page is one short scroll. */}
         <nav aria-label="Sections" className="hidden items-center gap-7 text-sm text-muted-foreground md:flex">
           {SECTIONS.map((l) => (
-            <a key={l.href} href={l.href} className="transition-colors duration-150 hover:text-foreground">
+            <a
+              key={l.href}
+              href={l.href}
+              className="relative after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-200 after:ease-(--ease-out) [@media(hover:hover)]:hover:after:scale-x-100 transition-colors duration-150 hover:text-foreground"
+            >
               {l.label}
             </a>
           ))}

@@ -155,7 +155,7 @@ export function Review({ resume, initial }: { resume: Resume; initial: TailorSes
   const jobLabel = [session.job.title, session.job.company].filter(Boolean).join(" · ");
 
   return (
-    <div className="flex h-dvh flex-col">
+    <div className="page-in flex h-dvh flex-col">
       <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-card px-3 sm:gap-3 sm:px-4">
         <Button variant="ghost" size="icon" nativeButton={false} render={<Link href="/resumes" />} aria-label="Back to your resumes">
           <ArrowLeftIcon />
@@ -371,7 +371,7 @@ function SuggestionCard({
 
   if (s.status !== "pending") {
     return (
-      <div id={`sugg-${s.id}`} className="flex items-center gap-2.5 border-b px-5 py-3 text-sm sm:px-6">
+      <div id={`sugg-${s.id}`} className="page-in flex items-center gap-2.5 border-b px-5 py-3 text-sm sm:px-6">
         {s.status === "accepted" ? (
           <CheckIcon className="size-4 shrink-0 text-success" />
         ) : (
@@ -486,7 +486,7 @@ function SkillsCard({
 }) {
   if (plan.status !== "pending") {
     return (
-      <div className="flex items-center gap-2.5 border-b px-5 py-3 text-sm sm:px-6">
+      <div className="page-in flex items-center gap-2.5 border-b px-5 py-3 text-sm sm:px-6">
         {plan.status === "accepted" ? <CheckIcon className="size-4 text-success" /> : <XIcon className="size-4 text-muted-foreground" />}
         <span className="flex-1 text-muted-foreground">
           Skills · {plan.status === "accepted" ? "Accepted" : "Kept as they were"}

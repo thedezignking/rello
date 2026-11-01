@@ -29,7 +29,7 @@ export function SettingsView() {
   const { ready, user, hasAccount, isGuest, openSignIn, signOut } = useAuth();
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-10 sm:px-6 sm:py-14">
+    <main className="page-in mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-10 sm:px-6 sm:py-14">
       <h1 className="font-heading text-3xl font-medium tracking-tight sm:text-4xl">Settings</h1>
 
       {!ready ? (

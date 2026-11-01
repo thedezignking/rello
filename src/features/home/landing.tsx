@@ -45,7 +45,8 @@ function StartButton({ className }: { className?: string }) {
 /** Every section opens the same way: a serif heading and one plain line under it. */
 function SectionHeader({ title, lede, className }: { title: string; lede: string; className?: string }) {
   return (
-    <div className={cn("max-w-2xl", className)}>
+    // Each heading eases in as it scrolls into view, ahead of the section it introduces.
+    <div className={cn("reveal max-w-2xl", className)}>
       <h2 className="font-heading text-[2rem] leading-[1.1] font-medium tracking-tight text-balance sm:text-[2.5rem]">
         {title}
       </h2>
@@ -106,7 +107,7 @@ export function Hero() {
 /* Templates: a gallery of real renders. */
 export function Templates() {
   return (
-    <section id="templates" className={cn("reveal", SECTION)}>
+    <section id="templates" className={SECTION}>
       <SectionHeader
         title="Four templates. Switch any time."
         lede="Your words stay put while the design changes. All single-column with real, selectable text, so they read well on screen, on paper and in hiring systems."
@@ -215,7 +216,7 @@ const INCLUDED = [
 
 export function Pricing() {
   return (
-    <section id="pricing" className={cn("reveal", SECTION)}>
+    <section id="pricing" className={SECTION}>
       <SpotlightCard className="grid gap-10 rounded-2xl border bg-card p-6 sm:p-10 lg:grid-cols-[1fr_1.1fr] lg:items-center">
         <div className="flex flex-col items-start gap-4">
           <h2 className="font-heading text-[2rem] leading-[1.1] font-medium tracking-tight sm:text-[2.5rem]">
@@ -260,7 +261,7 @@ const FAQ = [
 
 export function Faq() {
   return (
-    <section id="faq" className={cn("reveal grid gap-10 lg:grid-cols-[1fr_1.6fr] lg:gap-16", SECTION)}>
+    <section id="faq" className={cn("grid gap-10 lg:grid-cols-[1fr_1.6fr] lg:gap-16", SECTION)}>
       <SectionHeader title="Questions" lede="The things people ask before they start." />
       <Accordion>
         {FAQ.map((f) => (

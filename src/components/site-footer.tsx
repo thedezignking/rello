@@ -56,7 +56,11 @@ export function SiteFooter({ variant = "compact" }: { variant?: "full" | "compac
               { href: "/privacy", label: "Privacy" },
               { href: "/terms", label: "Terms" },
             ].map((l) => (
-              <Link key={l.href} href={l.href} className="transition-colors hover:text-foreground">
+              <Link
+                key={l.href}
+                href={l.href}
+                className="relative after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-200 after:ease-(--ease-out) [@media(hover:hover)]:hover:after:scale-x-100 transition-colors hover:text-foreground"
+              >
                 {l.label}
               </Link>
             ))}
@@ -82,7 +86,10 @@ export function SiteFooter({ variant = "compact" }: { variant?: "full" | "compac
               <ul className="flex flex-col gap-2.5 text-sm text-muted-foreground">
                 {col.links.map((l) => (
                   <li key={l.href}>
-                    <Link href={l.href} className="transition-colors hover:text-foreground">
+                    <Link
+                      href={l.href}
+                      className="relative after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-200 after:ease-(--ease-out) [@media(hover:hover)]:hover:after:scale-x-100 transition-colors hover:text-foreground"
+                    >
                       {l.label}
                     </Link>
                   </li>

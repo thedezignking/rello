@@ -13,7 +13,7 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import { AiIcon } from "@/components/ai-icon";
-import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,6 +42,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Empty,
+  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
@@ -106,7 +107,7 @@ export function HomeView() {
   }
 
   return (
-    <main className="pb-20">
+    <main className="page-in pb-20">
       <Dialog open={picking} onOpenChange={setPicking}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -138,15 +139,23 @@ export function HomeView() {
         <div className="mx-auto max-w-6xl px-4 py-7 sm:px-6">
           <h2 className="mb-4 text-sm font-medium text-muted-foreground">Start a new resume</h2>
           <ul className="-mx-4 flex snap-x scroll-px-4 gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-[repeat(6,minmax(0,1fr))] sm:overflow-visible sm:px-0 lg:grid-cols-[repeat(6,minmax(0,148px))]">
-            <li className="w-[116px] shrink-0 snap-start sm:w-auto">
+            <li className="stagger-in w-[116px] shrink-0 snap-start sm:w-auto" style={{ "--i": 0 } as React.CSSProperties}>
               <StartCard label="Blank" onClick={() => create("blank")} busy={creating === "blank"}>
                 <div className="flex aspect-[794/1123] items-center justify-center bg-white">
                   <PlusIcon className="size-8 text-primary" strokeWidth={1.5} />
                 </div>
               </StartCard>
             </li>
-            {TEMPLATE_IDS.map((id) => (
-              <li key={id} className="w-[116px] shrink-0 snap-start sm:w-auto">
+            {/* Second, beside Blank: bringing the resume you already have is the fastest start. */}
+            <li className="stagger-in w-[116px] shrink-0 snap-start sm:w-auto" style={{ "--i": 1 } as React.CSSProperties}>
+              <ImportButton variant="tile" />
+            </li>
+            {TEMPLATE_IDS.map((id, i) => (
+              <li
+                key={id}
+                className="stagger-in w-[116px] shrink-0 snap-start sm:w-auto"
+                style={{ "--i": i + 2 } as React.CSSProperties}
+              >
                 <StartCard
                   label={TEMPLATES[id].name}
                   hint={TEMPLATES[id].blurb}
@@ -157,9 +166,6 @@ export function HomeView() {
                 </StartCard>
               </li>
             ))}
-            <li className="w-[116px] shrink-0 snap-start sm:w-auto">
-              <ImportButton variant="tile" />
-            </li>
           </ul>
         </div>
       </section>
@@ -176,14 +182,18 @@ export function HomeView() {
         </div>
 
         {isGuest && resumes && resumes.length > 0 && (
-          <Alert className="mb-6">
-            <AlertTitle>Saved in this browser only</AlertTitle>
-            <AlertDescription>Sign in to keep your resumes safe and open them on any device.</AlertDescription>
-            <AlertAction>
-              <Button size="sm" onClick={() => openSignIn("Keep your resumes safe and open them anywhere.")}>
-                Sign in
-              </Button>
-            </AlertAction>
+          <Alert className="mb-6 flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+            <div className="flex flex-col gap-0.5">
+              <AlertTitle>Saved in this browser only</AlertTitle>
+              <AlertDescription>Sign in to keep your resumes safe and open them on any device.</AlertDescription>
+            </div>
+            <Button
+              size="sm"
+              className="self-start sm:self-auto"
+              onClick={() => openSignIn("Keep your resumes safe and open them anywhere.")}
+            >
+              Sign in
+            </Button>
           </Alert>
         )}
 
@@ -205,11 +215,14 @@ export function HomeView() {
               <EmptyTitle>Your next opportunity starts with one resume.</EmptyTitle>
               <EmptyDescription>Pick a template above, start blank, or import the resume you already have.</EmptyDescription>
             </EmptyHeader>
+            <EmptyContent>
+              <ImportButton />
+            </EmptyContent>
           </Empty>
         ) : (
           <ul className="grid grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-3 lg:grid-cols-5">
-            {originals.map((r) => (
-              <ResumeCard key={r.id} resume={r} copies={copiesOf(r.id)} onChanged={load} />
+            {originals.map((r, i) => (
+              <ResumeCard key={r.id} index={i} resume={r} copies={copiesOf(r.id)} onChanged={load} />
             ))}
           </ul>
         )}
@@ -263,9 +276,19 @@ function StartCard({
   );
 }
 
-function ResumeCard({ resume, copies, onChanged }: { resume: ResumeSummary; copies: number; onChanged: () => void }) {
+function ResumeCard({
+  resume,
+  copies,
+  index,
+  onChanged,
+}: {
+  resume: ResumeSummary;
+  copies: number;
+  index: number;
+  onChanged: () => void;
+}) {
   return (
-    <li className="group relative flex flex-col gap-2.5">
+    <li className="stagger-in group relative flex flex-col gap-2.5" style={{ "--i": index } as React.CSSProperties}>
       <div className="relative">
         <Link
           href={`/r/${resume.id}`}
