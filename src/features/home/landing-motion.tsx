@@ -485,36 +485,49 @@ export function BlockedDemo() {
 }
 
 /** The tailored copy slides out from behind the original; hovering the card pulls it a little further. */
+const COPIES = [
+  { job: "Acme Pay", lines: 2, ids: ["summary", "s_b2"] },
+  { job: "Lumen Health", lines: 3, ids: ["summary", "s_b1", "s_b3"] },
+];
+
+/**
+ * One original, many copies, as one tidy panel like the other two cards: a
+ * slice of the resumes list. The original sits on top, unchanged; the
+ * tailored copies arrive under it one after another once the panel is seen.
+ */
 export function CopyDemo() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, amount: 0.3 });
   return (
-    <div aria-hidden className="mt-auto flex items-start gap-4">
-      <figure className="relative z-10 flex w-24 flex-col gap-2">
-        <div className="overflow-hidden rounded-sm border bg-white shadow-page">
-          <PagePreview templateId="classic" content={SAMPLE_CONTENT} mode="thumb" />
-        </div>
-        <figcaption className="text-xs leading-snug">
-          <span className="block font-medium">Your resume</span>
-          <span className="text-muted-foreground">Unchanged</span>
-        </figcaption>
-      </figure>
-      {/* The tailored copy slides out from behind the original. */}
-      <motion.figure
-        className="flex w-24 flex-col gap-2"
-        initial={{ x: -112, opacity: 0.5 }}
-        whileInView={{ x: 0, opacity: 1 }}
-        viewport={{ once: true, amount: 0.8 }}
-        transition={{ type: "spring", bounce: 0.2, visualDuration: 0.6, delay: inTurn(1.2) + 0.3 }}
-      >
-        <div className="overflow-hidden rounded-sm border bg-white shadow-page transition-transform duration-300 ease-(--ease-out) [@media(hover:hover)]:group-hover/spot:-translate-y-1">
-          <PagePreview templateId="classic" content={SAMPLE_CONTENT} mode="thumb" highlight={{ ids: ["summary", "s_b2"] }} />
-        </div>
-        <figcaption className="text-xs leading-snug">
-          <span className="block font-medium">Copy for Acme Pay</span>
-          <span className="inline-flex items-center gap-1 text-muted-foreground">
-            <span className="size-2 rounded-[2px] bg-highlight" />2 lines tailored
-          </span>
-        </figcaption>
-      </motion.figure>
+    <div ref={ref} aria-hidden className="mt-auto flex flex-col gap-0.5 rounded-lg border bg-card p-1.5">
+      <CopyRow title="Your resume" note="Unchanged" />
+      {COPIES.map((c, i) => (
+        <motion.div
+          key={c.job}
+          initial={{ opacity: 0, y: -6 }}
+          animate={inView ? { opacity: 1, y: 0 } : undefined}
+          transition={{ duration: 0.45, ease: EASE_OUT, delay: 0.5 + i * 0.35 }}
+        >
+          <CopyRow title={`Copy for ${c.job}`} note={`${c.lines} lines tailored`} ids={c.ids} />
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+function CopyRow({ title, note, ids }: { title: string; note: string; ids?: string[] }) {
+  return (
+    <div className="flex items-center gap-3 rounded-md px-1.5 py-1.5">
+      <div className="w-7 shrink-0 overflow-hidden rounded-[2px] border bg-white">
+        <PagePreview templateId="classic" content={SAMPLE_CONTENT} mode="thumb" highlight={ids ? { ids } : undefined} />
+      </div>
+      <div className="min-w-0 leading-snug">
+        <p className="truncate text-sm font-medium">{title}</p>
+        <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          {ids && <span className="size-2 rounded-[2px] bg-highlight" />}
+          {note}
+        </p>
+      </div>
     </div>
   );
 }
