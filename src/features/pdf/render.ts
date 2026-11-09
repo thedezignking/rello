@@ -20,9 +20,12 @@ async function launch() {
   if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
     const chromium = (await import("@sparticuz/chromium")).default;
     return puppeteer.launch({
-      args: chromium.args,
+      // @sparticuz/chromium ships Chrome's headless shell, which needs the
+      // shell-specific Puppeteer defaults rather than the regular headless
+      // browser launch configuration.
+      args: await puppeteer.defaultArgs({ args: chromium.args, headless: "shell" }),
       executablePath: await chromium.executablePath(),
-      headless: true,
+      headless: "shell",
     });
   }
   const executablePath = LOCAL_BROWSERS.find((p) => p && existsSync(p));
@@ -49,7 +52,10 @@ function getBrowser() {
 export async function renderPdf(origin: string, payload: PrintPayload) {
   const page = await (await getBrowser()).newPage();
   try {
-    await page.goto(`${origin}/print`, { waitUntil: "networkidle0", timeout: 30_000 });
+    // Next can keep development and platform connections open after the page
+    // is usable, so `networkidle0` may never arrive. The print page exposes an
+    // explicit readiness signal below; only wait for its document to load here.
+    await page.goto(`${origin}/print`, { waitUntil: "domcontentloaded", timeout: 30_000 });
     await page.waitForFunction(
       () => document.documentElement.dataset.printReady === "true" && typeof window.__relloRender === "function",
       { timeout: 15_000 },
