@@ -21,6 +21,7 @@ import { isReadyForTailoring, type Resume } from "@/features/resumes/schema";
 import { getResumeStore } from "@/features/resumes/store";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { requestTailor, TailorError } from "./api";
+import { PagePreview } from "@/features/templates/page-preview";
 
 const MIN_CHARS = 80;
 const MAX_CHARS = 15000;
@@ -94,7 +95,11 @@ export function JobForm({ source }: { source: Resume }) {
         </p>
       </header>
 
-      <main className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
+      <div className="flex min-h-0 flex-1">
+      <div className="hidden min-w-0 flex-1 overflow-y-auto bg-muted/30 p-10 lg:block">
+        <div className="mx-auto max-w-[794px]"><PagePreview templateId={source.templateId} content={source.content} className="shadow-page" /></div>
+      </div>
+      <main className="w-full px-5 py-8 lg:w-[420px] lg:shrink-0 lg:border-l lg:bg-card">
         <h1 className="font-heading text-3xl font-medium tracking-tight sm:text-4xl">Tailor to a job</h1>
         <p className="mt-2 text-muted-foreground">
           Paste the job you&apos;re applying for. You&apos;ll get line-by-line suggestions to accept, reject or
@@ -168,6 +173,7 @@ export function JobForm({ source }: { source: Resume }) {
           </form>
         )}
       </main>
+      </div>
     </div>
   );
 }

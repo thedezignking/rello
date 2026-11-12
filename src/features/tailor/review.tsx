@@ -27,6 +27,7 @@ import { useDownloadPdf } from "@/features/pdf/use-download-pdf";
 import { newId, type Resume, type ResumeContent } from "@/features/resumes/schema";
 import { getResumeStore } from "@/features/resumes/store";
 import { PagePreview } from "@/features/templates/page-preview";
+import { SuggestedTextContext } from "@/features/templates/suggested-text";
 import { cn } from "@/lib/utils";
 import { requestLine, TailorError } from "./api";
 import { diffInline } from "./diff";
@@ -51,7 +52,7 @@ export function Review({ resume, initial }: { resume: Resume; initial: TailorSes
   const { download, busyId } = useDownloadPdf();
   const [session, setSession] = useState(initial);
   const [active, setActive] = useState<string[]>([]);
-  const [view, setView] = useState<"suggestions" | "page">("suggestions");
+  const [view, setView] = useState<"suggestions" | "page">("page");
   const [retrying, setRetrying] = useState<string | null>(null);
 
   // Persist accept / reject state shortly after each change.
@@ -199,12 +200,10 @@ export function Review({ resume, initial }: { resume: Resume; initial: TailorSes
       />
 
       <div className="flex min-h-0 flex-1">
-        <aside className="hidden w-[300px] shrink-0 overflow-y-auto border-r bg-card xl:block">
-          <MatchPanel requirements={session.requirements} onFocus={setActive} />
-        </aside>
 
         <div className={cn("min-w-0 flex-1 overflow-y-auto", view === "suggestions" && "hidden lg:block")}>
           <div className="mx-auto w-full max-w-[820px] px-4 py-6 sm:px-8 sm:py-10">
+            <SuggestedTextContext.Provider value={Object.fromEntries(pending.map((s) => [s.targetId, { original: s.original, suggested: s.suggested }]))}>
             <PagePreview
               templateId={resume.templateId}
               content={content}
@@ -212,6 +211,7 @@ export function Review({ resume, initial }: { resume: Resume; initial: TailorSes
               onLineClick={focusSuggestionFor}
               className="rounded-sm shadow-page"
             />
+            </SuggestedTextContext.Provider>
             <p className="mt-4 text-center text-xs text-muted-foreground">
               Highlighted lines have a suggestion. Click one to see it.
             </p>
@@ -254,9 +254,9 @@ export function Review({ resume, initial }: { resume: Resume; initial: TailorSes
             )}
           </div>
 
-          <details className="group border-b xl:hidden">
+          <details className="group border-b">
             <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-3.5 text-sm font-medium sm:px-6">
-              Job match
+              How your experience fits
               <span className="text-xs font-normal text-muted-foreground">
                 {session.requirements.filter((r) => r.status === "covered").length} of {session.requirements.length} covered
               </span>
@@ -303,10 +303,10 @@ export function Review({ resume, initial }: { resume: Resume; initial: TailorSes
                     {open > 1 && (
                       <div className="flex gap-1">
                         <Button size="xs" variant="ghost" onClick={() => bulk(section, "rejected")}>
-                          Reject all
+                          Keep originals
                         </Button>
                         <Button size="xs" variant="outline" onClick={() => bulk(section, "accepted")}>
-                          Accept all
+                          Use all
                         </Button>
                       </div>
                     )}
@@ -457,10 +457,10 @@ function SuggestionCard({
       <div className="flex items-center gap-2">
         <Button size="sm" onClick={onAccept} disabled={busy}>
           <CheckIcon data-icon="inline-start" />
-          Accept
+          Use suggestion
         </Button>
         <Button size="sm" variant="ghost" onClick={onReject} disabled={busy}>
-          Reject
+          Keep original
         </Button>
         <Button size="sm" variant="ghost" onClick={() => setAsking((a) => !a)} disabled={busy} className="ml-auto">
           {busy ? <Spinner data-icon="inline-start" /> : <RotateCcwIcon data-icon="inline-start" />}

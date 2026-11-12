@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { SuggestedText } from "./suggested-text";
 import type { Bullet, ResumeContent, SectionKey } from "@/features/resumes/schema";
 
 // A4 at 96 dpi. Templates are laid out at this size and scaled to fit.
@@ -66,7 +67,7 @@ export function Bullets({ items, className }: { items: Bullet[]; className?: str
     <ul className={cn("list-disc pl-[1.15em] marker:text-current", className)}>
       {list.map((b) => (
         <li key={b.id} data-line={b.id} className="break-inside-avoid pl-[0.2em]">
-          {b.text}
+          <SuggestedText id={b.id}>{b.text}</SuggestedText>
         </li>
       ))}
     </ul>
