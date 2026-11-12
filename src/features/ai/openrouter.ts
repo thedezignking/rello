@@ -36,12 +36,14 @@ export async function chatJSON<T>({
   schema,
   maxTokens = 2500,
   temperature = 0.4,
+  preferredModels,
 }: {
   system: string;
   user: string;
   schema: z.ZodType<T>;
   maxTokens?: number;
   temperature?: number;
+  preferredModels?: string[];
 }): Promise<{ data: T; usage: Usage }> {
   const key = process.env.OPENROUTER_API_KEY;
   if (!key) throw new AIError("not_configured", "AI isn't set up.");
@@ -58,7 +60,7 @@ export async function chatJSON<T>({
         "X-Title": "Rello",
       },
       body: JSON.stringify({
-        models: models.length ? models : DEFAULT_MODELS,
+        models: models.length ? models : preferredModels?.length ? preferredModels : DEFAULT_MODELS,
         messages: [
           { role: "system", content: system },
           {
