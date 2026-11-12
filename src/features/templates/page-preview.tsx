@@ -100,6 +100,14 @@ export function PagePreview({
         ref={doc}
         data-preview={scope}
         onClick={handleClick}
+        onKeyDown={(event) => {
+          if (event.key !== "Enter" && event.key !== " ") return;
+          const line = (event.target as HTMLElement).closest<HTMLElement>('[data-line][role="button"]');
+          if (line?.dataset.line && onLineClick) {
+            event.preventDefault();
+            onLineClick(line.dataset.line);
+          }
+        }}
         className={cn(
           "absolute top-0 left-0 origin-top-left bg-white text-left",
           onSectionClick &&

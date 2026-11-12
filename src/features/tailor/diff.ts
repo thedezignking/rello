@@ -9,7 +9,7 @@ export type InlinePart = { text: string; kind: "same" | "added" | "removed" };
 export function diffInline(prev: string, next: string): InlinePart[] {
   const a = prev.split(/(\s+)/);
   const b = next.split(/(\s+)/);
-  const norm = (w: string) => w.toLowerCase().replace(/[.,;:!?]+$/, "");
+  const norm = (w: string) => w;
   const dp = Array.from({ length: a.length + 1 }, () => new Array<number>(b.length + 1).fill(0));
   for (let i = a.length - 1; i >= 0; i--)
     for (let j = b.length - 1; j >= 0; j--)

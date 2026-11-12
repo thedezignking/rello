@@ -1,4 +1,5 @@
 import { H1, H2 } from "./doc-headings";
+import { SuggestedText, SuggestedSkills } from "./suggested-text";
 import {
   Bullets,
   contactItems,
@@ -43,7 +44,7 @@ export function MinimalTemplate({ content: c, hints, plain }: TemplateProps) {
       <div className="mt-[26px] flex flex-col gap-[20px]">
         {show.summary && (
           <Row label="About" k="summary">
-            <p data-line="summary">{c.summary}</p>
+<p data-line="summary"><SuggestedText id="summary">{c.summary}</SuggestedText></p>
           </Row>
         )}
 
@@ -83,7 +84,7 @@ export function MinimalTemplate({ content: c, hints, plain }: TemplateProps) {
 
         {show.skills && (
           <Row label="Skills" k="skills">
-            <p>{c.skills.map((s) => s.name).join(", ")}</p>
+            <p><SuggestedSkills skills={c.skills} /></p>
           </Row>
         )}
 
@@ -101,7 +102,7 @@ export function MinimalTemplate({ content: c, hints, plain }: TemplateProps) {
                       </span>
                     )}
                   </p>
-                  {p.description && <p>{p.description}</p>}
+{p.description && <p data-line={`${p.id}:description`}><SuggestedText id={`${p.id}:description`}>{p.description}</SuggestedText></p>}
                   <Bullets items={p.bullets} className="mt-0.5" />
                 </div>
               ))}

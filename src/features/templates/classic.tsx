@@ -1,4 +1,5 @@
 import { H1, H2 } from "./doc-headings";
+import { SuggestedText, SuggestedSkills } from "./suggested-text";
 import {
   Bullets,
   contactItems,
@@ -40,7 +41,7 @@ export function ClassicTemplate({ content: c, hints, plain }: TemplateProps) {
 
       {show.summary && (
         <Section title="Summary" k="summary">
-          <p data-line="summary">{c.summary}</p>
+<p data-line="summary"><SuggestedText id="summary">{c.summary}</SuggestedText></p>
         </Section>
       )}
 
@@ -86,7 +87,7 @@ export function ClassicTemplate({ content: c, hints, plain }: TemplateProps) {
 
       {show.skills && (
         <Section title="Skills" k="skills">
-          <p>{c.skills.map((s) => s.name).join(" · ")}</p>
+          <p><SuggestedSkills skills={c.skills} separator=" · " /></p>
         </Section>
       )}
 
@@ -103,7 +104,7 @@ export function ClassicTemplate({ content: c, hints, plain }: TemplateProps) {
                     </span>
                   )}
                 </p>
-                {p.description && <p>{p.description}</p>}
+{p.description && <p data-line={`${p.id}:description`}><SuggestedText id={`${p.id}:description`}>{p.description}</SuggestedText></p>}
                 <Bullets items={p.bullets} className="mt-0.5" />
               </div>
             ))}

@@ -65,6 +65,7 @@ export function rewritableLines(c: ResumeContent): Line[] {
     for (const b of e.bullets) if (b.text.trim()) lines.push({ id: b.id, section: "experience", text: b.text, context });
   }
   for (const p of c.projects) {
+    if (p.description.trim()) lines.push({ id: `${p.id}:description`, section: "projects", text: p.description, context: `Project: ${p.name}` });
     for (const b of p.bullets) if (b.text.trim()) lines.push({ id: b.id, section: "projects", text: b.text, context: `Project: ${p.name}` });
   }
   return lines;
@@ -79,12 +80,14 @@ export function applyLine(c: ResumeContent, targetId: string, text: string): Res
         ? { ...it, bullets: it.bullets.map((b) => (b.id === targetId ? { ...b, text } : b)) }
         : it,
     );
-  return { ...c, experience: mapBullets(c.experience), projects: mapBullets(c.projects) };
+  return { ...c, experience: mapBullets(c.experience), projects: mapBullets(c.projects).map((p) => `${p.id}:description` === targetId ? { ...p, description: text } : p) };
 }
 
 /** The current text of a line, or null if it no longer exists. */
 export function lineText(c: ResumeContent, targetId: string): string | null {
   if (targetId === "summary") return c.summary;
+  const project = c.projects.find((p) => `${p.id}:description` === targetId);
+  if (project) return project.description;
   for (const it of [...c.experience, ...c.projects]) {
     const b = it.bullets.find((x) => x.id === targetId);
     if (b) return b.text;

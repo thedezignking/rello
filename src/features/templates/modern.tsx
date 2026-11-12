@@ -1,4 +1,5 @@
 import { H1, H2 } from "./doc-headings";
+import { SuggestedText, SuggestedSkills } from "./suggested-text";
 import {
   Bullets,
   contactItems,
@@ -45,7 +46,7 @@ export function ModernTemplate({ content: c, hints, plain }: TemplateProps) {
 
       {show.summary && (
         <Section title="Profile" k="summary">
-          <p data-line="summary" className="text-[#333a47]">{c.summary}</p>
+<p data-line="summary" className="text-[#333a47]"><SuggestedText id="summary">{c.summary}</SuggestedText></p>
         </Section>
       )}
 
@@ -73,13 +74,7 @@ export function ModernTemplate({ content: c, hints, plain }: TemplateProps) {
 
       {show.skills && (
         <Section title="Skills" k="skills">
-          <ul className="flex flex-wrap gap-[5px]">
-            {c.skills.map((s) => (
-              <li key={s.id} className="rounded-[3px] bg-[#eef2fa] px-[7px] py-[1px] text-[9pt] text-[#24304a]">
-                {s.name}
-              </li>
-            ))}
-          </ul>
+          <p className="text-[9pt] text-[#24304a]"><SuggestedSkills skills={c.skills} separator=" · " /></p>
         </Section>
       )}
 
@@ -115,7 +110,7 @@ export function ModernTemplate({ content: c, hints, plain }: TemplateProps) {
                     </span>
                   )}
                 </p>
-                {p.description && <p className="text-[#333a47]">{p.description}</p>}
+{p.description && <p data-line={`${p.id}:description`} className="text-[#333a47]"><SuggestedText id={`${p.id}:description`}>{p.description}</SuggestedText></p>}
                 <Bullets items={p.bullets} className="mt-0.5" />
               </div>
             ))}

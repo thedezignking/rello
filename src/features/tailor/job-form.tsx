@@ -59,13 +59,17 @@ export function JobForm({ source }: { source: Resume }) {
       ];
       const result: TailorResult = {
         job: { title: "Product Designer", company: "Acme Pay" },
-        suggestions: rewrites.map(([id, suggested, reason]) => ({ id: crypto.randomUUID(), targetId: id, section: "experience", original: SAMPLE_CONTENT.experience[0].bullets.find((b) => b.id === id)!.text, suggested, reason, status: "pending" })),
+        suggestions: [
+          { id: crypto.randomUUID(), targetId: "summary", section: "summary", original: SAMPLE_CONTENT.summary, suggested: "Product designer with four years of experience in fintech and logistics apps serving over 200,000 people. Partners with engineers and researchers to simplify complex workflows, with hands-on experience in merchant onboarding, design systems and usability testing.", reason: "Connects your existing fintech and research experience to Acme Pay’s priorities.", status: "pending" },
+          ...rewrites.map(([id, suggested, reason]) => ({ id: crypto.randomUUID(), targetId: id, section: "experience" as const, original: SAMPLE_CONTENT.experience[0].bullets.find((b) => b.id === id)!.text, suggested, reason, status: "pending" as const })),
+        ],
         requirements: [
           { id: "demo-design", text: "Build and maintain design systems", kind: "required", status: "covered", evidence: ["s_b2"] },
           { id: "demo-research", text: "Conduct usability testing", kind: "required", status: "covered", evidence: ["s_b3"] },
           { id: "demo-mentor", text: "Mentor other designers", kind: "preferred", status: "missing", evidence: [] },
         ],
-        skills: null,
+        skills: { order: ["s_sk1", "s_sk4", "s_sk2", "s_sk0", "s_sk3", "s_sk5"], add: [], status: "pending" },
+        sample: true,
       };
       const { resume } = await store.createTailored({ source: demo, title: "Demo · Product Designer at Acme Pay", description: "Acme Pay seeks a Product Designer with fintech onboarding, design systems and usability testing experience. Mentoring designers is preferred.", result });
       router.replace(`/r/${resume.id}/tailor`);
@@ -109,7 +113,7 @@ export function JobForm({ source }: { source: Resume }) {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="flex h-dvh flex-col">
       <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-card px-2 sm:px-4">
         <Button
           variant="ghost"
@@ -129,7 +133,7 @@ export function JobForm({ source }: { source: Resume }) {
       <div className="hidden min-w-0 flex-1 overflow-y-auto bg-muted/30 p-10 lg:block">
         <div className="mx-auto max-w-[794px]"><PagePreview templateId={source.templateId} content={source.content} className="shadow-page" /></div>
       </div>
-      <main className="w-full px-5 py-8 lg:w-[420px] lg:shrink-0 lg:border-l lg:bg-card">
+      <main className="w-full overflow-y-auto px-5 py-8 lg:w-[420px] lg:shrink-0 lg:border-l lg:bg-card">
         <h1 className="font-heading text-3xl font-medium tracking-tight sm:text-4xl">Tailor to a job</h1>
         {process.env.NODE_ENV === "development" && <Button variant="outline" size="sm" className="mt-3" onClick={loadDemo} disabled={busy}>Load demo review</Button>}
         <p className="mt-2 text-muted-foreground">
@@ -174,7 +178,7 @@ export function JobForm({ source }: { source: Resume }) {
                   }}
                   placeholder="Paste the whole posting: responsibilities, requirements, nice-to-haves."
                   aria-invalid={!!error || undefined}
-                  className="min-h-64 bg-card"
+                  className="h-64 min-h-64 max-h-64 resize-none overflow-y-auto bg-card [field-sizing:fixed]"
                   disabled={!ready}
                 />
                 {error ? (

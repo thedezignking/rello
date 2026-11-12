@@ -27,10 +27,9 @@ import { useDownloadPdf } from "@/features/pdf/use-download-pdf";
 import { newId, type Resume, type ResumeContent } from "@/features/resumes/schema";
 import { getResumeStore } from "@/features/resumes/store";
 import { PagePreview } from "@/features/templates/page-preview";
-import { SuggestedTextContext } from "@/features/templates/suggested-text";
+import { SuggestedText, SuggestedTextContext, SuggestedSkillsContext } from "@/features/templates/suggested-text";
 import { cn } from "@/lib/utils";
 import { requestLine, TailorError } from "./api";
-import { diffInline } from "./diff";
 import {
   applyLine,
   rewritableLines,
@@ -100,6 +99,7 @@ export function Review({ resume, initial }: { resume: Resume; initial: TailorSes
   }
 
   async function tryAgain(s: Suggestion, nudge: string) {
+    if (retrying) return;
     setRetrying(s.id);
     try {
       const next = await requestLine(
@@ -140,6 +140,12 @@ export function Review({ resume, initial }: { resume: Resume; initial: TailorSes
   }
 
   function focusSuggestionFor(lineId: string) {
+    if (lineId === "skills") {
+      setView("suggestions");
+      setActive(["skills"]);
+      requestAnimationFrame(() => document.getElementById("sugg-skills")?.scrollIntoView({ behavior: "smooth", block: "center" }));
+      return;
+    }
     const s = session.suggestions.find((x) => x.targetId === lineId);
     if (!s) return;
     setView("suggestions");
@@ -186,7 +192,7 @@ export function Review({ resume, initial }: { resume: Resume; initial: TailorSes
 
       {session.sample && (
         <div className="border-b bg-highlight-soft px-4 py-1.5 text-center text-xs">
-          These are sample suggestions for testing. Add <code className="font-mono">OPENROUTER_API_KEY</code> to get real ones.
+          Demo suggestions for testing the review experience.
         </div>
       )}
 
@@ -204,16 +210,19 @@ export function Review({ resume, initial }: { resume: Resume; initial: TailorSes
         <div className={cn("min-w-0 flex-1 overflow-y-auto", view === "suggestions" && "hidden lg:block")}>
           <div className="mx-auto w-full max-w-[820px] px-4 py-6 sm:px-8 sm:py-10">
             <SuggestedTextContext.Provider value={Object.fromEntries(pending.map((s) => [s.targetId, { original: s.original, suggested: s.suggested }]))}>
+            <SuggestedSkillsContext.Provider value={session.skills}>
             <PagePreview
               templateId={resume.templateId}
               content={content}
-              highlight={{ ids: pending.map((s) => s.targetId), active }}
+              highlight={{ ids: [...pending.map((s) => s.targetId), ...(session.skills?.status === "pending" ? ["skills"] : [])], active }}
               onLineClick={focusSuggestionFor}
               className="rounded-sm shadow-page"
             />
+            </SuggestedSkillsContext.Provider>
             </SuggestedTextContext.Provider>
             <p className="mt-4 text-center text-xs text-muted-foreground">
               Highlighted lines have a suggestion. Click one to see it.
+              <span className="block mt-1">Red strikethrough: removed · Green: proposed. Downloads include only changes you use.</span>
             </p>
           </div>
         </div>
@@ -263,13 +272,14 @@ export function Review({ resume, initial }: { resume: Resume; initial: TailorSes
               </span>
             </summary>
             <MatchPanel requirements={session.requirements} onFocus={setActive} compact />
+            <p className="px-5 pb-4 text-xs text-muted-foreground">Based on your resume before these edits. This is an evidence check, not a hiring or ATS score.</p>
           </details>
 
           {allDone && (
             <div className="flex flex-col gap-3 border-b bg-success/5 px-5 py-4 sm:px-6">
               <p className="flex items-center gap-2 font-medium">
                 <CircleCheckIcon className="size-4 text-success" />
-                All reviewed. Your tailored copy is saved.
+                {status === "saved" ? "All reviewed. Your tailored copy is saved." : "All reviewed. Check the save status before leaving."}
               </p>
               <div className="flex gap-2">
                 <Button
@@ -288,7 +298,7 @@ export function Review({ resume, initial }: { resume: Resume; initial: TailorSes
 
           {total === 0 && (
             <p className="px-5 py-6 text-sm text-muted-foreground sm:px-6">
-              Your resume already reads well for this job. Check the job match for anything missing.
+              No changes were returned. Open “How your experience fits” to check requirements before deciding whether this resume is ready.
             </p>
           )}
 
@@ -317,7 +327,7 @@ export function Review({ resume, initial }: { resume: Resume; initial: TailorSes
                       key={s.id}
                       s={s}
                       context={contexts.get(s.targetId) ?? ""}
-                      busy={retrying === s.id}
+                      busy={retrying !== null}
                       selected={active.includes(s.targetId)}
                       onHover={(on) => { if (on) setActive([s.targetId]); }}
                       onAccept={() => accept(s)}
@@ -389,8 +399,6 @@ function SuggestionCard({
     );
   }
 
-  const parts = diffInline(s.original, s.suggested);
-
   return (
     <article
       id={`sugg-${s.id}`}
@@ -403,26 +411,9 @@ function SuggestionCard({
     >
       {context && <p className="truncate text-xs font-medium text-muted-foreground">{context}</p>}
       {/* One inline edit, like suggesting mode in a document: what goes is struck through, what's new is marked. */}
-      <p className={cn("text-[15px] leading-relaxed transition-opacity", busy && "opacity-50")}>
-        {parts.map((p, i) => {
-          if (p.kind === "same") return <span key={i}>{p.text}</span>;
-          // Keep the trailing space outside the mark, so it doesn't strike or tint the gap.
-          const word = p.text.trimEnd();
-          // A removal followed straight by new words needs a gap between them.
-          const space = p.text.slice(word.length) || (p.kind === "removed" && parts[i + 1] ? " " : "");
-          return p.kind === "removed" ? (
-            <span key={i}>
-              <del className="text-muted-foreground decoration-destructive/60">{word}</del>
-              {space}
-            </span>
-          ) : (
-            <span key={i}>
-              <ins className="rounded-[3px] bg-highlight-soft px-0.5 no-underline">{word}</ins>
-              {space}
-            </span>
-          );
-        })}
-      </p>
+      <SuggestedTextContext.Provider value={{ [s.targetId]: { original: s.original, suggested: s.suggested } }}>
+        <p className={cn("text-[15px] leading-relaxed transition-opacity", busy && "opacity-50")}><SuggestedText id={s.targetId}>{s.original}</SuggestedText></p>
+      </SuggestedTextContext.Provider>
       {s.reason && (
         <p className="flex gap-2 text-xs leading-relaxed text-muted-foreground">
           <AiIcon className="mt-0.5 size-3.5 shrink-0 text-primary" />
@@ -455,7 +446,7 @@ function SuggestionCard({
         </form>
       )}
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Button size="sm" onClick={onAccept} disabled={busy}>
           <CheckIcon data-icon="inline-start" />
           Use suggestion
@@ -487,7 +478,7 @@ function SkillsCard({
 }) {
   if (plan.status !== "pending") {
     return (
-      <div className="page-in flex items-center gap-2.5 border-b px-5 py-3 text-sm sm:px-6">
+      <div id="sugg-skills" className="page-in flex items-center gap-2.5 border-b px-5 py-3 text-sm sm:px-6">
         {plan.status === "accepted" ? <CheckIcon className="size-4 text-success" /> : <XIcon className="size-4 text-muted-foreground" />}
         <span className="flex-1 text-muted-foreground">
           Skills · {plan.status === "accepted" ? "Accepted" : "Kept as they were"}
@@ -504,8 +495,9 @@ function SkillsCard({
   const ordered = plan.order ? plan.order.map((id) => byId.get(id)).filter(Boolean) : [];
 
   return (
-    <section className="flex flex-col gap-3 border-b px-5 py-5 sm:px-6">
+    <section id="sugg-skills" className="flex scroll-my-24 flex-col gap-3 border-b px-5 py-5 sm:px-6">
       <h3 className="text-sm font-medium">Skills</h3>
+      <p className="text-xs text-muted-foreground">Current order: {content.skills.map((s) => s.name).join(", ")}</p>
       {ordered.length > 0 && (
         <div className="flex flex-col gap-1.5">
           <p className="text-xs text-muted-foreground">Put the most relevant first:</p>
@@ -536,10 +528,10 @@ function SkillsCard({
       <div className="flex gap-1.5">
         <Button size="sm" onClick={onAccept}>
           <CheckIcon data-icon="inline-start" />
-          Accept
+          Use suggestion
         </Button>
         <Button size="sm" variant="ghost" onClick={onReject}>
-          Reject
+          Keep original
         </Button>
       </div>
     </section>

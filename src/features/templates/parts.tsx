@@ -77,7 +77,7 @@ export function Bullets({ items, className }: { items: Bullet[]; className?: str
 export function Link({ href, plain, children }: { href?: string; plain?: boolean; children: React.ReactNode }) {
   if (!href || plain) return <>{children}</>;
   return (
-    <a href={href} className="text-inherit no-underline">
+    <a href={/^(https?:|mailto:|tel:)/i.test(href) ? href : `https://${href}`} className="text-inherit no-underline">
       {children}
     </a>
   );

@@ -1,4 +1,5 @@
 import { H1, H2 } from "./doc-headings";
+import { SuggestedText, SuggestedSkills } from "./suggested-text";
 import {
   Bullets,
   contactItems,
@@ -42,7 +43,7 @@ export function CompactTemplate({ content: c, hints, plain }: TemplateProps) {
 
       {show.summary && (
         <Section title="Summary" k="summary">
-          <p data-line="summary">{c.summary}</p>
+<p data-line="summary"><SuggestedText id="summary">{c.summary}</SuggestedText></p>
         </Section>
       )}
 
@@ -80,7 +81,7 @@ export function CompactTemplate({ content: c, hints, plain }: TemplateProps) {
                       {" "}— <Link plain={plain} href={p.url}>{p.url.replace(/^https?:\/\//, "")}</Link>
                     </span>
                   )}
-                  {p.description && <span>: {p.description}</span>}
+                  {p.description && <span data-line={`${p.id}:description`}>: <SuggestedText id={`${p.id}:description`}>{p.description}</SuggestedText></span>}
                 </p>
                 <Bullets items={p.bullets} className="mt-[2px]" />
               </div>
@@ -111,7 +112,7 @@ export function CompactTemplate({ content: c, hints, plain }: TemplateProps) {
           {show.skills && (
             <p data-section="skills">
               <span className="font-bold">Skills: </span>
-              {c.skills.map((s) => s.name).join(", ")}
+              <SuggestedSkills skills={c.skills} />
             </p>
           )}
           {show.certifications && (
