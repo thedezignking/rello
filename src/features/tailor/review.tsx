@@ -51,7 +51,7 @@ export function Review({ resume, initial }: { resume: Resume; initial: TailorSes
   const { content, setContent, status, retry, flush } = useAutosave(resume);
   const { download, busyId } = useDownloadPdf();
   const [session, setSession] = useState(initial);
-  const [active, setActive] = useState<string[]>([]);
+  const [active, setActive] = useState<string[]>([initial.suggestions.find((s) => s.status === "pending")?.targetId ?? initial.suggestions[0]?.targetId].filter(Boolean) as string[]);
   const [view, setView] = useState<"suggestions" | "page">("page");
   const [retrying, setRetrying] = useState<string | null>(null);
 
@@ -226,7 +226,7 @@ export function Review({ resume, initial }: { resume: Resume; initial: TailorSes
         >
           <div className="sticky top-0 z-10 flex flex-col gap-2.5 border-b bg-card/95 px-5 py-4 backdrop-blur-sm sm:px-6">
             <div className="flex items-baseline justify-between gap-3">
-              <h2 className="font-heading text-lg leading-tight font-medium tracking-tight">Suggestions</h2>
+              <h2 className="font-heading text-lg leading-tight font-medium tracking-tight">Review changes</h2>
               {total > 0 && (
                 <p className="text-xs text-muted-foreground tabular-nums">
                   {reviewed} of {total} reviewed
@@ -253,6 +253,7 @@ export function Review({ resume, initial }: { resume: Resume; initial: TailorSes
               <p className="text-sm text-muted-foreground">No changes suggested</p>
             )}
           </div>
+
 
           <details className="group border-b">
             <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-3.5 text-sm font-medium sm:px-6">
@@ -318,7 +319,7 @@ export function Review({ resume, initial }: { resume: Resume; initial: TailorSes
                       context={contexts.get(s.targetId) ?? ""}
                       busy={retrying === s.id}
                       selected={active.includes(s.targetId)}
-                      onHover={(on) => setActive(on ? [s.targetId] : [])}
+                      onHover={(on) => { if (on) setActive([s.targetId]); }}
                       onAccept={() => accept(s)}
                       onReject={() => reject(s)}
                       onUndo={() => undo(s)}

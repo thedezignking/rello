@@ -22,6 +22,8 @@ import { getResumeStore } from "@/features/resumes/store";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { requestTailor, TailorError } from "./api";
 import { PagePreview } from "@/features/templates/page-preview";
+import { SAMPLE_CONTENT } from "@/features/templates/sample";
+import type { TailorResult } from "./types";
 
 const MIN_CHARS = 80;
 const MAX_CHARS = 15000;
@@ -44,6 +46,34 @@ export function JobForm({ source }: { source: Resume }) {
   const [error, setError] = useState<string | null>(null);
   const ready = isReadyForTailoring(source.content);
   const length = description.trim().length;
+
+  async function loadDemo() {
+    setBusy(true);
+    try {
+      const store = getResumeStore();
+      const demo = await store.create({ title: "Demo · Amara Okafor", templateId: "classic", content: structuredClone(SAMPLE_CONTENT) });
+      const rewrites = [
+        ["s_b1", "Improved merchant onboarding, reducing drop-off from 41% to 23% in two quarters.", "Brings the onboarding outcome forward for this fintech role."],
+        ["s_b2", "Built and maintain a shared design system across three product teams.", "Emphasizes design systems work across teams."],
+        ["s_b3", "Conduct fortnightly usability testing sessions with small-business owners.", "Uses the job posting’s terminology for your existing research work."],
+      ];
+      const result: TailorResult = {
+        job: { title: "Product Designer", company: "Acme Pay" },
+        suggestions: rewrites.map(([id, suggested, reason]) => ({ id: crypto.randomUUID(), targetId: id, section: "experience", original: SAMPLE_CONTENT.experience[0].bullets.find((b) => b.id === id)!.text, suggested, reason, status: "pending" })),
+        requirements: [
+          { id: "demo-design", text: "Build and maintain design systems", kind: "required", status: "covered", evidence: ["s_b2"] },
+          { id: "demo-research", text: "Conduct usability testing", kind: "required", status: "covered", evidence: ["s_b3"] },
+          { id: "demo-mentor", text: "Mentor other designers", kind: "preferred", status: "missing", evidence: [] },
+        ],
+        skills: null,
+      };
+      const { resume } = await store.createTailored({ source: demo, title: "Demo · Product Designer at Acme Pay", description: "Acme Pay seeks a Product Designer with fintech onboarding, design systems and usability testing experience. Mentoring designers is preferred.", result });
+      router.replace(`/r/${resume.id}/tailor`);
+    } catch {
+      setError("Couldn't load the demo. Try again.");
+      setBusy(false);
+    }
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -101,6 +131,7 @@ export function JobForm({ source }: { source: Resume }) {
       </div>
       <main className="w-full px-5 py-8 lg:w-[420px] lg:shrink-0 lg:border-l lg:bg-card">
         <h1 className="font-heading text-3xl font-medium tracking-tight sm:text-4xl">Tailor to a job</h1>
+        {process.env.NODE_ENV === "development" && <Button variant="outline" size="sm" className="mt-3" onClick={loadDemo} disabled={busy}>Load demo review</Button>}
         <p className="mt-2 text-muted-foreground">
           Paste the job you&apos;re applying for. You&apos;ll get line-by-line suggestions to accept, reject or
           ask for again. Your original resume stays as it is; changes go into a new copy.
