@@ -4,7 +4,7 @@ import { useId, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeftIcon, ArrowRightIcon, TriangleAlertIcon } from "lucide-react";
-import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -113,11 +113,11 @@ export function JobForm({ source }: { source: Resume }) {
             <AlertDescription>
               Add your name and some experience, education or projects before tailoring.
             </AlertDescription>
-            <AlertAction>
+            <div className="col-start-2 mt-3">
               <Button size="sm" variant="outline" nativeButton={false} render={<Link href={`/r/${source.id}`} />}>
                 Edit resume
               </Button>
-            </AlertAction>
+            </div>
           </Alert>
         )}
 

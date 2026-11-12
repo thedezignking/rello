@@ -107,7 +107,7 @@ function Workspace({ resume }: { resume: Resume }) {
   // Clicking a section on the page opens its fields.
   function jumpTo(section: string) {
     setView("edit");
-    setOpen((o) => (o.includes(section) ? o : [...o, section]));
+    setOpen([section]);
     requestAnimationFrame(() =>
       document.getElementById(`section-${section}`)?.scrollIntoView({ behavior: "smooth", block: "start" }),
     );
@@ -197,7 +197,7 @@ function Workspace({ resume }: { resume: Resume }) {
           <ReadinessNote ready={isReadyForTailoring(content)} />
           <ImproveProvider value={{ resumeId: resume.id, content }}>
             <Accordion
-              multiple
+              multiple={false}
               value={open}
               onValueChange={(v) => setOpen(v as string[])}
               className="pb-24"
