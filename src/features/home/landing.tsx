@@ -5,19 +5,14 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
-  BlockedDemo,
-  CopyDemo,
-  HeroDemo,
   MatchDemo,
-  PopCheck,
   SpotlightCard,
-  Stagger,
-  StaggerItem,
   Appear,
-  StepDot,
-  TimelineLine,
 } from "./landing-motion";
 import { TemplateDemo } from "./template-demo";
+import { PaperStage } from "./paper-stage";
+import { PricingPlans } from "./pricing-plans";
+import { CopyStory, EvidenceStory, HowStory } from "./landing-stories";
 
 // The public landing page. Server-rendered and data-free, so it's fast and
 // readable by search engines. Every call to action uses one label and leads
@@ -56,17 +51,17 @@ function SectionHeader({ title, lede, className }: { title: string; lede: string
 }
 
 // Space above each section, so the page keeps one beat from top to bottom.
-const SECTION = "mx-auto max-w-6xl scroll-mt-20 px-4 pt-24 sm:px-6 sm:pt-32";
+const SECTION = "landing-section scroll-mt-20";
 
 const HEADLINE = "Build a resume that opens doors.";
 
 /* Hero: split. Promise on the left, the product doing it on the right. */
 export function Hero() {
   return (
-    <section>
-      <div className="mx-auto grid max-w-6xl items-center gap-14 px-4 pt-14 pb-20 sm:px-6 lg:grid-cols-[1fr_1.05fr] lg:pt-20 lg:pb-24">
-        <div className="flex flex-col items-start gap-6">
-          <h1 className="font-heading text-[2.75rem] leading-[1.02] font-medium tracking-tight text-balance sm:text-6xl">
+    <section className="landing-hero">
+      <div className="grid items-center lg:grid-cols-[0.92fr_1.08fr]">
+        <div className="hero-copy flex flex-col items-start gap-6">
+          <h1 className="font-heading text-[3.2rem] leading-[0.98] font-medium tracking-tight text-balance sm:text-[4.25rem]">
             {/* Each word rises in turn. Spaces sit between the spans, since a space inside an inline-block collapses. */}
             {HEADLINE.split(" ").map((w, i) => (
               <Fragment key={i}>
@@ -96,10 +91,11 @@ export function Hero() {
             </Button>
           </div>
         </div>
-        <div className="rise" style={{ "--i": 8 } as React.CSSProperties}>
-          <HeroDemo />
+        <div className="hero-stage-wrap rise" style={{ "--i": 8 } as React.CSSProperties}>
+          <PaperStage />
         </div>
       </div>
+      <div className="landing-proof"><span>Made for your next move.</span><span>Real, selectable PDF text</span><span>Four considered templates</span><span>You approve every change</span></div>
     </section>
   );
 }
@@ -112,7 +108,7 @@ export function Templates() {
         title="Four templates. Switch any time."
         lede="Your words stay put while the design changes. All single-column with real, selectable text, so they read well on screen, on paper and in hiring systems."
       />
-      <div className="mt-12">
+      <div className="template-stage mt-12">
         <TemplateDemo />
       </div>
     </section>
@@ -134,21 +130,17 @@ const STEPS = [
   },
 ];
 
-/* How it works: a real sequence, so it's numbered. A timeline, not cards. */
+/* Each numbered step acts out one part of the flow without requiring a click. */
 export function HowItWorks() {
   return (
     <section id="how" className={SECTION}>
-      <SectionHeader title="How it works" lede="From the resume you have to one shaped for the job, in three steps." />
-      {/* One thing at a time: the line draws, and each step lights up and appears as the line reaches it. */}
-      <ol className="relative mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
-        <span aria-hidden className="absolute top-4 right-8 left-8 hidden h-px bg-border md:block" />
-        <TimelineLine />
+      <SectionHeader title="Three steps to your next opportunity." lede="From the resume you have to one shaped for the job." />
+      <ol className="how-grid">
         {STEPS.map((s, i) => (
-          <li key={s.title} className="relative flex gap-4 md:flex-col md:gap-5">
-            <StepDot n={i + 1} />
+          <li key={s.title} className="how-card">
             <Appear step={i}>
-              <h3 className="text-[17px] font-medium">{s.title}</h3>
-              <p className="mt-2 max-w-xs text-[15px] leading-relaxed text-pretty text-muted-foreground">{s.body}</p>
+              <HowStory step={i} />
+              <div className="how-caption"><span className="how-number">{i + 1}</span><h3 className="text-[16px] font-medium">{s.title}</h3><p className="mt-3 text-[13px] leading-relaxed text-pretty text-muted-foreground">{s.body}</p></div>
             </Appear>
           </li>
         ))}
@@ -172,10 +164,10 @@ export function WhyRello() {
     <section className={SECTION}>
       <SectionHeader
         title="Tailoring you can trust"
-        lede="Rello rewords what's already true about you, and shows you every change before it lands."
+        lede="A clearer way to tell your story. Review the changes, see why they matter, and keep the final say."
       />
-      <div className="mt-12 grid grid-flow-dense gap-4 md:grid-cols-3 md:grid-rows-2">
-        <SpotlightCard className="flex flex-col justify-between gap-8 rounded-2xl border bg-card p-6 sm:p-8 md:col-span-2 md:row-span-2">
+      <div className="trust-grid mt-12 grid grid-flow-dense md:grid-cols-3 md:grid-rows-2">
+        <SpotlightCard className="trust-feature flex flex-col gap-6 p-6 sm:p-8 md:col-span-2 md:row-span-2">
           <div className="max-w-md">
             <h3 className="text-lg font-medium">See what the job wants</h3>
             <p className="mt-2 text-[15px] leading-relaxed text-pretty text-muted-foreground">
@@ -183,64 +175,43 @@ export function WhyRello() {
               what&apos;s missing before you apply.
             </p>
           </div>
-          <MatchDemo rows={MATCH} />
+          <div className="match-stage"><MatchDemo rows={MATCH} /></div>
         </SpotlightCard>
 
-        <SpotlightCard className="flex flex-col gap-4 rounded-2xl border bg-highlight-soft/30 p-6">
+        <SpotlightCard className="trust-small flex flex-col gap-4 bg-card/60 p-6">
           <h3 className="text-lg font-medium">Nothing made up</h3>
           <p className="text-[15px] leading-relaxed text-pretty text-muted-foreground">
             Suggestions only use what&apos;s already on your resume. Invented numbers are blocked.
           </p>
-          <BlockedDemo />
+          <EvidenceStory />
         </SpotlightCard>
 
-        <SpotlightCard className="flex flex-col gap-4 rounded-2xl border bg-accent/30 p-6">
+        <SpotlightCard className="trust-small flex flex-col gap-4 bg-card/60 p-6">
           <h3 className="text-lg font-medium">Your original stays put</h3>
           <p className="text-[15px] leading-relaxed text-pretty text-muted-foreground">
             Each job gets its own copy, so your main resume never changes.
           </p>
-          <CopyDemo />
+          <CopyStory />
         </SpotlightCard>
       </div>
     </section>
   );
 }
 
-const INCLUDED = [
-  "Unlimited resumes and edits",
-  "All four templates",
-  "PDF downloads",
-  "Import from PDF or Word",
-  "Job tailoring and AI writing help, with a fair daily limit",
-];
-
 export function Pricing() {
   return (
     <section id="pricing" className={SECTION}>
-      <SpotlightCard className="grid gap-10 rounded-2xl border bg-card p-6 sm:p-10 lg:grid-cols-[1fr_1.1fr] lg:items-center">
-        <div className="flex flex-col items-start gap-4">
-          <h2 className="font-heading text-[2rem] leading-[1.1] font-medium tracking-tight sm:text-[2.5rem]">
-            Free while we&apos;re in beta
-          </h2>
-          <p className="max-w-md text-pretty text-muted-foreground sm:text-lg">
-            Everything here costs nothing today. If paid options come later, you&apos;ll see the price before you pay.
-          </p>
-          <StartButton className="mt-2" />
-        </div>
-        <Stagger as="ul" className="flex flex-col gap-3.5">
-          {INCLUDED.map((item) => (
-            <StaggerItem as="li" key={item} className="flex gap-3 text-[15px]">
-              <PopCheck className="mt-0.5 shrink-0 text-success" />
-              {item}
-            </StaggerItem>
-          ))}
-        </Stagger>
-      </SpotlightCard>
+      <SectionHeader title="Simple, transparent pricing." lede="Start free. Add a few tailoring credits when you need them." />
+      <PricingPlans />
     </section>
   );
 }
 
 const FAQ = [
+  {
+    q: "How do tailoring credits work?",
+    a: "One credit creates one tailored copy for a job. Editing your resume, previewing it and downloading a saved copy again don’t use credits. The Starter and Job search packs are one-time purchases, not subscriptions.",
+  },
   {
     q: "Do I need an account?",
     a: "Not to start. Make and edit a resume straight away, then sign in with Google or an email code when you want to keep it, tailor it or download it.",
@@ -261,13 +232,13 @@ const FAQ = [
 
 export function Faq() {
   return (
-    <section id="faq" className={cn("grid gap-10 lg:grid-cols-[1fr_1.6fr] lg:gap-16", SECTION)}>
-      <SectionHeader title="Questions" lede="The things people ask before they start." />
-      <Accordion>
+    <section id="faq" className={cn("landing-faq", SECTION)}>
+      <h2 className="font-heading font-medium tracking-tight">Common questions</h2>
+      <Accordion multiple={false} className="mt-8 border-t">
         {FAQ.map((f) => (
           <AccordionItem key={f.q} value={f.q}>
             <AccordionTrigger className="py-5 text-[17px] font-medium hover:no-underline">{f.q}</AccordionTrigger>
-            <AccordionContent className="max-w-xl pb-6 text-[15px] leading-relaxed text-pretty text-muted-foreground">
+            <AccordionContent className="max-w-3xl pb-6 text-[15px] leading-relaxed text-pretty text-muted-foreground">
               {f.a}
             </AccordionContent>
           </AccordionItem>
@@ -279,7 +250,7 @@ export function Faq() {
 
 export function FinalCta() {
   return (
-    <div className="mt-24 sm:mt-32">
+    <div className="landing-closing">
       <section className="reveal mx-auto flex max-w-3xl flex-col items-center px-4 pt-20 pb-6 text-center sm:px-6 sm:pt-28 sm:pb-12">
         <h2 className="font-heading text-4xl font-medium tracking-tight text-balance sm:text-5xl">
           One resume. Every opportunity.

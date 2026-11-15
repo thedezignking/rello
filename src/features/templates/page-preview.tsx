@@ -10,6 +10,7 @@ import { PAGE_HEIGHT, PAGE_WIDTH, PRINT_MARGIN } from "./parts";
  * Renders a resume at true A4 size and scales it to the container's width.
  * `mode="page"` shows the whole document with page-break guides.
  * `mode="thumb"` crops to the first page, for cards.
+ * `mode="content"` fits the content for decorative demos without trailing A4 space.
  */
 export function PagePreview({
   templateId,
@@ -23,7 +24,7 @@ export function PagePreview({
 }: {
   templateId: TemplateId;
   content: ResumeContent;
-  mode?: "page" | "thumb";
+  mode?: "page" | "thumb" | "content";
   hints?: boolean;
   onSectionClick?: (section: string) => void;
   /** Marks lines (by data-line id) like a highlighter; `active` gets a stronger mark. */
@@ -43,14 +44,14 @@ export function PagePreview({
     if (!f || !d) return;
     const measure = () => {
       setScale(f.clientWidth / PAGE_WIDTH);
-      setDocHeight(Math.max(PAGE_HEIGHT, d.scrollHeight));
+      setDocHeight(Math.max(mode === "content" ? 1 : PAGE_HEIGHT, d.scrollHeight));
     };
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(f);
     ro.observe(d);
     return () => ro.disconnect();
-  }, []);
+  }, [mode]);
 
   // Mirrors the PDF: each printed page holds PAGE_HEIGHT minus its top and
   // bottom margins, and the template's own padding stands in for the first
@@ -59,7 +60,7 @@ export function PagePreview({
   const contentPerPage = PAGE_HEIGHT - 2 * PRINT_MARGIN;
   const pages = Math.max(1, Math.ceil((docHeight - 2 * PRINT_MARGIN) / contentPerPage));
   const breakAt = (i: number) => PRINT_MARGIN + (i + 1) * contentPerPage;
-  const height = mode === "thumb" ? PAGE_HEIGHT : pages * PAGE_HEIGHT;
+  const height = mode === "content" ? docHeight : mode === "thumb" ? PAGE_HEIGHT : pages * PAGE_HEIGHT;
 
   function handleClick(e: React.MouseEvent) {
     const el = e.target as HTMLElement;
@@ -115,14 +116,14 @@ export function PagePreview({
         )}
         style={{
           width: PAGE_WIDTH,
-          minHeight: PAGE_HEIGHT,
+          minHeight: mode === "content" ? undefined : PAGE_HEIGHT,
           transform: `scale(${scale})`,
           visibility: scale ? "visible" : "hidden",
         }}
-        aria-hidden={mode === "thumb" || undefined}
+        aria-hidden={mode !== "page" || undefined}
       >
         {highlightCss && <style>{highlightCss}</style>}
-        <ResumeDocument templateId={templateId} content={content} hints={hints} plain={mode === "thumb"} />
+        <ResumeDocument templateId={templateId} content={content} hints={hints} plain={mode !== "page"} />
       </div>
 
       {mode === "page" &&

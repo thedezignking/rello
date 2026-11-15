@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/auth-provider";
 import { START_LABEL } from "@/features/home/copy";
-import { ThemeToggle } from "@/features/theme/theme";
 import { useScrolled } from "@/lib/use-scrolled";
 
 /**
@@ -55,14 +54,13 @@ export function LandingHeader() {
           ))}
         </nav>
         <div className="flex items-center gap-1 sm:gap-2">
-          <ThemeToggle />
           {hasAccount ? (
             <Button nativeButton={false} render={<Link href="/resumes" />}>
               Your resumes
             </Button>
           ) : (
             <>
-              <Button variant="ghost" onClick={signIn}>
+              <Button variant="ghost" onClick={signIn} className="hidden sm:inline-flex">
                 Sign in
               </Button>
               <Button nativeButton={false} render={<Link href="/resumes" />}>

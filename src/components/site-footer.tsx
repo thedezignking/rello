@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ThemeToggle } from "@/features/theme/theme";
 
 const COLUMNS = [
   {
@@ -98,12 +97,9 @@ export function SiteFooter({ variant = "compact" }: { variant?: "full" | "compac
             </nav>
           ))}
         </div>
-        <div className="flex items-center justify-between gap-4 pt-2 pb-8 text-xs text-muted-foreground">
-          <p>© Rello · Free while in beta</p>
-          {/* Pulled out by the button padding, so the icon lines up with the columns above. */}
-          <div className="-mr-2">
-            <ThemeToggle />
-          </div>
+        <div className="flex flex-col gap-2 pt-2 pb-8 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+          <p>© 2026 Rello. All rights reserved.</p>
+          <p>Resumes that fit the job</p>
         </div>
       </div>
     </footer>

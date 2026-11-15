@@ -5,7 +5,7 @@ import { diffInline } from "@/features/tailor/diff";
 import type { ResumeContent } from "@/features/resumes/schema";
 import type { SkillsPlan } from "@/features/tailor/types";
 
-export const SuggestedTextContext = createContext<Record<string, { original: string; suggested: string }>>({});
+export const SuggestedTextContext = createContext<Record<string, { original: string; suggested: string; interactive?: boolean }>>({});
 export const SuggestedSkillsContext = createContext<SkillsPlan | null>(null);
 
 export function SuggestedSkills({ skills, separator = ", " }: { skills: ResumeContent["skills"]; separator?: string }) {
@@ -22,7 +22,7 @@ export function SuggestedSkills({ skills, separator = ", " }: { skills: ResumeCo
 export function SuggestedText({ id, children }: { id: string; children: string }) {
   const change = useContext(SuggestedTextContext)[id];
   if (!change) return <>{children}</>;
-  return <span data-line={id} role="button" tabIndex={0} aria-label={`Review suggested change: ${change.suggested}`}>{diffInline(change.original, change.suggested).map((part, index) =>
+  return <span data-line={id} role={change.interactive === false ? undefined : "button"} tabIndex={change.interactive === false ? undefined : 0} aria-label={change.interactive === false ? undefined : `Review suggested change: ${change.suggested}`}>{diffInline(change.original, change.suggested).map((part, index) =>
     part.kind === "removed" ? <span key={index}><del className="bg-red-50 text-red-800 decoration-red-500">{part.text}</del>{! /\s$/.test(part.text) ? " " : ""}</span> :
     part.kind === "added" ? <ins key={index} className="bg-green-100 text-green-900 no-underline">{part.text}</ins> :
     <span key={index}>{part.text}</span>
