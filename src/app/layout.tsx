@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { IBM_Plex_Sans, Inter, Newsreader, Onest, Source_Serif_4 } from "next/font/google";
 import { Toaster } from "@/components/ui/toast";
 import { AuthProvider } from "@/features/auth/auth-provider";
 import { themeScript } from "@/features/theme/script";
+import { ThemeSync } from "@/features/theme/theme-sync";
 import "./globals.css";
 
 const onest = Onest({
@@ -53,6 +55,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="min-h-dvh antialiased">
+        <Suspense fallback={null}><ThemeSync /></Suspense>
         <Toaster>
           <AuthProvider>{children}</AuthProvider>
         </Toaster>

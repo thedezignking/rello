@@ -13,10 +13,10 @@ import { useScrolled } from "@/lib/use-scrolled";
  * a way back instead.
  */
 const SECTIONS = [
-  { href: "#how", label: "How it works" },
-  { href: "#templates", label: "Templates" },
-  { href: "#pricing", label: "Pricing" },
-  { href: "#faq", label: "Questions" },
+  { href: "/?home#how", label: "How it works" },
+  { href: "/?home#templates", label: "Templates" },
+  { href: "/?home#pricing", label: "Pricing" },
+  { href: "/?home#faq", label: "Questions" },
 ];
 
 export function LandingHeader() {

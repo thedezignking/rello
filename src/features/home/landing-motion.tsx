@@ -372,14 +372,14 @@ type MatchRow = { text: string; status: "covered" | "partial" | "missing" };
 export function MatchDemo({ rows }: { rows: readonly MatchRow[] }) {
   const covered = rows.filter((r) => r.status === "covered").length;
   return (
-    <Stagger aria-label="Example job match" className="flex flex-col gap-1 rounded-xl border bg-background/60 p-3 sm:p-4">
-      <StaggerItem className="mb-2 flex items-center justify-between gap-3 px-2 text-xs text-muted-foreground">
+    <Stagger aria-label="Example job match" className="match-demo flex flex-col gap-1 rounded-xl border bg-background/60 p-3 sm:p-4">
+      <StaggerItem className="match-demo-header mb-2 flex items-center justify-between gap-3 px-2 text-xs text-muted-foreground">
         <span>Senior Product Designer · Acme Pay</span>
-        <span className="tabular-nums">
-          {covered} of {rows.length} shown
+        <span className="shrink-0 tabular-nums">
+          {covered} of {rows.length} matched
         </span>
       </StaggerItem>
-      <StaggerItem className="mx-2 mb-2 h-1 overflow-hidden rounded-full bg-muted">
+      <StaggerItem className="match-demo-progress mx-2 mb-2 h-1 overflow-hidden rounded-full bg-muted">
         <motion.div
           className="h-full origin-left rounded-full bg-success"
           initial={{ scaleX: 0 }}
@@ -391,12 +391,12 @@ export function MatchDemo({ rows }: { rows: readonly MatchRow[] }) {
       {rows.map((r, i) => (
         <StaggerItem
           key={r.text}
-          className="flex items-center gap-2.5 rounded-md px-2 py-2 text-sm transition-colors duration-150 [@media(hover:hover)]:hover:bg-muted/70"
+          className="match-demo-row flex items-center gap-2.5 rounded-md px-2 py-2 text-sm transition-colors duration-150 [@media(hover:hover)]:hover:bg-muted/70"
         >
           <MatchMark status={r.status} delay={0.6 + i * 0.25} />
-          {r.text}
+          <span className="match-demo-requirement min-w-0 flex-1">{r.text}</span>
           <motion.span
-            className="ml-auto text-xs text-muted-foreground"
+            className="match-demo-status ml-auto shrink-0 text-xs whitespace-nowrap text-muted-foreground"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}

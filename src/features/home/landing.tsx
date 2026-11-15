@@ -255,7 +255,7 @@ export function FinalCta() {
         <h2 className="font-heading text-4xl font-medium tracking-tight text-balance sm:text-5xl">
           One resume. Every opportunity.
         </h2>
-        <p className="mt-4 max-w-md text-pretty text-muted-foreground sm:text-lg">
+        <p className="mt-4 max-w-md text-pretty text-muted-foreground sm:max-w-none sm:text-lg">
           Make it once, then shape a copy for each role you go after.
         </p>
         <StartButton className="mt-8" />

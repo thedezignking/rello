@@ -92,6 +92,40 @@ html:has(.landing-shell), body:has(.landing-shell) { background: #f8f9f6; color-
 .how-number { display: inline-flex; width: 24px; height: 24px; margin-bottom: 14px; align-items: center; justify-content: center; border: 1px solid var(--landing-rule); border-radius: 50%; color: var(--muted-foreground); font-size: 11px; }
 .landing-faq { padding-inline: max(48px, calc((100% - 1056px) / 2)); }
 .landing-faq h2 { font-size: 32px; }
+.document-page { display: grid; grid-template-columns: 200px minmax(0, 1fr); align-items: start; gap: 64px; max-width: 1120px; min-height: 60dvh; margin-inline: auto; padding: 72px 48px 104px; }
+.document-sidebar { position: sticky; top: 108px; }
+.document-back { display: inline-flex; align-items: center; gap: 8px; color: var(--muted-foreground); font-size: 13px; }
+.document-nav { display: flex; flex-direction: column; gap: 4px; margin-top: 28px; }
+.document-nav > a { padding: 10px 12px; border-radius: 4px; font-size: 14px; color: var(--muted-foreground); }
+.document-nav > a[aria-current="page"] { background: var(--card); box-shadow: inset 0 0 0 1px var(--landing-inner-rule); color: var(--foreground); font-weight: 500; }
+.document-article { min-width: 0; max-width: 65ch; }
+.document-heading { padding-bottom: 28px; border-bottom: 1px solid var(--landing-rule); }
+.document-heading > h1 { font-family: var(--font-heading); font-size: clamp(40px, 4vw, 56px); font-weight: 500; line-height: 1.08; letter-spacing: -.035em; text-wrap: balance; }
+.document-description { margin-top: 18px; font-size: 17px; line-height: 1.65; color: var(--muted-foreground); text-wrap: pretty; }
+.document-updated { margin-top: 16px; font-size: 13px; color: var(--muted-foreground); }
+.document-prose { display: flex; flex-direction: column; gap: 16px; margin-top: 28px; font-size: 15px; line-height: 1.85; overflow-wrap: break-word; }
+.document-prose h2 { margin-top: 20px; font-family: var(--font-heading); font-size: 28px; font-weight: 500; line-height: 1.2; letter-spacing: -.02em; scroll-margin-top: 100px; }
+.document-prose h2:first-child { margin-top: 0; }
+.document-prose ul { display: flex; flex-direction: column; gap: 8px; padding-left: 20px; list-style: disc; }
+.document-prose a { color: var(--primary); text-decoration: underline; text-underline-offset: 4px; }
+@media (hover: hover) { .document-nav > a:hover { color: var(--foreground); background: var(--card); } .document-back:hover { color: var(--foreground); } }
+@media (max-width: 767px) {
+  .document-page { grid-template-columns: minmax(0, 1fr); gap: 32px; padding: 32px 32px 64px; }
+  .document-sidebar { position: static; }
+  .document-nav { flex-direction: row; flex-wrap: wrap; gap: 4px; margin-top: 20px; }
+  .document-nav > a { padding: 8px 10px; font-size: 12px; }
+  .document-heading > h1 { font-size: 40px; }
+  .document-description { font-size: 16px; }
+  .document-prose { font-size: 14px; }
+  .trust-feature { padding: 20px; gap: 20px; }
+  .match-stage { flex: none; margin-inline: -8px; }
+  .match-stage > .match-demo { justify-content: flex-start; gap: 4px; padding: 12px; border-radius: 8px; }
+  .match-demo-header { flex-direction: column; align-items: flex-start; gap: 4px; padding-inline: 0; font-size: 11px; line-height: 1.5; }
+  .match-demo-progress { flex-shrink: 0; margin-inline: 0; }
+  .match-demo-row { display: grid; grid-template-columns: 14px minmax(0, 1fr); align-items: start; column-gap: 8px; row-gap: 2px; padding: 8px 0; font-size: 12px; line-height: 1.5; }
+  .match-demo-row > span:first-child { width: 14px; height: 14px; margin-top: 2px; }
+  .match-demo-status { grid-column: 2; margin-left: 0; font-size: 11px; }
+}
 .story-art { position: relative; flex-direction: column; gap: 12px; height: 280px; padding: 24px 18px; pointer-events: none; }
 .how-story-card { flex-shrink: 0; width: min(100%, 240px); height: 192px; padding: 16px; border-radius: 7px; background: var(--card); border: 1px solid var(--landing-rule); box-shadow: 0 2px 4px #20364708, 0 14px 28px #20364720; transform: rotate(-3deg); }
 .how-art-2 .how-story-card { transform: rotate(2deg); }

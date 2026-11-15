@@ -1,12 +1,13 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import { LegalPage } from "@/components/legal-page";
 
-export const metadata: Metadata = { title: "Privacy" };
+export const metadata: Metadata = { title: "Privacy policy" };
+export const viewport: Viewport = { colorScheme: "light", themeColor: "#f8f9f6" };
 
 export default function PrivacyPage() {
   return (
-    <LegalPage title="Privacy" updated="October 30, 2026">
+    <LegalPage title="Privacy policy" href="/privacy" updated="October 30, 2026">
       <p>
         Rello helps you write and tailor your resume. To do that we store what you put in it. This page explains what
         we keep, why, and how to delete it.

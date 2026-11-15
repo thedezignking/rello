@@ -1,11 +1,12 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { LegalPage } from "@/components/legal-page";
 
-export const metadata: Metadata = { title: "Terms" };
+export const metadata: Metadata = { title: "Terms of service" };
+export const viewport: Viewport = { colorScheme: "light", themeColor: "#f8f9f6" };
 
 export default function TermsPage() {
   return (
-    <LegalPage title="Terms" updated="October 30, 2026">
+    <LegalPage title="Terms of service" href="/terms" updated="October 30, 2026">
       <p>By using Rello you agree to these terms.</p>
 
       <h2>Your content</h2>

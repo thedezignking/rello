@@ -11,8 +11,9 @@ const COLUMNS = [
     ],
   },
   {
-    title: "App",
+    title: "Resources",
     links: [
+      { href: "/guide", label: "Getting started" },
       { href: "/resumes", label: "Your resumes" },
       { href: "/settings", label: "Settings" },
     ],
@@ -20,8 +21,8 @@ const COLUMNS = [
   {
     title: "Legal",
     links: [
-      { href: "/privacy", label: "Privacy" },
-      { href: "/terms", label: "Terms" },
+      { href: "/privacy", label: "Privacy policy" },
+      { href: "/terms", label: "Terms of service" },
     ],
   },
 ];
@@ -51,6 +52,7 @@ export function SiteFooter({ variant = "compact" }: { variant?: "full" | "compac
           <nav aria-label="Footer" className="flex flex-wrap gap-x-5 gap-y-2">
             {[
               { href: "/?home", label: "About Rello" },
+              { href: "/guide", label: "Getting started" },
               { href: "/settings", label: "Settings" },
               { href: "/privacy", label: "Privacy" },
               { href: "/terms", label: "Terms" },
@@ -99,7 +101,7 @@ export function SiteFooter({ variant = "compact" }: { variant?: "full" | "compac
         </div>
         <div className="flex flex-col gap-2 pt-2 pb-8 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:gap-4">
           <p>© 2026 Rello. All rights reserved.</p>
-          <p>Resumes that fit the job</p>
+          <p className="hidden md:block">Resumes that fit the job</p>
         </div>
       </div>
     </footer>
