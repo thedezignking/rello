@@ -1,4 +1,4 @@
-html:has(.landing-shell), body:has(.landing-shell) { background: #f8f9f6; color-scheme: light; }
+html:has(.landing-shell), body:has(.landing-shell) { background: #f8f9f6; color-scheme: only light; }
 .landing-shell {
   --landing-rule: rgb(32 45 56 / 9%);
   --landing-inner-rule: rgb(32 45 56 / 6%);
@@ -22,7 +22,7 @@ html:has(.landing-shell), body:has(.landing-shell) { background: #f8f9f6; color-
   --destructive: #b42318;
   --input: #c6ccd5;
   --ring: #2546c8;
-  color-scheme: light;
+  color-scheme: only light;
   font-family: var(--font-onest), ui-sans-serif, system-ui, sans-serif;
   position: relative;
   isolation: isolate;

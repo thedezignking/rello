@@ -178,6 +178,7 @@
   }
   html {
     -webkit-text-size-adjust: 100%;
+    background-color: var(--background);
     @apply font-sans;
   }
   body {

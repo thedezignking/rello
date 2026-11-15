@@ -47,6 +47,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      data-theme="light"
+      style={{ colorScheme: "only light", backgroundColor: "#f8f9f6" }}
       className={`${onest.variable} ${newsreader.variable} ${docSerif.variable} ${docSans.variable} ${docPlex.variable}`}
       // The theme script sets data-theme before React hydrates.
       suppressHydrationWarning
