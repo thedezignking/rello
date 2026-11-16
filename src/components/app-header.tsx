@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LogOutIcon, SettingsIcon } from "lucide-react";
+import { CoinsIcon, LogOutIcon, SettingsIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/features/auth/auth-provider";
+import { useBilling } from "@/features/billing/billing-provider";
 import { ThemeToggle } from "@/features/theme/theme";
 import { useScrolled } from "@/lib/use-scrolled";
 
@@ -37,11 +38,19 @@ export function AppHeader() {
         </Link>
         <div className="flex items-center gap-1 sm:gap-2">
           <ThemeToggle />
+          <CreditBalance />
           <AccountArea />
         </div>
       </div>
     </header>
   );
+}
+
+function CreditBalance() {
+  const { hasAccount } = useAuth();
+  const { summary } = useBilling();
+  if (!hasAccount) return null;
+  return <Button variant="ghost" size="sm" nativeButton={false} render={<Link href="/settings/billing" />}><CoinsIcon /><span>{summary ? `${summary.available} credits` : "Credits"}</span></Button>;
 }
 
 function AccountArea() {
@@ -87,6 +96,7 @@ function AccountArea() {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
+          <DropdownMenuItem render={<Link href="/settings/billing" />}><CoinsIcon />Credits & payments</DropdownMenuItem>
           <DropdownMenuItem render={<Link href="/settings" />}>
             <SettingsIcon />
             Settings

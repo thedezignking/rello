@@ -6,7 +6,7 @@ export const viewport: Viewport = { colorScheme: "light", themeColor: "#f8f9f6" 
 
 export default function TermsPage() {
   return (
-    <LegalPage title="Terms of service" href="/terms" updated="October 30, 2026">
+    <LegalPage title="Terms of service" href="/terms" updated="November 16, 2026">
       <p>By using Rello you agree to these terms.</p>
 
       <h2>Your content</h2>
@@ -29,8 +29,11 @@ export default function TermsPage() {
       </p>
 
       <h2>Fair use</h2>
+      <p>Verified accounts receive 10 free tailoring credits once. One credit is used when a tailored copy with useful suggestions is saved. Failed attempts and results with no suggested changes don’t spend credits. Each tailored copy includes 10 successful AI retries. Editing and re-downloading saved resumes are free.</p>
+      <h2>Credit purchases</h2>
+      <p>Credit packs are one-time purchases, not subscriptions, and credits do not expire. The checkout shows the amount and currency before you pay. Paystack processes payment, and credits are added after payment is verified. Reversed payments remove the associated credits, including credits already spent; a resulting balance adjustment is covered by future credits. This does not limit any refund or consumer rights that apply to you.</p>
       <p>
-        AI features have a daily limit per account so the service stays fast and affordable for everyone. Don&apos;t
+        Import and general AI writing help have a daily limit. Tailoring uses your credits and the retry allowance for each copy. Request rate limits keep the service available for everyone. Don&apos;t
         try to get around it, overload the service, or use Rello to process content that isn&apos;t yours.
       </p>
 

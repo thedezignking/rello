@@ -7,7 +7,7 @@ export const viewport: Viewport = { colorScheme: "light", themeColor: "#f8f9f6" 
 
 export default function PrivacyPage() {
   return (
-    <LegalPage title="Privacy policy" href="/privacy" updated="October 30, 2026">
+    <LegalPage title="Privacy policy" href="/privacy" updated="November 16, 2026">
       <p>
         Rello helps you write and tailor your resume. To do that we store what you put in it. This page explains what
         we keep, why, and how to delete it.
@@ -19,6 +19,7 @@ export default function PrivacyPage() {
         <li>Your resumes and tailored copies, exactly as you write them.</li>
         <li>Job descriptions you paste in, kept with the tailored copy they produced.</li>
         <li>A log of each AI request (what kind, when, and how much text) so we can keep usage fair and costs down.</li>
+        <li>Your credit balance, credit usage, and payment references, amounts, currencies and payment status.</li>
       </ul>
 
       <h2>What we don&apos;t keep</h2>
@@ -35,6 +36,7 @@ export default function PrivacyPage() {
       </p>
 
       <h2>Where it lives</h2>
+      <p>Paystack processes payments. We send your email, the pack amount, currency and order reference to open checkout. Rello does not receive or store your full card details. Payment records retained by Paystack are handled under Paystack’s own privacy policy.</p>
       <p>
         Your data is stored with Supabase, our database provider, and only your account can read it. If you use Rello
         as a guest, your resumes are tied to that browser until you sign in.
@@ -46,7 +48,7 @@ export default function PrivacyPage() {
         <Link href="/settings" className="text-primary underline underline-offset-4">
           Settings
         </Link>
-        . Deletion is permanent.
+        . Deletion is permanent. Credit and generation records are deleted with your account. We remove your account link from retained purchase records; Paystack keeps its own payment records under its policy.
       </p>
     </LegalPage>
   );

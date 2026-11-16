@@ -120,11 +120,11 @@ html:has(.landing-shell), body:has(.landing-shell) { background: #f8f9f6; color-
   .trust-feature { padding: 20px; gap: 20px; }
   .match-stage { flex: none; margin-inline: -8px; }
   .match-stage > .match-demo { justify-content: flex-start; gap: 4px; padding: 12px; border-radius: 8px; }
-  .match-demo-header { flex-direction: column; align-items: flex-start; gap: 4px; padding-inline: 0; font-size: 11px; line-height: 1.5; }
+  .match-demo-header { flex-direction: column; align-items: flex-start; gap: 4px; padding-inline: 0; font-size: 8px; line-height: 1.6; }
   .match-demo-progress { flex-shrink: 0; margin-inline: 0; }
-  .match-demo-row { display: grid; grid-template-columns: 14px minmax(0, 1fr); align-items: start; column-gap: 8px; row-gap: 2px; padding: 8px 0; font-size: 12px; line-height: 1.5; }
-  .match-demo-row > span:first-child { width: 14px; height: 14px; margin-top: 2px; }
-  .match-demo-status { grid-column: 2; margin-left: 0; font-size: 11px; }
+  .match-demo-row { display: grid; grid-template-columns: 11px minmax(0, 1fr); align-items: start; column-gap: 7px; row-gap: 2px; padding: 6px 0; font-size: 10px; line-height: 1.6; }
+  .match-demo-row > span:first-child { width: 11px; height: 11px; margin-top: 2px; }
+  .match-demo-status { grid-column: 2; margin-left: 0; font-size: 8px; }
 }
 .story-art { position: relative; flex-direction: column; gap: 12px; height: 280px; padding: 24px 18px; pointer-events: none; }
 .how-story-card { flex-shrink: 0; width: min(100%, 240px); height: 192px; padding: 16px; border-radius: 7px; background: var(--card); border: 1px solid var(--landing-rule); box-shadow: 0 2px 4px #20364708, 0 14px 28px #20364720; transform: rotate(-3deg); }

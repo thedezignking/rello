@@ -21,9 +21,11 @@ export type Caller = { db: SupabaseClient | null; userId: string | null };
 export async function authorize({
   allowGuest,
   action,
+  creditBacked = false,
 }: {
   allowGuest: boolean;
   action: string;
+  creditBacked?: boolean;
 }): Promise<{ ok: true; caller: Caller } | { ok: false; response: Response }> {
   if (!isSupabaseConfigured()) {
     if (process.env.NODE_ENV !== "production") return { ok: true, caller: { db: null, userId: null } };
@@ -36,13 +38,16 @@ export async function authorize({
   if (auth.user.is_anonymous && !allowGuest)
     return { ok: false, response: fail(403, "account_required", `Sign in to ${action}.`) };
 
+  if (creditBacked) return { ok: true, caller: { db, userId: auth.user.id } };
   const since = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
-  const { count } = await db
+  const { count, error } = await db
     .from("ai_usage")
     .select("id", { count: "exact", head: true })
     .eq("user_id", auth.user.id)
+    .in("op", ["import", "improve"])
     .eq("ok", true) // failed calls don't count
     .gte("created_at", since);
+  if (error) return { ok: false, response: fail(503, "usage_unavailable", "We couldn’t check your AI allowance. Please try again.") };
   if ((count ?? 0) >= DAILY_AI_CAP) {
     return {
       ok: false,

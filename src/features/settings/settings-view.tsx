@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LogOutIcon, MonitorIcon, MoonIcon, SunIcon, Trash2Icon } from "lucide-react";
 import {
@@ -21,12 +22,14 @@ import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/components/ui/toast";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useAuth } from "@/features/auth/auth-provider";
+import { useBilling } from "@/features/billing/billing-provider";
 import { useTheme, type ThemeChoice } from "@/features/theme/theme";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 export function SettingsView() {
   const { ready, user, hasAccount, isGuest, openSignIn, signOut } = useAuth();
+  const { summary } = useBilling();
 
   return (
     <main className="page-in mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-10 sm:px-6 sm:py-14">
@@ -58,6 +61,7 @@ export function SettingsView() {
         </Card>
       )}
 
+      <Card><CardHeader><CardTitle>Tailoring credits</CardTitle><CardDescription>{hasAccount ? summary ? `${summary.available} credits available. Add a pack or view your payments.` : "Manage your credits and payments." : "Sign in to receive 10 free tailoring credits, once per account."}</CardDescription></CardHeader><CardFooter><Button variant="outline" nativeButton={false} render={<Link href="/settings/billing" />}>Manage credits</Button></CardFooter></Card>
       <AppearanceCard />
 
       <DeleteCard hasData={hasAccount || isGuest || !isSupabaseConfigured()} isGuest={isGuest} />

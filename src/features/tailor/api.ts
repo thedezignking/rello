@@ -33,15 +33,28 @@ async function post<T>(url: string, body: object, content: ResumeContent): Promi
 }
 
 export function requestTailor(
-  input: { resumeId: string; description: string; title?: string; company?: string },
+  input: { requestId: string; resumeId: string; description: string; title?: string; company?: string },
   content: ResumeContent,
 ) {
-  return post<TailorResult>("/api/tailor", input, content);
+  return post<TailorResult & { resumeId?: string; creditCharged?: boolean }>("/api/tailor", input, content);
 }
 
-export function requestLine(
+// Retain the request ID after a lost response so a retry can recover the same result.
+const pendingLines = new Map<string, string>();
+
+export async function requestLine(
   input: { resumeId: string; description: string; targetId: string; previous: string; nudge: string },
   content: ResumeContent,
 ) {
-  return post<{ text: string; reason: string }>("/api/tailor/line", input, content);
+  const key = JSON.stringify({ input, content });
+  const requestId = pendingLines.get(key) ?? crypto.randomUUID();
+  pendingLines.set(key, requestId);
+  try {
+    const result = await post<{ text: string; reason: string }>("/api/tailor/line", { ...input, requestId }, content);
+    pendingLines.delete(key);
+    return result;
+  } catch (error) {
+    if (!(error instanceof TailorError) || !["network", "in_progress", "billing_unavailable"].includes(error.code)) pendingLines.delete(key);
+    throw error;
+  }
 }

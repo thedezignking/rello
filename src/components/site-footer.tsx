@@ -16,6 +16,7 @@ const COLUMNS = [
       { href: "/guide", label: "Getting started" },
       { href: "/resumes", label: "Your resumes" },
       { href: "/settings", label: "Settings" },
+      { href: "/settings/billing", label: "Credits & payments" },
     ],
   },
   {

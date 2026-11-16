@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeftIcon, ArrowRightIcon, TriangleAlertIcon } from "lucide-react";
@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/features/auth/auth-provider";
+import { useBilling } from "@/features/billing/billing-provider";
 import { isReadyForTailoring, type Resume } from "@/features/resumes/schema";
 import { getResumeStore } from "@/features/resumes/store";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -38,6 +39,8 @@ function copyTitle(job: { title: string; company: string }) {
 export function JobForm({ source }: { source: Resume }) {
   const router = useRouter();
   const { requireAccount } = useAuth();
+  const { summary: credits, refresh: refreshCredits } = useBilling();
+  const pendingRequest = useRef<{ input: string; id: string } | null>(null);
   const ids = { description: useId(), title: useId(), company: useId() };
   const [description, setDescription] = useState("");
   const [title, setTitle] = useState("");
@@ -90,8 +93,11 @@ export function JobForm({ source }: { source: Resume }) {
     setBusy(true);
     setError(null);
     try {
+      const inputKey = JSON.stringify([source.id, source.content, description.trim(), title.trim(), company.trim()]);
+      if (pendingRequest.current?.input !== inputKey) pendingRequest.current = { input: inputKey, id: crypto.randomUUID() };
       const result = await requestTailor(
         {
+          requestId: pendingRequest.current.id,
           resumeId: source.id,
           description: description.trim(),
           title: title.trim() || undefined,
@@ -99,6 +105,11 @@ export function JobForm({ source }: { source: Resume }) {
         },
         source.content,
       );
+      void refreshCredits();
+      if (result.resumeId) {
+        router.replace(`/r/${result.resumeId}/tailor`);
+        return;
+      }
       const { resume } = await getResumeStore().createTailored({
         source,
         title: copyTitle(result.job),
@@ -107,6 +118,8 @@ export function JobForm({ source }: { source: Resume }) {
       });
       router.replace(`/r/${resume.id}/tailor`);
     } catch (err) {
+      if (!(err instanceof TailorError) || !["network", "in_progress", "billing_unavailable"].includes(err.code)) pendingRequest.current = null;
+      void refreshCredits();
       setBusy(false);
       setError(err instanceof TailorError ? err.message : "We couldn't save your tailored copy. Try again. Nothing was changed.");
     }
@@ -127,6 +140,8 @@ export function JobForm({ source }: { source: Resume }) {
         <p className="truncate text-sm text-muted-foreground">
           Tailoring <span className="font-medium text-foreground">{source.title}</span>
         </p>
+
+        {isSupabaseConfigured() && <p className="mt-4 text-sm text-muted-foreground">1 credit per tailored copy · 10 AI retries included.{credits && <span className="block mt-1">{credits.available} credits available · <Link href="/settings/billing" target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">Manage credits (new tab)</Link></span>}</p>}
       </header>
 
       <div className="flex min-h-0 flex-1">

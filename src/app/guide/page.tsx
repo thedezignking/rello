@@ -20,6 +20,7 @@ export default function GuidePage() {
       <p>Tailoring creates a separate copy. Your original resume stays available for the next application.</p>
 
       <h2>Understand the job match</h2>
+      <p>Sign in to receive 10 free tailoring credits, once per account. A saved tailored copy costs one credit and includes 10 successful AI retries. Failed requests don’t use credits. Editing and downloading are free. View your balance and add a one-time pack in <Link href="/settings/billing">Credits & payments</Link>.</p>
       <p>The match compares the job’s requirements with the experience you have already added:</p>
       <ul>
         <li><strong>On your resume:</strong> the requirement has supporting experience.</li>

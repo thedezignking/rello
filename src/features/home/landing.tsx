@@ -210,7 +210,7 @@ export function Pricing() {
 const FAQ = [
   {
     q: "How do tailoring credits work?",
-    a: "One credit creates one tailored copy for a job. Editing your resume, previewing it and downloading a saved copy again don’t use credits. The Starter and Job search packs are one-time purchases, not subscriptions.",
+    a: "Sign in to receive 10 free credits, once per account. One credit creates one tailored copy for a job, with 10 AI retries included. Failed attempts don’t spend credits. Editing and downloading saved copies are free. Paid packs are one-time purchases, and credits don’t expire.",
   },
   {
     q: "Do I need an account?",
