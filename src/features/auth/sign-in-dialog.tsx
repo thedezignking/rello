@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { ArrowLeftIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/components/ui/toast";
+import { emailCodeError, isCodeRateLimit, requestEmailCode } from "./email-code";
 
 // Must match Supabase → Auth → Providers → Email → "Email OTP length".
 const CODE_LENGTH = 6;
@@ -50,6 +51,16 @@ export function SignInDialog({
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState<"google" | "email" | "code" | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [resendIn, setResendIn] = useState(0);
+  const [cooldownEmail, setCooldownEmail] = useState("");
+  const inFlight = useRef(false);
+  const retryBlocked = resendIn > 0 && cooldownEmail === (step.kind === "code" ? step.email : email.trim());
+
+  useEffect(() => {
+    if (!resendIn) return;
+    const timer = window.setTimeout(() => setResendIn((seconds) => Math.max(0, seconds - 1)), 1000);
+    return () => window.clearTimeout(timer);
+  }, [resendIn]);
 
   function reset() {
     setStep({ kind: "start" });
@@ -74,15 +85,17 @@ export function SignInDialog({
     }
   }
 
-  async function sendCode(e: React.FormEvent) {
-    e.preventDefault();
-    const address = email.trim();
+  async function sendCode(e?: React.FormEvent) {
+    e?.preventDefault();
+    if (inFlight.current || retryBlocked) return;
+    const address = step.kind === "code" ? step.email : email.trim();
     if (!/^\S+@\S+\.\S+$/.test(address)) {
       setError("Enter a valid email address.");
       return;
     }
     setBusy("email");
     setError(null);
+    inFlight.current = true;
 
     // If the email template sends a link instead of (or as well as) a code,
     // the link lands on our callback, which finishes signing in and comes
@@ -90,53 +103,48 @@ export function SignInDialog({
     const here = location.pathname === "/" ? "/resumes" : location.pathname + location.search;
     const emailRedirectTo = `${location.origin}/auth/callback?next=${encodeURIComponent(here)}`;
 
-    if (isGuest) {
-      // Attach the email to the guest account so drafts stay put.
-      const { error } = await supabase.auth.updateUser({ email: address }, { emailRedirectTo });
-      if (!error) {
-        setBusy(null);
-        setStep({ kind: "code", email: address, linking: true });
-        return;
+    try {
+      const mode = step.kind === "code" ? (step.linking ? "resend-link" : "email") : (isGuest ? "guest" : "email");
+      const linking = await requestEmailCode(supabase, address, emailRedirectTo, mode);
+      setCode("");
+      setCooldownEmail(address);
+      setResendIn(60);
+      setStep({ kind: "code", email: address, linking });
+    } catch (failure) {
+      if (isCodeRateLimit(failure)) {
+        setCooldownEmail(address);
+        setResendIn(60);
       }
-      // The email already has an account: sign in to that one instead.
-      // Moving the guest's drafts across is handled once resumes exist.
-      if (error.code !== "email_exists") {
-        setBusy(null);
-        setError("We couldn't send a code. Check the address and try again.");
-        return;
-      }
+      setError(emailCodeError(failure));
+    } finally {
+      inFlight.current = false;
+      setBusy(null);
     }
-
-    const { error } = await supabase.auth.signInWithOtp({
-      email: address,
-      options: { shouldCreateUser: true, emailRedirectTo },
-    });
-    setBusy(null);
-    if (error) {
-      setError("We couldn't send a code. Check the address and try again.");
-      return;
-    }
-    setStep({ kind: "code", email: address, linking: false });
   }
 
   async function verify(token: string) {
-    if (step.kind !== "code") return;
+    if (step.kind !== "code" || inFlight.current) return;
+    inFlight.current = true;
     setBusy("code");
     setError(null);
-    const { error } = await supabase.auth.verifyOtp({
-      email: step.email,
-      token,
-      type: step.linking ? "email_change" : "email",
-    });
-    setBusy(null);
-    if (error) {
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: step.email,
+        token,
+        type: step.linking ? "email_change" : "email",
+      });
+      if (error) throw error;
+      if (!data.session) throw new Error("No sign-in session returned");
+      toast.add({ title: "Signed in", description: step.email, type: "success" });
+      reset();
+      onSignedIn();
+    } catch (failure) {
       setCode("");
-      setError("That code didn't work. Check it, or send a new one.");
-      return;
+      setError(emailCodeError(failure, true));
+    } finally {
+      inFlight.current = false;
+      setBusy(null);
     }
-    toast.add({ title: "Signed in", description: step.email, type: "success" });
-    reset();
-    onSignedIn();
   }
 
   return (
@@ -193,9 +201,9 @@ export function SignInDialog({
                     <FieldDescription>We&apos;ll email you a {CODE_LENGTH}-digit code.</FieldDescription>
                   )}
                 </Field>
-                <Button type="submit" size="lg" className="h-10 w-full" disabled={busy !== null}>
+                <Button type="submit" size="lg" className="h-10 w-full" disabled={busy !== null || retryBlocked}>
                   {busy === "email" && <Spinner data-icon="inline-start" />}
-                  Email me a code
+                  {retryBlocked ? `Try again in ${resendIn}s` : "Email me a code"}
                 </Button>
               </form>
             </FieldGroup>
@@ -227,7 +235,7 @@ export function SignInDialog({
                 value={code}
                 onChange={setCode}
                 onComplete={verify}
-                disabled={busy === "code"}
+                disabled={busy !== null}
                 autoFocus
                 aria-invalid={!!error || undefined}
               >
@@ -240,12 +248,16 @@ export function SignInDialog({
               {error && <FieldError>{error}</FieldError>}
             </Field>
 
-            <div className="flex items-center justify-between">
-              <Button variant="ghost" size="sm" onClick={reset}>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <Button variant="ghost" size="sm" onClick={reset} disabled={busy !== null}>
                 <ArrowLeftIcon data-icon="inline-start" />
                 Use a different email
               </Button>
-              {busy === "code" && <Spinner />}
+              <Button variant="ghost" size="sm" onClick={() => sendCode()} disabled={busy !== null || retryBlocked}>
+                {busy === "email" && <Spinner data-icon="inline-start" />}
+                {retryBlocked ? `Resend in ${resendIn}s` : "Resend code"}
+              </Button>
+              {busy === "code" && <Spinner aria-label="Verifying code" />}
             </div>
           </>
         )}

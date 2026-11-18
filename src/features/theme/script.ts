@@ -10,8 +10,11 @@ export const THEME_EVENT = "rello-theme";
  */
 export const themeScript = `(function(){try{
   var k="${THEME_KEY}",m=matchMedia("(prefers-color-scheme: dark)"),r=document.documentElement;
-  function a(){
-    var p=location.pathname,light=["/","/privacy","/privacy/","/terms","/terms/","/guide","/guide/"].includes(p),t="system";
+  var p=location.pathname;
+  function a(e){
+    if(e&&e.detail&&typeof e.detail.pathname==="string")p=e.detail.pathname;
+    else if(e&&e.type==="pageshow")p=location.pathname;
+    var light=["/","/privacy","/privacy/","/terms","/terms/","/guide","/guide/"].includes(p),t="system";
     try{t=localStorage.getItem(k)||"system"}catch(e){}
     var d=!light&&(t==="dark"||(t==="system"&&m.matches));
     r.dataset.theme=d?"dark":"light";
@@ -19,5 +22,5 @@ export const themeScript = `(function(){try{
     r.style.colorScheme=light?"only light":d?"dark":"light";
     r.style.backgroundColor=light?"#f8f9f6":"";
   }
-  a();m.addEventListener("change",a);addEventListener("${THEME_EVENT}",a);addEventListener("pageshow",a);
+  a();m.addEventListener("change",a);addEventListener("${THEME_EVENT}",a);addEventListener("pageshow",a);addEventListener("storage",a);
 }catch(e){}})();`;

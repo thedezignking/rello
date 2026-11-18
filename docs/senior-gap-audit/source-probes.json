@@ -1,0 +1,15 @@
+{
+  "longField": {
+    "length": 2001,
+    "saveReportedSuccess": true,
+    "reloadedName": "",
+    "wholeDocumentEmpty": true,
+    "subsequentEditErasesOriginalName": true
+  },
+  "normalContentName": "Audit fixture",
+  "redirect": {
+    "suppliedPath": "/\\attacker.invalid",
+    "resolvedOrigin": "https://attacker.invalid"
+  },
+  "sideEffects": "In-memory localStorage only; Supabase calls blocked; no network"
+}

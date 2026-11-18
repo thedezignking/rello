@@ -33,6 +33,9 @@ export function billingAdmin() {
 export async function billingCaller() {
   const db = await createClient();
   const { data, error } = await db.auth.getUser();
+  if (error && (!error.status || error.status === 429 || error.status >= 500)) {
+    throw new BillingError("auth_unavailable", "We couldn’t check your sign-in. Please try refreshing your balance shortly.", 503);
+  }
   if (error || !data.user) throw new BillingError("signed_out", "Sign in to manage your credits.", 401);
   if (data.user.is_anonymous || !data.user.email_confirmed_at) throw new BillingError("account_required", PROBLEMS.account_required[1], 403);
   return { user: data.user, admin: billingAdmin() };

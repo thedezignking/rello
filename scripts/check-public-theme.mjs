@@ -55,12 +55,27 @@ assert.equal(app.root.dataset.theme, "dark", "app keeps the saved dark preferenc
 assert.equal(app.root.style.colorScheme, "dark");
 assert.equal(app.root.style.backgroundColor, "", "public canvas override is cleared in the app");
 app.location.pathname = "/privacy";
-app.events.get(THEME_EVENT)();
+app.events.get(THEME_EVENT)({ detail: { pathname: app.location.pathname } });
 assert.equal(app.root.dataset.theme, "light", "returning to public pages restores light");
 app.location.pathname = "/r/example";
-app.events.get(THEME_EVENT)();
+app.events.get(THEME_EVENT)({ detail: { pathname: app.location.pathname } });
 assert.equal(app.root.dataset.theme, "dark", "returning to the editor restores dark");
 assert.equal(app.root.dataset.publicPage, undefined);
+
+// A committed route can reach the layout before location reflects it.
+const transition = boot("/", "dark", true);
+transition.events.get(THEME_EVENT)({ detail: { pathname: "/resumes" } });
+assert.equal(transition.root.dataset.theme, "dark", "committed app route wins over the previous URL");
+transition.events.get("system")();
+assert.equal(transition.root.dataset.theme, "dark", "system events keep the committed route");
+transition.events.get("storage")();
+assert.equal(transition.root.dataset.theme, "dark", "storage events keep the committed route");
+transition.location.pathname = "/guide";
+transition.events.get("pageshow")({ type: "pageshow" });
+assert.equal(transition.root.dataset.theme, "light", "restoring a public page rechecks its URL");
+
+const landingCss = await readFile(new URL("../src/features/home/landing.css", import.meta.url), "utf8");
+assert.doesNotMatch(landingCss, /(?:html|body):has\(/, "cached public markup cannot change the active app canvas");
 
 const system = boot("/settings", "system", false);
 system.media.matches = true;

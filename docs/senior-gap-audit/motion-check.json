@@ -1,0 +1,28 @@
+[
+  {
+    "preference": "no-preference",
+    "errors": [],
+    "failed": [],
+    "ready": "complete",
+    "previews": [
+      {
+        "style": "width: 794px; transform: scale(0.374055); visibility: visible;",
+        "frameWidth": 297,
+        "textLength": 1256
+      }
+    ]
+  },
+  {
+    "preference": "reduce",
+    "errors": [],
+    "failed": [],
+    "ready": "interactive",
+    "previews": [
+      {
+        "style": "width:794px;transform:scale(0);visibility:hidden",
+        "frameWidth": 297,
+        "textLength": 0
+      }
+    ]
+  }
+]

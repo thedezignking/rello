@@ -1,0 +1,16 @@
+{
+  "origin": "https://userello.vercel.app",
+  "status": 200,
+  "headers": {
+    "content-security-policy": null,
+    "x-frame-options": null,
+    "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+    "referrer-policy": null,
+    "permissions-policy": null,
+    "x-content-type-options": null
+  },
+  "localSupabaseHostEmbeddedInLiveAssets": true,
+  "comparedAssets": 8,
+  "note": "Only public page assets fetched; env values and credentials were not transmitted or recorded.",
+  "localDatabaseTargetsSameProject": true
+}

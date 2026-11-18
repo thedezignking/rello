@@ -1,4 +1,5 @@
-html:has(.landing-shell), body:has(.landing-shell) { background: #f8f9f6; color-scheme: only light; }
+/* The active route controls the canvas in globals.css. Next can retain a
+   hidden landing-shell after navigation, so DOM presence cannot select it. */
 .landing-shell {
   --landing-rule: rgb(32 45 56 / 9%);
   --landing-inner-rule: rgb(32 45 56 / 6%);

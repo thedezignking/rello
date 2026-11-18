@@ -1,0 +1,227 @@
+[
+  {
+    "page": "landing",
+    "device": "desktop",
+    "error": "Waiting failed: 15000ms exceeded"
+  },
+  {
+    "page": "resumes-empty",
+    "device": "desktop",
+    "route": "/resumes",
+    "status": 200,
+    "blockedWrites": 0,
+    "errors": [],
+    "viewport": 1440,
+    "documentWidth": 1440,
+    "theme": "light",
+    "heading": "Your resumes",
+    "matchFonts": [],
+    "inputsWithoutLabel": [],
+    "text": "rello.\nSign in\nStart a new resume\nBlank\nPDF or Word\nImport\n\nAmara Okafor\n\nProduct Designer\n\namara.okafor@example.com·+234 801 234 5678·Lagos, Nigeria·linkedin.com/in/amaraokafor·amara.design\n\nSUMMARY\n\nProduct designer with four years of experience shaping fintech and logistics apps used by over 200,000 people. I work closely with engineers and researchers to turn messy workflows into calm, simple screens.\n\nEXPERIENCE\n\nProduct Designer\n\nMar 2022 – Present\n\nPaylane, Lagos\n\nRedesigned merchant onboarding, cutting drop-off from 41% to 23% in two quarters.\nBuilt and maintain the design system used across three product teams.\nRun fortnightly usability sessions with small-business owners.\n\nUI Designer\n\nJun 2020 – Feb 2022\n\nShiplink, Remote\n\nDesigned the driver app's delivery flow, now used for 30,000 deliveries a week.\nPartnered with support to turn the top ten complaints into product fixes.\n\nEDUCATION\n\nUniversity of Lagos\n\nSep 2015 – Jul 2019\n\nB.Sc., Computer Science\n\nSKILLS\n\nFigma · Design systems · User research · Prototyping · Usability testing · HTML & CSS\n\nPROJECTS\n\nOpen Transit Lagos — github.com/amara/open-transit\n\nVolunteer redesign of a community bus-route finder.\n\nCERTIFICATIONS\n\nGoogle UX Design Certificate, Coursera\nMay 2021\nClassic\n\nAmara Okafor\n\nProduct Designer\n\namara.okafor@example.com|+234 801 234 5678|Lagos, Nigeria|linkedin.com/in/amaraokafor|amara.design\n\nPROFILE\n\nProduct designer with four years of experience shaping fintech and logistics apps used by over 200,000 people. I work closely with engineers and researchers to turn messy workflows into calm, simple screens.\n\nEXPERIENCE\n\nProduct Designer · Paylane\n\nMar 2022 – Present\n\nLagos\n\nRedesigned merchant onboarding, cutting drop-off from 41% to 23% in two quarters.\nBuilt and maintain the design system used across three product teams.\nRun fortnightly usability sessions with small-business owners.\n\nUI Designer · Shiplink\n\nJun 2020 – Feb 2022\n\nRemote\n\nDesigned the driver app's delivery flow, now used for 30,000 deliveries a week.\nPartnered with support to turn the top ten complaints into product fixes.\n\nSKILLS\n\nFigma · Design systems · User research · Prototyping · Usability testing · HTML & CSS\n\nEDUCATION\n\nB.Sc., Computer Science · University of Lagos\n\nSep 2015 – Jul 2019\n\nPROJECTS\n\nOpen Transit Lagos · github.com/amara/open-transit\n\nVolunteer redesign of a community bus-route finder.\n\nCERTIFICATIONS\n\nGoogle UX Design Certificate · Coursera\nMay 2021\nModern\n\nAmara Okafor\n\nProduct Designer\n\namara.okafor@example.com\n+234 801 234 5678\nLagos, Nigeria\nlinkedin.com/in/amaraokafor\namara.design\n\nSUMMARY\n\nProduct designer with four years of experience shaping fintech and logistics apps used by over 200,000 people. I work closely with engineers and researchers to turn messy workflows into calm, simple screens.\n\nEXPERIENCE\n\nProduct Designer, Paylane — Lagos\n\nMar 2022 – Present\n\nRedesigned merchant onboarding, cutting drop-off from 41% to 23% in two quarters.\nBuilt and maintain the design system used across three product teams.\nRun fortnightly usability sessions with small-business owners.\n\nUI Designer, Shiplink — Remote\n\nJun 2020 – Feb 2022\n\nDesigned the driver app's delivery flow, now used for 30,000 deliveries a week.\nPartnered with support to turn the top ten complaints into product fixes.\n\nPROJECTS\n\nOpen Transit Lagos — github.com/amara/open-transit: Volunteer redesign of a community bus-route finder.\n\nEDUCATION\n\nUniversity of Lagos, B.Sc., Computer Science\n\nSep 2015 – Jul 2019\n\nSKILLS & CERTIFICATIONS\n\nSkills: Figma, Design systems, User research, Prototyping, Usability testing, HTML & CSS\n\nCertifications: Google UX Design Certificate, Coursera, May 2021\n\nCompact\n\nAmara Okafor\n\nProduct Designer\n\namara.okafor@example.com/+234 801 234 5678/Lagos, Nigeria/linkedin.com/in/amaraokafor/amara.design\n\nABOUT\n\nProduct designer with four years of experience shaping fintech and logistics apps used by over 200,000 people. I work closely with engineers and researchers to turn messy workflows into calm, simple screens.\n\nEXPERIENCE\n\nProduct Designer\n\nPaylane · Lagos · Mar 2022 – Present\n\nRedesigned merchant onboarding, cutting drop-off from 41% to 23% in two quarters.\nBuilt and maintain the design system used across three product teams.\nRun fortnightly usability sessions with small-business owners.\n\nUI Designer\n\nShiplink · Remote · Jun 2020 – Feb 2022\n\nDesigned the driver app's delivery flow, now used for 30,000 deliveries a week.\nPartnered with support to turn the top ten complaints into product fixes.\n\nEDUCATION\n\nB.Sc., Computer Science\n\nUniversity of Lagos · Sep 2015 – Jul 2019\n\nSKILLS\n\nFigma, Design systems, User research, Prototyping, Usability testing, HTML & CSS\n\nPROJECTS\n\nOpen Transit Lagos · github.com/amara/open-transit\n\nVolunteer redesign of a community bus-route finder.\n\nCERTIFICATIONS\n\nGoogle UX Design Certificate · Coursera · May 2021\nMinimal\nYour resumes\nYour next opportunity starts with one resume.\nPick a template above, start blank, or import the resume you already have.\nImport PDF or DOCX\nrello.\nOne resume. Every opportunity.\nAbout Rello\nGetting started\nSettings\nPrivacy\nTerms"
+  },
+  {
+    "page": "billing-guest",
+    "device": "desktop",
+    "route": "/settings/billing",
+    "status": 200,
+    "blockedWrites": 0,
+    "errors": [],
+    "viewport": 1440,
+    "documentWidth": 1440,
+    "theme": "light",
+    "heading": "Credits & payments",
+    "matchFonts": [],
+    "inputsWithoutLabel": [],
+    "text": "rello.\nSign in\nSettings\nCredits & payments\n\nOne credit, one tailored resume. No subscriptions.\n\nStart with 10 free credits\nSign in to receive your one-time welcome credits and keep your resumes across devices.\nSign in\nAdd a credit pack\nStarter\n5 tailoring credits · one-time payment\n\n$2.00USD\n\n5 job-specific tailored resumes\n10 AI retries with each copy\nEdit and re-download without using credits\nGet 5 credits\nJob search pack\nBest value\n20 tailoring credits · one-time payment\n\n$5.00USD\n\n20 job-specific tailored resumes\n10 AI retries with each copy\nEdit and re-download without using credits\nGet 20 credits\n\nPayments are processed securely by Paystack. Failed tailoring attempts don’t spend credits. Importing, editing and downloading remain free.\n\nrello.\nOne resume. Every opportunity.\nAbout Rello\nGetting started\nSettings\nPrivacy\nTerms"
+  },
+  {
+    "page": "privacy",
+    "device": "desktop",
+    "route": "/privacy",
+    "status": 200,
+    "blockedWrites": 0,
+    "errors": [],
+    "viewport": 1440,
+    "documentWidth": 1440,
+    "theme": "light",
+    "heading": "Privacy policy",
+    "matchFonts": [],
+    "inputsWithoutLabel": [],
+    "text": "rello.\nHow it works\nTemplates\nPricing\nQuestions\nSign in\nCreate your resume\nBack to Rello\nGetting started\nPrivacy policy\nTerms of service\nPrivacy policy\n\nLast updated November 16, 2026\n\nRello helps you write and tailor your resume. To do that we store what you put in it. This page explains what we keep, why, and how to delete it.\n\nWhat we store\nYour account: your email address, and your name if you add it or sign in with Google.\nYour resumes and tailored copies, exactly as you write them.\nJob descriptions you paste in, kept with the tailored copy they produced.\nA log of each AI request (what kind, when, and how much text) so we can keep usage fair and costs down.\nYour credit balance, credit usage, and payment references, amounts, currencies and payment status.\nWhat we don't keep\nFiles you import. We read the text out of your PDF or DOCX and then discard the file.\nPDFs you download. They're generated from your saved resume each time.\nAI processing\n\nWhen you tailor a resume, ask for a rewrite, or import a file, the relevant text is sent to an AI model through OpenRouter to produce suggestions. We send only what that task needs. We don't use your resumes to train models or for marketing.\n\nWhere it lives\n\nPaystack processes payments. We send your email, the pack amount, currency and order reference to open checkout. Rello does not receive or store your full card details. Payment records retained by Paystack are handled under Paystack’s own privacy policy.\n\nYour data is stored with Supabase, our database provider, and only your account can read it. If you use Rello as a guest, your resumes are tied to that browser until you sign in.\n\nDeleting your data\n\nYou can delete any resume from your list, or delete your whole account and everything in it from Settings. Deletion is permanent. Credit and generation records are deleted with your account. We remove your account link from retained purchase records; Paystack keeps its own payment records under its policy.\n\nrello.\n\nMake one clean resume, then tailor a copy to each job, line by line.\n\nProduct\nHow it works\nTemplates\nPricing\nQuestions\nResources\nGetting started\nYour resumes\nSettings\nCredits & payments\nLegal\nPrivacy policy\nTerms of service\n\n© 2026 Rello. All rights reserved.\n\nResumes that fit the job"
+  },
+  {
+    "page": "terms",
+    "device": "desktop",
+    "route": "/terms",
+    "status": 200,
+    "blockedWrites": 0,
+    "errors": [],
+    "viewport": 1440,
+    "documentWidth": 1440,
+    "theme": "light",
+    "heading": "Terms of service",
+    "matchFonts": [],
+    "inputsWithoutLabel": [],
+    "text": "rello.\nHow it works\nTemplates\nPricing\nQuestions\nSign in\nCreate your resume\nBack to Rello\nGetting started\nPrivacy policy\nTerms of service\nTerms of service\n\nLast updated November 16, 2026\n\nBy using Rello you agree to these terms.\n\nYour content\n\nYour resumes are yours. You give us permission to store and process them only to run Rello for you: saving, tailoring, improving and exporting them.\n\nBe truthful\n\nRello is built to work only from what you tell it, and suggests changes rather than making them. You're responsible for what goes on your resume. Review every suggestion before you use it, and don't add experience you don't have.\n\nNo guarantees\n\nWe work hard to make Rello useful, but we can't promise interviews, job offers, or that any particular hiring system will read your resume a certain way. AI suggestions can be wrong.\n\nFair use\n\nVerified accounts receive 10 free tailoring credits once. One credit is used when a tailored copy with useful suggestions is saved. Failed attempts and results with no suggested changes don’t spend credits. Each tailored copy includes 10 successful AI retries. Editing and re-downloading saved resumes are free.\n\nCredit purchases\n\nCredit packs are one-time purchases, not subscriptions, and credits do not expire. The checkout shows the amount and currency before you pay. Paystack processes payment, and credits are added after payment is verified. Reversed payments remove the associated credits, including credits already spent; a resulting balance adjustment is covered by future credits. This does not limit any refund or consumer rights that apply to you.\n\nImport and general AI writing help have a daily limit. Tailoring uses your credits and the retry allowance for each copy. Request rate limits keep the service available for everyone. Don't try to get around it, overload the service, or use Rello to process content that isn't yours.\n\nChanges\n\nIf these terms change, we'll update this page and the date above.\n\nrello.\n\nMake one clean resume, then tailor a copy to each job, line by line.\n\nProduct\nHow it works\nTemplates\nPricing\nQuestions\nResources\nGetting started\nYour resumes\nSettings\nCredits & payments\nLegal\nPrivacy policy\nTerms of service\n\n© 2026 Rello. All rights reserved.\n\nResumes that fit the job"
+  },
+  {
+    "page": "guide",
+    "device": "desktop",
+    "route": "/guide",
+    "status": 200,
+    "blockedWrites": 0,
+    "errors": [],
+    "viewport": 1440,
+    "documentWidth": 1440,
+    "theme": "light",
+    "heading": "Getting started",
+    "matchFonts": [],
+    "inputsWithoutLabel": [],
+    "text": "rello.\nHow it works\nTemplates\nPricing\nQuestions\nSign in\nCreate your resume\nBack to Rello\nGetting started\nPrivacy policy\nTerms of service\nGetting started\n\nFrom your first resume to a copy that fits the job. Here’s how to make the most of Rello.\n\nCreate or import your resume\n\nOpen Your resumes and start with a template, or choose Import to bring in a PDF or Word document. Imports support PDF and DOCX files under 5 MB. A text-based file works best.\n\nCheck the imported details before continuing. Make sure your name, roles, dates, education, and skills are correct. You can open one section at a time while the preview updates beside it.\n\nTailor a copy to a job\n\nFrom your resume, choose Tailor for a job and paste the job description. Include the responsibilities and requirements so Rello has enough context. Job title and company are optional.\n\nTailoring creates a separate copy. Your original resume stays available for the next application.\n\nUnderstand the job match\n\nSign in to receive 10 free tailoring credits, once per account. A saved tailored copy costs one credit and includes 10 successful AI retries. Failed requests don’t use credits. Editing and downloading are free. View your balance and add a one-time pack in Credits & payments.\n\nThe match compares the job’s requirements with the experience you have already added:\n\nOn your resume: the requirement has supporting experience.\nPartly: your resume shows some relevant experience, but may need more detail.\nMissing: Rello could not find supporting experience in your resume.\n\nUse this as a review checklist. Add detail only when it reflects something you actually did.\n\nReview each suggestion\n\nCompare the original wording with the proposed change. Removed text and added text are highlighted so you can see the difference.\n\nUse suggestion applies the change to your tailored copy.\nKeep original keeps your wording.\nTry again asks for another suggestion.\n\nRead every change, including names, numbers, and claims about your work. AI can make mistakes, and you decide what belongs on your resume.\n\nChoose a template and download\n\nYou can switch between the four templates without rewriting your content. Check the preview, then choose Download PDF. If you are asked to sign in, use Google or an email code to continue.\n\nIf a download fails, check your connection and try again. For import problems, try a text-based PDF or DOCX instead of a scanned image.\n\nKeep access to your work\n\nGuest resumes are tied to the browser where you created them. Sign in to keep access to your saved work across devices.\n\nManage your account or delete your data in Settings. For details about how your content is handled, read the Privacy policy. You can also find answers to common questions on the landing page.\n\nrello.\n\nMake one clean resume, then tailor a copy to each job, line by line.\n\nProduct\nHow it works\nTemplates\nPricing\nQuestions\nResources\nGetting started\nYour resumes\nSettings\nCredits & payments\nLegal\nPrivacy policy\nTerms of service\n\n© 2026 Rello. All rights reserved.\n\nResumes that fit the job"
+  },
+  {
+    "page": "landing",
+    "device": "mobile",
+    "route": "/?home",
+    "status": 304,
+    "blockedWrites": 0,
+    "errors": [
+      "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+    ],
+    "viewport": 390,
+    "documentWidth": 390,
+    "theme": "light",
+    "heading": "Build a resume that opens doors.",
+    "matchFonts": [
+      {
+        "text": "Senior Product Designer · Acme Pay3 of 6 matched",
+        "size": "8px"
+      },
+      {
+        "text": "Figma and design systemsOn your resume",
+        "size": "10px"
+      },
+      {
+        "text": "On your resume",
+        "size": "8px"
+      },
+      {
+        "text": "User research and usability testingOn your resume",
+        "size": "10px"
+      },
+      {
+        "text": "On your resume",
+        "size": "8px"
+      },
+      {
+        "text": "Working closely with engineersOn your resume",
+        "size": "10px"
+      },
+      {
+        "text": "On your resume",
+        "size": "8px"
+      },
+      {
+        "text": "4+ years in fintechPartly",
+        "size": "10px"
+      },
+      {
+        "text": "Partly",
+        "size": "8px"
+      },
+      {
+        "text": "Mentoring other designersPartly",
+        "size": "10px"
+      },
+      {
+        "text": "Partly",
+        "size": "8px"
+      },
+      {
+        "text": "Data visualisationMissing",
+        "size": "10px"
+      },
+      {
+        "text": "Missing",
+        "size": "8px"
+      }
+    ],
+    "inputsWithoutLabel": [],
+    "text": "rello.\nCreate your resume\nBuild a resume that opens doors.\n\nMake one clean resume, then tailor a copy to each job, line by line. You approve every change.\n\nCreate your resume\nSee how it works\n\nExample of Rello tailoring a resume: review a proposed rewrite and its explanation, then apply it to a separate copy while preserving the original.\n\nAmara Okafor\n\nProduct Designer\n\namara.okafor@example.com·+234 801 234 5678·Lagos, Nigeria·linkedin.com/in/amaraokafor·amara.design\n\nSUMMARY\n\nProduct designer with four years of experience shaping fintech and logistics apps used by over 200,000 people. I work closely with engineers and researchers to turn messy workflows into calm, simple screens.\n\nEXPERIENCE\n\nProduct Designer\n\nMar 2022 – Present\n\nPaylane, Lagos\n\nRedesigned Cut merchant onboarding, cutting onboarding drop-off from 41% to 23% in two quarters. quarters by redesigning the onboarding experience.\nBuilt and maintain the design system used across three product teams.\nRun fortnightly usability sessions with small-business owners.\n\nUI Designer\n\nJun 2020 – Feb 2022\n\nShiplink, Remote\n\nDesigned the driver app's delivery flow, now used for 30,000 deliveries a week.\nPartnered with support to turn the top ten complaints into product fixes.\n\nEDUCATION\n\nUniversity of Lagos\n\nSep 2015 – Jul 2019\n\nB.Sc., Computer Science\n\nSKILLS\n\nFigma · Design systems · User research · Prototyping · Usability testing · HTML & CSS\n\nPROJECTS\n\nOpen Transit Lagos — github.com/amara/open-transit\n\nVolunteer redesign of a community bus-route finder.\n\nCERTIFICATIONS\n\nGoogle UX Design Certificate, Coursera\nMay 2021\nSuggested for this job\nExperience\n\nRedesigned Cut merchant onboarding, cutting onboarding drop-off from 41% to 23% in two quarters. quarters by redesigning the onboarding experience.\n\nLead with the onboarding result this product design role asks for. Same experience. Same numbers.\n\nUse suggestion\nKeep original\nMade for your next move.\nReal, selectable PDF text\nFour considered templates\nYou approve every change\nThree steps to your next opportunity.\n\nFrom the resume you have to one shaped for the job.\n\nAmara’s resume\n\nAmara Okafor\n\nProduct Designer\n\nExperience\nSkills\nReady for your next move\n1\nCreate or import your resume\n\nStart from a template, or upload the PDF or Word file you already have.\n\nThe role you’re applying for\nProduct Designer\n\nAcme Pay · Remote\n\nDesign systems\nUsability testing\nCross-team collaboration\nReady to tailor\n2\nPaste a job description\n\nRello reads the role and matches it against what's already on your resume.\n\nYour experience, refined\nExperience\n\nCut onboarding drop-off from 41% to 23% by redesigning the experience.\n\nSaved to your tailored copy\nAmara_AcmePay.pdf\nYour PDF is ready\n3\nReview and download\n\nAccept, reject or retry each suggested line, then download a clean PDF.\n\nTailoring you can trust\n\nA clearer way to tell your story. Review the changes, see why they matter, and keep the final say.\n\nSee what the job wants\n\nEvery requirement is checked against your resume, so you know what you show, what's thin and what's missing before you apply.\n\nSenior Product Designer · Acme Pay\n3 of 6 matched\nFigma and design systems\nOn your resume\nUser research and usability testing\nOn your resume\nWorking closely with engineers\nOn your resume\n4+ years in fintech\nPartly\nMentoring other designers\nPartly\nData visualisation\nMissing\nNothing made up\n\nSuggestions only use what's already on your resume. Invented numbers are blocked.\n\nOn your resume\n\nBuilt a design system used by three product teams.\n\nBuilt a shared design system across three product teams.\n\nUses your actual experience\nYour original stays put\n\nEach job gets its own copy, so your main resume never changes.\n\nAmara Okafor\nYour original\nUnchanged\nAmara Okafor\nFor Acme Pay\n2 lines tailored\nNew job. Separate copy.\nFour templates. Switch any time.\n\nYour words stay put while the design changes. All single-column with real, selectable text, so they read well on screen, on paper and in hiring systems.\n\nrello.app/r/amara-okafor\nAmara Okafor\nSaved\nTailor for a job\nClassic\nDownload PDF\n\nReady to tailor. Use “Tailor for a job” whenever a role catches your eye.\n\nPersonal details\nAmara Okafor, Product Designer\nFull name\nAmara Okafor\nHeadline\nProduct Designer\nEmail\namara.okafor@example.com\nPhone\n+234 801 234 5678\nCity, country\nLagos, Nigeria\nLinkedIn\nlinkedin.com/in/amaraokafor\nSummary\n31 words\nExperience\n2 roles\nEducation\n1 school\nSkills\n6 skills\nProjects\n1 project\nCertifications\n1 certificate\n\nAmara Okafor\n\nProduct Designer\n\namara.okafor@example.com·+234 801 234 5678·Lagos, Nigeria·linkedin.com/in/amaraokafor·amara.design\n\nSUMMARY\n\nProduct designer with four years of experience shaping fintech and logistics apps used by over 200,000 people. I work closely with engineers and researchers to turn messy workflows into calm, simple screens.\n\nEXPERIENCE\n\nProduct Designer\n\nMar 2022 – Present\n\nPaylane, Lagos\n\nRedesigned merchant onboarding, cutting drop-off from 41% to 23% in two quarters.\nBuilt and maintain the design system used across three product teams.\nRun fortnightly usability sessions with small-business owners.\n\nUI Designer\n\nJun 2020 – Feb 2022\n\nShiplink, Remote\n\nDesigned the driver app's delivery flow, now used for 30,000 deliveries a week.\nPartnered with support to turn the top ten complaints into product fixes.\n\nEDUCATION\n\nUniversity of Lagos\n\nSep 2015 – Jul 2019\n\nB.Sc., Computer Science\n\nSKILLS\n\nFigma · Design systems · User research · Prototyping · Usability testing · HTML & CSS\n\nPROJECTS\n\nOpen Transit Lagos — github.com/amara/open-transit\n\nVolunteer redesign of a community bus-route finder.\n\nCERTIFICATIONS\n\nGoogle UX Design Certificate, Coursera\nMay 2021\nSimple, transparent pricing.\n\nStart free. Add a few tailoring credits when you need them.\n\nFree\n\nStart with a resume that feels like you.\n\n$0\nUSD · free\n\n10 free credits when you sign in\n\nStart for free\nCreate and edit your resumes\nAll four resume templates\nPDF and Word import\nPDF downloads\n10 tailoring credits, once per account\nStarter\n\nA little extra help for your next few applications.\n\n$2\nUSD · one time\n\n5 tailoring credits\n\nGet 5 credits\nEverything in Free\n5 job-specific tailored resumes\nLine-by-line AI suggestions\nAccept, keep original, or retry\nDownload your saved copies again\nJob search pack\nBest value\n\nMore room to find the role that fits.\n\n$5\nUSD · one time\n\n20 tailoring credits\n\nGet 20 credits\nEverything in Free\n20 job-specific tailored resumes\nLine-by-line AI suggestions\nAccept, keep original, or retry\nDownload your saved copies again\n\n1 credit = 1 tailored resume. No subscriptions.\n\nCommon questions\nHow do tailoring credits work?\nDo I need an account?\nWill the AI make things up?\nDoes tailoring change my original resume?\nWill my resume get past applicant tracking systems?\nOne resume. Every opportunity.\n\nMake it once, then shape a copy for each role you go after.\n\nCreate your resume\nrello.\n\nMake one clean resume, then tailor a copy to each job, line by line.\n\nProduct\nHow it works\nTemplates\nPricing\nQuestions\nResources\nGetting started\nYour resumes\nSettings\nCredits & payments\nLegal\nPrivacy policy\nTerms of service\n\n© 2026 Rello. All rights reserved."
+  },
+  {
+    "page": "resumes-empty",
+    "device": "mobile",
+    "route": "/resumes",
+    "status": 304,
+    "blockedWrites": 0,
+    "errors": [],
+    "viewport": 390,
+    "documentWidth": 390,
+    "theme": "light",
+    "heading": "Your resumes",
+    "matchFonts": [],
+    "inputsWithoutLabel": [],
+    "text": "rello.\nSign in\nStart a new resume\nBlank\nPDF or Word\nImport\n\nAmara Okafor\n\nProduct Designer\n\namara.okafor@example.com·+234 801 234 5678·Lagos, Nigeria·linkedin.com/in/amaraokafor·amara.design\n\nSUMMARY\n\nProduct designer with four years of experience shaping fintech and logistics apps used by over 200,000 people. I work closely with engineers and researchers to turn messy workflows into calm, simple screens.\n\nEXPERIENCE\n\nProduct Designer\n\nMar 2022 – Present\n\nPaylane, Lagos\n\nRedesigned merchant onboarding, cutting drop-off from 41% to 23% in two quarters.\nBuilt and maintain the design system used across three product teams.\nRun fortnightly usability sessions with small-business owners.\n\nUI Designer\n\nJun 2020 – Feb 2022\n\nShiplink, Remote\n\nDesigned the driver app's delivery flow, now used for 30,000 deliveries a week.\nPartnered with support to turn the top ten complaints into product fixes.\n\nEDUCATION\n\nUniversity of Lagos\n\nSep 2015 – Jul 2019\n\nB.Sc., Computer Science\n\nSKILLS\n\nFigma · Design systems · User research · Prototyping · Usability testing · HTML & CSS\n\nPROJECTS\n\nOpen Transit Lagos — github.com/amara/open-transit\n\nVolunteer redesign of a community bus-route finder.\n\nCERTIFICATIONS\n\nGoogle UX Design Certificate, Coursera\nMay 2021\nClassic\n\nAmara Okafor\n\nProduct Designer\n\namara.okafor@example.com|+234 801 234 5678|Lagos, Nigeria|linkedin.com/in/amaraokafor|amara.design\n\nPROFILE\n\nProduct designer with four years of experience shaping fintech and logistics apps used by over 200,000 people. I work closely with engineers and researchers to turn messy workflows into calm, simple screens.\n\nEXPERIENCE\n\nProduct Designer · Paylane\n\nMar 2022 – Present\n\nLagos\n\nRedesigned merchant onboarding, cutting drop-off from 41% to 23% in two quarters.\nBuilt and maintain the design system used across three product teams.\nRun fortnightly usability sessions with small-business owners.\n\nUI Designer · Shiplink\n\nJun 2020 – Feb 2022\n\nRemote\n\nDesigned the driver app's delivery flow, now used for 30,000 deliveries a week.\nPartnered with support to turn the top ten complaints into product fixes.\n\nSKILLS\n\nFigma · Design systems · User research · Prototyping · Usability testing · HTML & CSS\n\nEDUCATION\n\nB.Sc., Computer Science · University of Lagos\n\nSep 2015 – Jul 2019\n\nPROJECTS\n\nOpen Transit Lagos · github.com/amara/open-transit\n\nVolunteer redesign of a community bus-route finder.\n\nCERTIFICATIONS\n\nGoogle UX Design Certificate · Coursera\nMay 2021\nModern\n\nAmara Okafor\n\nProduct Designer\n\namara.okafor@example.com\n+234 801 234 5678\nLagos, Nigeria\nlinkedin.com/in/amaraokafor\namara.design\n\nSUMMARY\n\nProduct designer with four years of experience shaping fintech and logistics apps used by over 200,000 people. I work closely with engineers and researchers to turn messy workflows into calm, simple screens.\n\nEXPERIENCE\n\nProduct Designer, Paylane — Lagos\n\nMar 2022 – Present\n\nRedesigned merchant onboarding, cutting drop-off from 41% to 23% in two quarters.\nBuilt and maintain the design system used across three product teams.\nRun fortnightly usability sessions with small-business owners.\n\nUI Designer, Shiplink — Remote\n\nJun 2020 – Feb 2022\n\nDesigned the driver app's delivery flow, now used for 30,000 deliveries a week.\nPartnered with support to turn the top ten complaints into product fixes.\n\nPROJECTS\n\nOpen Transit Lagos — github.com/amara/open-transit: Volunteer redesign of a community bus-route finder.\n\nEDUCATION\n\nUniversity of Lagos, B.Sc., Computer Science\n\nSep 2015 – Jul 2019\n\nSKILLS & CERTIFICATIONS\n\nSkills: Figma, Design systems, User research, Prototyping, Usability testing, HTML & CSS\n\nCertifications: Google UX Design Certificate, Coursera, May 2021\n\nCompact\n\nAmara Okafor\n\nProduct Designer\n\namara.okafor@example.com/+234 801 234 5678/Lagos, Nigeria/linkedin.com/in/amaraokafor/amara.design\n\nABOUT\n\nProduct designer with four years of experience shaping fintech and logistics apps used by over 200,000 people. I work closely with engineers and researchers to turn messy workflows into calm, simple screens.\n\nEXPERIENCE\n\nProduct Designer\n\nPaylane · Lagos · Mar 2022 – Present\n\nRedesigned merchant onboarding, cutting drop-off from 41% to 23% in two quarters.\nBuilt and maintain the design system used across three product teams.\nRun fortnightly usability sessions with small-business owners.\n\nUI Designer\n\nShiplink · Remote · Jun 2020 – Feb 2022\n\nDesigned the driver app's delivery flow, now used for 30,000 deliveries a week.\nPartnered with support to turn the top ten complaints into product fixes.\n\nEDUCATION\n\nB.Sc., Computer Science\n\nUniversity of Lagos · Sep 2015 – Jul 2019\n\nSKILLS\n\nFigma, Design systems, User research, Prototyping, Usability testing, HTML & CSS\n\nPROJECTS\n\nOpen Transit Lagos · github.com/amara/open-transit\n\nVolunteer redesign of a community bus-route finder.\n\nCERTIFICATIONS\n\nGoogle UX Design Certificate · Coursera · May 2021\nMinimal\nYour resumes\nYour next opportunity starts with one resume.\nPick a template above, start blank, or import the resume you already have.\nImport PDF or DOCX\nrello.\nOne resume. Every opportunity.\nAbout Rello\nGetting started\nSettings\nPrivacy\nTerms"
+  },
+  {
+    "page": "billing-guest",
+    "device": "mobile",
+    "route": "/settings/billing",
+    "status": 304,
+    "blockedWrites": 0,
+    "errors": [],
+    "viewport": 390,
+    "documentWidth": 390,
+    "theme": "light",
+    "heading": "Credits & payments",
+    "matchFonts": [],
+    "inputsWithoutLabel": [],
+    "text": "rello.\nSign in\nSettings\nCredits & payments\n\nOne credit, one tailored resume. No subscriptions.\n\nStart with 10 free credits\nSign in to receive your one-time welcome credits and keep your resumes across devices.\nSign in\nAdd a credit pack\nStarter\n5 tailoring credits · one-time payment\n\n$2.00USD\n\n5 job-specific tailored resumes\n10 AI retries with each copy\nEdit and re-download without using credits\nGet 5 credits\nJob search pack\nBest value\n20 tailoring credits · one-time payment\n\n$5.00USD\n\n20 job-specific tailored resumes\n10 AI retries with each copy\nEdit and re-download without using credits\nGet 20 credits\n\nPayments are processed securely by Paystack. Failed tailoring attempts don’t spend credits. Importing, editing and downloading remain free.\n\nrello.\nOne resume. Every opportunity.\nAbout Rello\nGetting started\nSettings\nPrivacy\nTerms"
+  },
+  {
+    "page": "privacy",
+    "device": "mobile",
+    "route": "/privacy",
+    "status": 304,
+    "blockedWrites": 0,
+    "errors": [],
+    "viewport": 390,
+    "documentWidth": 390,
+    "theme": "light",
+    "heading": "Privacy policy",
+    "matchFonts": [],
+    "inputsWithoutLabel": [],
+    "text": "rello.\nCreate your resume\nBack to Rello\nGetting started\nPrivacy policy\nTerms of service\nPrivacy policy\n\nLast updated November 16, 2026\n\nRello helps you write and tailor your resume. To do that we store what you put in it. This page explains what we keep, why, and how to delete it.\n\nWhat we store\nYour account: your email address, and your name if you add it or sign in with Google.\nYour resumes and tailored copies, exactly as you write them.\nJob descriptions you paste in, kept with the tailored copy they produced.\nA log of each AI request (what kind, when, and how much text) so we can keep usage fair and costs down.\nYour credit balance, credit usage, and payment references, amounts, currencies and payment status.\nWhat we don't keep\nFiles you import. We read the text out of your PDF or DOCX and then discard the file.\nPDFs you download. They're generated from your saved resume each time.\nAI processing\n\nWhen you tailor a resume, ask for a rewrite, or import a file, the relevant text is sent to an AI model through OpenRouter to produce suggestions. We send only what that task needs. We don't use your resumes to train models or for marketing.\n\nWhere it lives\n\nPaystack processes payments. We send your email, the pack amount, currency and order reference to open checkout. Rello does not receive or store your full card details. Payment records retained by Paystack are handled under Paystack’s own privacy policy.\n\nYour data is stored with Supabase, our database provider, and only your account can read it. If you use Rello as a guest, your resumes are tied to that browser until you sign in.\n\nDeleting your data\n\nYou can delete any resume from your list, or delete your whole account and everything in it from Settings. Deletion is permanent. Credit and generation records are deleted with your account. We remove your account link from retained purchase records; Paystack keeps its own payment records under its policy.\n\nrello.\n\nMake one clean resume, then tailor a copy to each job, line by line.\n\nProduct\nHow it works\nTemplates\nPricing\nQuestions\nResources\nGetting started\nYour resumes\nSettings\nCredits & payments\nLegal\nPrivacy policy\nTerms of service\n\n© 2026 Rello. All rights reserved."
+  },
+  {
+    "page": "terms",
+    "device": "mobile",
+    "route": "/terms",
+    "status": 304,
+    "blockedWrites": 0,
+    "errors": [],
+    "viewport": 390,
+    "documentWidth": 390,
+    "theme": "light",
+    "heading": "Terms of service",
+    "matchFonts": [],
+    "inputsWithoutLabel": [],
+    "text": "rello.\nCreate your resume\nBack to Rello\nGetting started\nPrivacy policy\nTerms of service\nTerms of service\n\nLast updated November 16, 2026\n\nBy using Rello you agree to these terms.\n\nYour content\n\nYour resumes are yours. You give us permission to store and process them only to run Rello for you: saving, tailoring, improving and exporting them.\n\nBe truthful\n\nRello is built to work only from what you tell it, and suggests changes rather than making them. You're responsible for what goes on your resume. Review every suggestion before you use it, and don't add experience you don't have.\n\nNo guarantees\n\nWe work hard to make Rello useful, but we can't promise interviews, job offers, or that any particular hiring system will read your resume a certain way. AI suggestions can be wrong.\n\nFair use\n\nVerified accounts receive 10 free tailoring credits once. One credit is used when a tailored copy with useful suggestions is saved. Failed attempts and results with no suggested changes don’t spend credits. Each tailored copy includes 10 successful AI retries. Editing and re-downloading saved resumes are free.\n\nCredit purchases\n\nCredit packs are one-time purchases, not subscriptions, and credits do not expire. The checkout shows the amount and currency before you pay. Paystack processes payment, and credits are added after payment is verified. Reversed payments remove the associated credits, including credits already spent; a resulting balance adjustment is covered by future credits. This does not limit any refund or consumer rights that apply to you.\n\nImport and general AI writing help have a daily limit. Tailoring uses your credits and the retry allowance for each copy. Request rate limits keep the service available for everyone. Don't try to get around it, overload the service, or use Rello to process content that isn't yours.\n\nChanges\n\nIf these terms change, we'll update this page and the date above.\n\nrello.\n\nMake one clean resume, then tailor a copy to each job, line by line.\n\nProduct\nHow it works\nTemplates\nPricing\nQuestions\nResources\nGetting started\nYour resumes\nSettings\nCredits & payments\nLegal\nPrivacy policy\nTerms of service\n\n© 2026 Rello. All rights reserved."
+  },
+  {
+    "page": "guide",
+    "device": "mobile",
+    "route": "/guide",
+    "status": 304,
+    "blockedWrites": 0,
+    "errors": [],
+    "viewport": 390,
+    "documentWidth": 390,
+    "theme": "light",
+    "heading": "Getting started",
+    "matchFonts": [],
+    "inputsWithoutLabel": [],
+    "text": "rello.\nCreate your resume\nBack to Rello\nGetting started\nPrivacy policy\nTerms of service\nGetting started\n\nFrom your first resume to a copy that fits the job. Here’s how to make the most of Rello.\n\nCreate or import your resume\n\nOpen Your resumes and start with a template, or choose Import to bring in a PDF or Word document. Imports support PDF and DOCX files under 5 MB. A text-based file works best.\n\nCheck the imported details before continuing. Make sure your name, roles, dates, education, and skills are correct. You can open one section at a time while the preview updates beside it.\n\nTailor a copy to a job\n\nFrom your resume, choose Tailor for a job and paste the job description. Include the responsibilities and requirements so Rello has enough context. Job title and company are optional.\n\nTailoring creates a separate copy. Your original resume stays available for the next application.\n\nUnderstand the job match\n\nSign in to receive 10 free tailoring credits, once per account. A saved tailored copy costs one credit and includes 10 successful AI retries. Failed requests don’t use credits. Editing and downloading are free. View your balance and add a one-time pack in Credits & payments.\n\nThe match compares the job’s requirements with the experience you have already added:\n\nOn your resume: the requirement has supporting experience.\nPartly: your resume shows some relevant experience, but may need more detail.\nMissing: Rello could not find supporting experience in your resume.\n\nUse this as a review checklist. Add detail only when it reflects something you actually did.\n\nReview each suggestion\n\nCompare the original wording with the proposed change. Removed text and added text are highlighted so you can see the difference.\n\nUse suggestion applies the change to your tailored copy.\nKeep original keeps your wording.\nTry again asks for another suggestion.\n\nRead every change, including names, numbers, and claims about your work. AI can make mistakes, and you decide what belongs on your resume.\n\nChoose a template and download\n\nYou can switch between the four templates without rewriting your content. Check the preview, then choose Download PDF. If you are asked to sign in, use Google or an email code to continue.\n\nIf a download fails, check your connection and try again. For import problems, try a text-based PDF or DOCX instead of a scanned image.\n\nKeep access to your work\n\nGuest resumes are tied to the browser where you created them. Sign in to keep access to your saved work across devices.\n\nManage your account or delete your data in Settings. For details about how your content is handled, read the Privacy policy. You can also find answers to common questions on the landing page.\n\nrello.\n\nMake one clean resume, then tailor a copy to each job, line by line.\n\nProduct\nHow it works\nTemplates\nPricing\nQuestions\nResources\nGetting started\nYour resumes\nSettings\nCredits & payments\nLegal\nPrivacy policy\nTerms of service\n\n© 2026 Rello. All rights reserved."
+  }
+]

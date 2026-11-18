@@ -8,7 +8,8 @@ import { THEME_EVENT } from "./script";
 export function ThemeSync() {
   const pathname = usePathname();
   useLayoutEffect(() => {
-    window.dispatchEvent(new Event(THEME_EVENT));
+    // Use the committed route rather than relying on URL update timing.
+    window.dispatchEvent(new CustomEvent(THEME_EVENT, { detail: { pathname } }));
   }, [pathname]);
   return null;
 }
