@@ -1,29 +1,35 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import { UploadIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/components/ui/toast";
 import { useAuth } from "@/features/auth/auth-provider";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { UploadIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
 import { IMPORT_KEY, type PendingImport } from "./pending";
 
 const MAX_BYTES = 5 * 1024 * 1024;
-const ACCEPT = ".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+const ACCEPT =
+  ".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
 /** `tile` renders as a page-shaped card for the "Start a new resume" strip. */
 export function ImportButton({ variant = "button" }: { variant?: "button" | "tile" }) {
   const router = useRouter();
   const { ensureSession } = useAuth();
   const input = useRef<HTMLInputElement>(null);
+  const controller = useRef<AbortController | null>(null);
   const [reading, setReading] = useState<string | null>(null);
 
   async function upload(file: File) {
     if (!/\.(pdf|docx)$/i.test(file.name)) {
-      toast.add({ title: "That file type isn't supported", description: "Choose a PDF or DOCX file.", type: "error" });
+      toast.add({
+        title: "That file type isn't supported",
+        description: "Choose a PDF or DOCX file.",
+        type: "error",
+      });
       return;
     }
     if (file.size > MAX_BYTES) {
@@ -32,11 +38,16 @@ export function ImportButton({ variant = "button" }: { variant?: "button" | "til
     }
 
     setReading(file.name);
+    controller.current = new AbortController();
     try {
       if (isSupabaseConfigured()) await ensureSession();
       const body = new FormData();
       body.append("file", file);
-      const res = await fetch("/api/import", { method: "POST", body });
+      const res = await fetch("/api/import", {
+        method: "POST",
+        body,
+        signal: AbortSignal.any([controller.current.signal, AbortSignal.timeout(85000)]),
+      });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
         toast.add({
@@ -50,7 +61,11 @@ export function ImportButton({ variant = "button" }: { variant?: "button" | "til
       sessionStorage.setItem(IMPORT_KEY, JSON.stringify(pending));
       router.push("/import");
     } catch {
-      toast.add({ title: "Import didn't work", description: "Check your connection and try again.", type: "error" });
+      toast.add({
+        title: controller.current?.signal.aborted ? "Import cancelled" : "Import didn't work",
+        description: "Your file is unchanged. Choose it again to retry.",
+        type: "error",
+      });
     } finally {
       setReading(null);
     }
@@ -102,6 +117,9 @@ export function ImportButton({ variant = "button" }: { variant?: "button" | "til
               Pulling the details out of {reading}. This usually takes 10 to 30 seconds.
             </DialogDescription>
           </DialogHeader>
+          <Button variant="outline" onClick={() => controller.current?.abort()}>
+            Cancel import
+          </Button>
         </DialogContent>
       </Dialog>
     </>

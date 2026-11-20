@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useSyncExternalStore } from "react";
-import { MonitorIcon, MoonIcon, SunIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { MonitorIcon, MoonIcon, SunIcon } from "lucide-react";
+import { useCallback, useSyncExternalStore } from "react";
 import { THEME_EVENT as EVENT, THEME_KEY as KEY } from "./script";
 
 export type ThemeChoice = "light" | "dark" | "system";

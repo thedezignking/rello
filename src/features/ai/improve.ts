@@ -1,6 +1,7 @@
+import { MAX_TEXT_LENGTH } from "@/features/resumes/schema";
 import "server-only";
 import { z } from "zod";
-import { aiConfigured, chatJSON } from "./openrouter";
+import { aiConfigured, AIError, chatJSON, demoAllowed } from "./openrouter";
 
 export const IMPROVE_ACTIONS = ["improve", "professional", "concise", "impactful", "grammar"] as const;
 export type ImproveAction = (typeof IMPROVE_ACTIONS)[number];
@@ -9,7 +10,8 @@ const INSTRUCTIONS: Record<ImproveAction, string> = {
   improve: "Make it clearer and read more smoothly.",
   professional: "Make it sound more professional, without stiff corporate jargon.",
   concise: "Make it shorter and tighter. Cut filler; keep every fact.",
-  impactful: "Lead with a strong, accurate action verb and end with the result — using only what the text already says.",
+  impactful:
+    "Lead with a strong, accurate action verb and end with the result — using only what the text already says.",
   grammar: "Fix grammar, spelling and punctuation only. Change nothing else.",
 };
 
@@ -33,7 +35,10 @@ const numbersIn = (s: string) => (s.match(/\d+(?:[.,]\d+)*/g) ?? []).map((n) => 
 export type ImproveResult = { text: string; question: string; sample?: boolean };
 
 export async function improveText(text: string, action: ImproveAction, where: string) {
-  if (!aiConfigured()) return { result: sampleImprove(text, action), usage: null };
+  if (!aiConfigured()) {
+    if (demoAllowed()) return { result: sampleImprove(text, action), usage: null };
+    throw new AIError("not_configured", "AI isn't configured.");
+  }
 
   const { data, usage } = await chatJSON({
     system: SYSTEM,
@@ -45,7 +50,12 @@ export async function improveText(text: string, action: ImproveAction, where: st
 
   const out = data.text.trim();
   const known = new Set(numbersIn(text));
-  const safe = out && out !== text.trim() && numbersIn(out).every((n) => known.has(n)) && out.length <= text.length * 2 + 120;
+  const safe =
+    out &&
+    out !== text.trim() &&
+    numbersIn(out).every((n) => known.has(n)) &&
+    out.length <= MAX_TEXT_LENGTH &&
+    out.length <= text.length * 2 + 120;
   return { result: safe ? ({ text: out, question: data.question.trim() } as ImproveResult) : null, usage };
 }
 
@@ -65,7 +75,10 @@ function sampleImprove(text: string, action: ImproveAction): ImproveResult {
   };
   return {
     text: variants[action],
-    question: action === "impactful" ? "What changed because of this? A result or number would make it stronger." : "",
+    question:
+      action === "impactful"
+        ? "What changed because of this? A result or number would make it stronger."
+        : "",
     sample: true,
   };
 }

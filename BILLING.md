@@ -31,6 +31,6 @@ OpenRouter model configuration is unchanged. These packs do not select a premium
 ## Checks
 
 - `node scripts/test-billing-paystack.mjs`: mocked provider boundaries; no charges.
-- `node --env-file=.env.local scripts/test-billing-db.mjs`: rollback-only accounting and RLS checks, including schema creation before migration installation. Uses the official Supabase CA and verifies TLS; optionally set `SUPABASE_DB_CA_FILE`.
-- `node --env-file=.env.local scripts/test-billing-concurrency.mjs`: concurrent last-credit and duplicate-fulfillment checks. Creates a temporary fixture account, then deletes it and its purchase record.
+- `npm run test:db`: migrations, permissions, accounting, concurrency, review and guest-transfer checks against the loopback-only `rello_test` database in `TEST_DATABASE_URL`. Hosted URLs are refused. No `.env.local` fallback is read.
+- See `docs/operations.md` for payment reconciliation, incident response and restore checks.
 - `npm run lint`, `npx tsc --noEmit`, `npm run build`.

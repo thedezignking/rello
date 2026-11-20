@@ -1,6 +1,8 @@
-import { NextResponse, type NextRequest } from "next/server";
 import { aiFailure, authorize, fail, logUsage } from "@/features/ai/guard";
 import { extractText, parseResume, sniff } from "@/features/import/parse";
+import { readBytes, RequestBodyError } from "@/lib/request-body";
+import { withRequestBudget } from "@/lib/request-budget";
+import { NextResponse, type NextRequest } from "next/server";
 
 export const maxDuration = 90;
 
@@ -12,14 +14,18 @@ const UNREADABLE = "We couldn't read this file. Try a text-based PDF or DOCX.";
  * Reads an uploaded resume and returns its contents as fields for the person
  * to check. Nothing is saved here, and the file itself isn't kept.
  */
-export async function POST(request: NextRequest) {
-  const auth = await authorize({ allowGuest: true, action: "import a resume" });
+async function handlePost(request: NextRequest) {
+  const auth = await authorize({ allowGuest: true, action: "import a resume", operation: "import" });
   if (!auth.ok) return auth.response;
 
-  const form = await request.formData().catch(() => null);
+  const bytesBody = await readBytes(request, MAX_BYTES + 65536);
+  const form = await new Request(request.url, { method: "POST", headers: request.headers, body: bytesBody })
+    .formData()
+    .catch(() => null);
   const file = form?.get("file");
   if (!(file instanceof File)) return fail(400, "no_file", "Choose a PDF or DOCX file to import.");
-  if (file.size > MAX_BYTES) return fail(413, "too_large", "That file is over 5 MB. Try a smaller PDF or DOCX.");
+  if (file.size > MAX_BYTES)
+    return fail(413, "too_large", "That file is over 5 MB. Try a smaller PDF or DOCX.");
 
   const bytes = new Uint8Array(await file.arrayBuffer());
   const kind = sniff(bytes);
@@ -27,7 +33,10 @@ export async function POST(request: NextRequest) {
 
   let text: string;
   try {
-    text = (await extractText(bytes, kind)).replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n").trim();
+    text = (await extractText(bytes, kind))
+      .replace(/[ \t]+/g, " ")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
   } catch {
     return fail(422, "unreadable", UNREADABLE);
   }
@@ -50,4 +59,19 @@ export async function POST(request: NextRequest) {
     await logUsage(auth.caller, "import", null, false);
     return aiFailure(error);
   }
+}
+
+export function POST(request: NextRequest) {
+  return withRequestBudget(request, 80000, async () => {
+    try {
+      return await handlePost(request);
+    } catch (error) {
+      if (error instanceof RequestBodyError)
+        return Response.json(
+          { error: { code: "bad_request", message: error.message } },
+          { status: error.status },
+        );
+      throw error;
+    }
+  });
 }

@@ -23,7 +23,10 @@ export const SAMPLE_CONTENT: ResumeContent = {
       end: "",
       current: true,
       bullets: [
-        { id: "s_b1", text: "Redesigned merchant onboarding, cutting drop-off from 41% to 23% in two quarters." },
+        {
+          id: "s_b1",
+          text: "Redesigned merchant onboarding, cutting drop-off from 41% to 23% in two quarters.",
+        },
         { id: "s_b2", text: "Built and maintain the design system used across three product teams." },
         { id: "s_b3", text: "Run fortnightly usability sessions with small-business owners." },
       ],
@@ -37,7 +40,10 @@ export const SAMPLE_CONTENT: ResumeContent = {
       end: "2022-02",
       current: false,
       bullets: [
-        { id: "s_b4", text: "Designed the driver app's delivery flow, now used for 30,000 deliveries a week." },
+        {
+          id: "s_b4",
+          text: "Designed the driver app's delivery flow, now used for 30,000 deliveries a week.",
+        },
         { id: "s_b5", text: "Partnered with support to turn the top ten complaints into product fixes." },
       ],
     },

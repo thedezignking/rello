@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { toast } from "@/components/ui/toast";
 import { useAuth } from "@/features/auth/auth-provider";
 import type { ResumeContent, TemplateId } from "@/features/resumes/schema";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { useState } from "react";
 import { pdfFilename } from "./filename";
 
 type Exportable = { id: string; title: string; templateId: TemplateId; content: ResumeContent };
@@ -38,6 +38,7 @@ export function useDownloadPdf() {
       const res = await fetch("/api/pdf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(55000),
         // With Supabase the server reads the saved resume itself; the local
         // development store only lives in this browser, so send it along.
         body: JSON.stringify(

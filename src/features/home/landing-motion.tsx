@@ -1,24 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { CheckIcon, MousePointer2Icon } from "lucide-react";
-import {
-  AnimatePresence,
-  MotionConfig,
-  motion,
-  useInView,
-  useMotionValue,
-  useReducedMotion,
-  useSpring,
-  useTransform,
-  type Variants,
-} from "motion/react";
-import { AiIcon } from "@/components/ai-icon";
-import type { ResumeContent } from "@/features/resumes/schema";
-import { PagePreview } from "@/features/templates/page-preview";
-import { SAMPLE_CONTENT } from "@/features/templates/sample";
-import { diffInline } from "@/features/tailor/diff";
 import { cn } from "@/lib/utils";
+import { CheckIcon } from "lucide-react";
+import { MotionConfig, motion, type Variants } from "motion/react";
+import { useRef } from "react";
 
 // Motion for the landing page. Each piece is a small client leaf; the page
 // itself stays server-rendered. Motion explains the product (a suggestion
@@ -26,19 +11,9 @@ import { cn } from "@/lib/utils";
 // and everything settles to a still, complete state for reduced motion.
 
 const EASE_OUT = [0.23, 1, 0.32, 1] as const;
-const SPRING = { type: "spring", bounce: 0, visualDuration: 0.45 } as const;
 
 // "How it works": when the drawing line reaches step i.
 const stepAt = (i: number) => 0.25 + i * 0.45;
-
-/**
- * Bento demos play one after another on wide screens, where all three cards
- * are in view together. Stacked on a phone each card is reached on its own,
- * so there it starts as soon as it's seen. Only read inside transitions,
- * after mount, so it never affects what the server renders.
- */
-const inTurn = (wide: number) =>
-  typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches ? wide : 0;
 
 /** Honours the visitor's reduced-motion setting for every animation inside. */
 export function LandingMotion({ children }: { children: React.ReactNode }) {
@@ -77,7 +52,15 @@ export function Stagger({
   );
 }
 
-export function StaggerItem({ as = "div", className, children }: { as?: Tag; className?: string; children: React.ReactNode }) {
+export function StaggerItem({
+  as = "div",
+  className,
+  children,
+}: {
+  as?: Tag;
+  className?: string;
+  children: React.ReactNode;
+}) {
   const C = motion[as] as typeof motion.div;
   return (
     <C className={className} variants={item}>
@@ -118,238 +101,6 @@ export function SpotlightCard({ className, children }: { className?: string; chi
   );
 }
 
-/* ---------- Hero: a suggestion being accepted ---------- */
-
-const SCENES = [
-  {
-    line: "s_b2",
-    before: "Built and maintain the design system used across three product teams.",
-    after: "Built and maintain the Figma design system used across three product teams.",
-    reason: "Names the tool the job asks for, with the same facts.",
-  },
-  {
-    line: "s_b1",
-    before: "Redesigned merchant onboarding, cutting drop-off from 41% to 23% in two quarters.",
-    after: "Cut merchant onboarding drop-off from 41% to 23% in two quarters with a full redesign.",
-    reason: "Leads with the result. Same numbers, nothing added.",
-  },
-] as const;
-
-type Phase = "suggest" | "press" | "accepted";
-const PHASE_MS: Record<Phase, number> = { suggest: 2800, press: 650, accepted: 1900 };
-
-function withLine(id: string, text: string): ResumeContent {
-  return {
-    ...SAMPLE_CONTENT,
-    experience: SAMPLE_CONTENT.experience.map((e) => ({
-      ...e,
-      bullets: e.bullets.map((b) => (b.id === id ? { ...b, text } : b)),
-    })),
-  };
-}
-
-/** The hero's product shot, acted out: a line is marked, a suggestion arrives, Accept is pressed, the page updates. */
-export function HeroDemo() {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { amount: 0.4 });
-  const reduce = useReducedMotion();
-  const [scene, setScene] = useState(0);
-  const [phase, setPhase] = useState<Phase>("suggest");
-
-  // Advance the little story only while it's on screen.
-  useEffect(() => {
-    if (!inView || reduce) return;
-    const t = setTimeout(() => {
-      if (phase === "suggest") setPhase("press");
-      else if (phase === "press") setPhase("accepted");
-      else {
-        setScene((s) => (s + 1) % SCENES.length);
-        setPhase("suggest");
-      }
-    }, PHASE_MS[phase]);
-    return () => clearTimeout(t);
-  }, [phase, inView, reduce]);
-
-  const s = SCENES[scene];
-  const accepted = phase === "accepted";
-  const content = accepted ? withLine(s.line, s.after) : SAMPLE_CONTENT;
-
-  // A gentle tilt toward the pointer, on springs so it settles naturally.
-  const mx = useMotionValue(0);
-  const my = useMotionValue(0);
-  const rotateY = useSpring(useTransform(mx, [-0.5, 0.5], [-4, 4]), { stiffness: 120, damping: 20 });
-  const rotateX = useSpring(useTransform(my, [-0.5, 0.5], [3, -3]), { stiffness: 120, damping: 20 });
-
-  return (
-    <div
-      ref={ref}
-      aria-hidden
-      className="relative mx-auto w-full max-w-[520px] pb-16 [perspective:1200px] sm:pb-10"
-      onPointerMove={(e) => {
-        if (e.pointerType !== "mouse") return;
-        const r = e.currentTarget.getBoundingClientRect();
-        mx.set((e.clientX - r.left) / r.width - 0.5);
-        my.set((e.clientY - r.top) / r.height - 0.5);
-      }}
-      onPointerLeave={() => {
-        mx.set(0);
-        my.set(0);
-      }}
-    >
-      <motion.div style={{ rotateX, rotateY }}>
-        <div className="w-[82%] overflow-hidden rounded-md border shadow-page sm:rotate-[-1.5deg]">
-          <PagePreview
-            templateId="modern"
-            content={content}
-            mode="thumb"
-            highlight={accepted ? { ids: [], active: [s.line] } : { ids: [s.line] }}
-          />
-        </div>
-
-        <div
-          className="absolute right-0 bottom-0 w-[74%] rounded-xl border bg-card p-4 shadow-[0_24px_48px_-16px_rgb(21_23_28/0.25)] sm:p-5"
-        >
-          <AnimatePresence mode="popLayout" initial={false}>
-            <motion.div
-              key={`${scene}-${accepted}`}
-              initial={{ opacity: 0, y: 8, filter: "blur(3px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -8, filter: "blur(3px)" }}
-              transition={{ duration: 0.35, ease: EASE_OUT }}
-            >
-              {accepted ? <AcceptedNote text={s.after} /> : <SuggestionBody scene={scene} pressed={phase === "press"} />}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </motion.div>
-    </div>
-  );
-}
-
-function SuggestionBody({ scene, pressed }: { scene: number; pressed: boolean }) {
-  const s = SCENES[scene];
-  const parts = diffInline(s.before, s.after);
-  return (
-    <div className="relative">
-      <p className="text-xs text-muted-foreground">Suggested for this job</p>
-      <p className="mt-1.5 text-[15px] leading-relaxed">
-        {parts.map((p, i) => {
-          if (p.kind === "same") return <span key={i}>{p.text}</span>;
-          const word = p.text.trimEnd();
-          const space = p.text.slice(word.length) || (p.kind === "removed" && parts[i + 1] ? " " : "");
-          return p.kind === "removed" ? (
-            <span key={i}>
-              <Strike play delay={0.45} className="text-muted-foreground">
-                {word}
-              </Strike>
-              {space}
-            </span>
-          ) : (
-            <span key={i}>
-              {/* The highlighter sweeps over the new words. */}
-              <motion.mark
-                className="rounded-[2px] bg-[linear-gradient(var(--highlight-soft),var(--highlight-soft))] bg-no-repeat px-0.5 text-inherit"
-                style={{ backgroundColor: "transparent" }}
-                initial={{ backgroundSize: "0% 100%" }}
-                animate={{ backgroundSize: "100% 100%" }}
-                transition={{ delay: 0.75, duration: 0.55, ease: EASE_OUT }}
-              >
-                {word}
-              </motion.mark>
-              {space}
-            </span>
-          );
-        })}
-      </p>
-      <motion.p
-        className="mt-2 flex gap-1.5 text-xs text-muted-foreground"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.1, duration: 0.4 }}
-      >
-        <AiIcon className="mt-px size-3.5 shrink-0 text-primary" />
-        {s.reason}
-      </motion.p>
-      <div className="relative mt-3 flex gap-1.5">
-        <motion.span
-          animate={{ scale: pressed ? 0.94 : 1 }}
-          transition={{ type: "spring", bounce: 0.3, visualDuration: 0.2 }}
-          className="inline-flex h-7 items-center gap-1 rounded-md bg-primary px-2.5 text-xs font-medium text-primary-foreground"
-        >
-          <CheckIcon className="size-3.5" />
-          Accept
-        </motion.span>
-        <span className="inline-flex h-7 items-center rounded-md px-2.5 text-xs text-muted-foreground">Reject</span>
-        {/* The pointer glides in and presses Accept. */}
-        <motion.span
-          className="pointer-events-none absolute top-0 left-0 text-foreground"
-          initial={{ opacity: 0, x: 140, y: 34 }}
-          animate={pressed ? { opacity: 1, x: 34, y: 12, scale: 0.9 } : { opacity: 0, x: 140, y: 34, scale: 1 }}
-          transition={SPRING}
-        >
-          <MousePointer2Icon className="size-4 fill-foreground stroke-background" />
-        </motion.span>
-      </div>
-    </div>
-  );
-}
-
-function AcceptedNote({ text }: { text: string }) {
-  return (
-    <div>
-      <p className="flex items-center gap-1.5 text-xs font-medium text-success">
-        <motion.span
-          className="flex size-4 items-center justify-center rounded-full bg-success text-white"
-          initial={{ scale: 0.6, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", bounce: 0.4, visualDuration: 0.35 }}
-        >
-          <CheckIcon className="size-3" strokeWidth={3} />
-        </motion.span>
-        Accepted · added to your tailored copy
-      </p>
-      <p className="mt-1.5 text-[15px] leading-relaxed">{text}</p>
-      <p className="mt-2 text-xs text-muted-foreground">Your original resume is unchanged.</p>
-    </div>
-  );
-}
-
-/* ---------- Timeline ---------- */
-
-/** The connecting line of "How it works", drawn left to right as it comes into view. */
-export function TimelineLine() {
-  return (
-    <motion.span
-      aria-hidden
-      className="absolute top-4 right-8 left-8 hidden h-px origin-left bg-primary/40 md:block"
-      initial={{ scaleX: 0 }}
-      whileInView={{ scaleX: 1 }}
-      viewport={{ once: true, margin: "0px 0px -20% 0px" }}
-      transition={{ duration: stepAt(2), ease: EASE_OUT, delay: 0.15 }}
-    />
-  );
-}
-
-/** A step number that lights up as the line reaches it. */
-export function StepDot({ n }: { n: number }) {
-  return (
-    <motion.span
-      className="relative flex size-8 shrink-0 items-center justify-center rounded-full border text-sm font-medium tabular-nums"
-      initial={{ scale: 0.85, backgroundColor: "var(--background)", color: "var(--primary)", borderColor: "var(--border)" }}
-      whileInView={{
-        scale: 1,
-        backgroundColor: "var(--primary)",
-        color: "var(--primary-foreground)",
-        borderColor: "var(--primary)",
-      }}
-      viewport={{ once: true, margin: "0px 0px -20% 0px" }}
-      transition={{ delay: stepAt(n - 1), duration: 0.4, ease: EASE_OUT }}
-    >
-      {n}
-    </motion.span>
-  );
-}
-
 /** A step's text, arriving with its number rather than all at once. */
 export function Appear({ step, children }: { step: number; children: React.ReactNode }) {
   return (
@@ -372,7 +123,10 @@ type MatchRow = { text: string; status: "covered" | "partial" | "missing" };
 export function MatchDemo({ rows }: { rows: readonly MatchRow[] }) {
   const covered = rows.filter((r) => r.status === "covered").length;
   return (
-    <Stagger aria-label="Example job match" className="match-demo flex flex-col gap-1 rounded-xl border bg-background/60 p-3 sm:p-4">
+    <Stagger
+      aria-label="Example job match"
+      className="match-demo flex flex-col gap-1 rounded-xl border bg-background/60 p-3 sm:p-4"
+    >
       <StaggerItem className="match-demo-header mb-2 flex items-center justify-between gap-3 px-2 text-xs text-muted-foreground">
         <span>Senior Product Designer · Acme Pay</span>
         <span className="shrink-0 tabular-nums">
@@ -416,7 +170,8 @@ function MatchMark({ status, delay }: { status: MatchRow["status"]; delay: numbe
       className={cn(
         "flex size-4 shrink-0 items-center justify-center rounded-full",
         status === "covered" && "bg-success text-white",
-        status === "partial" && "border-[1.5px] border-primary bg-[linear-gradient(90deg,var(--primary)_50%,transparent_50%)]",
+        status === "partial" &&
+          "border-[1.5px] border-primary bg-[linear-gradient(90deg,var(--primary)_50%,transparent_50%)]",
         status === "missing" && "border-[1.5px] border-muted-foreground/50",
       )}
       initial={{ scale: 0.4, opacity: 0 }}
@@ -425,124 +180,6 @@ function MatchMark({ status, delay }: { status: MatchRow["status"]; delay: numbe
       transition={{ type: "spring", bounce: 0.45, visualDuration: 0.35, delay }}
     >
       {status === "covered" && <CheckIcon className="size-2.5" strokeWidth={3.5} />}
-    </motion.span>
-  );
-}
-
-/**
- * A strike-through that draws across the text. It's a 1px background on the
- * inline element, so when the text wraps it runs along each line in turn,
- * where a positioned bar would cut through the middle of the block.
- */
-function Strike({
-  play,
-  delay = 0,
-  duration = 0.45,
-  className,
-  children,
-}: {
-  play: boolean;
-  delay?: number;
-  duration?: number;
-  className?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <motion.span
-      className={cn(
-        "bg-[linear-gradient(var(--destructive),var(--destructive))] bg-[position:0_58%] bg-no-repeat",
-        className,
-      )}
-      initial={{ backgroundSize: "0% 1px" }}
-      animate={play ? { backgroundSize: "100% 1px" } : undefined}
-      transition={{ delay, duration, ease: EASE_OUT }}
-    >
-      {children}
-    </motion.span>
-  );
-}
-
-/** A made-up claim appears, gets struck out, and is labelled as blocked. */
-export function BlockedDemo() {
-  const ref = useRef<HTMLParagraphElement>(null);
-  const inView = useInView(ref, { once: true, amount: 0.8 });
-  const start = inTurn(2);
-  return (
-    <p ref={ref} className="mt-auto rounded-lg border bg-card px-3 py-2.5 text-sm">
-      <Strike play={inView} delay={start + 0.3} duration={0.7} className="text-muted-foreground">
-        Led a team of 10 and grew sign-ups by 45%.
-      </Strike>
-      <motion.span
-        className="mt-1 block text-xs font-medium text-destructive"
-        initial={{ opacity: 0, x: 0 }}
-        animate={inView ? { opacity: 1, x: [0, -3, 3, -2, 0] } : undefined}
-        transition={{ opacity: { delay: start + 1, duration: 0.2 }, x: { delay: start + 1.05, duration: 0.35 } }}
-      >
-        Blocked: not on your resume
-      </motion.span>
-    </p>
-  );
-}
-
-/** The tailored copy slides out from behind the original; hovering the card pulls it a little further. */
-const COPIES = [
-  { job: "Acme Pay", lines: 2, ids: ["summary", "s_b2"] },
-  { job: "Lumen Health", lines: 3, ids: ["summary", "s_b1", "s_b3"] },
-];
-
-/**
- * One original, many copies, as one tidy panel like the other two cards: a
- * slice of the resumes list. The original sits on top, unchanged; the
- * tailored copies arrive under it one after another once the panel is seen.
- */
-export function CopyDemo() {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, amount: 0.3 });
-  return (
-    <div ref={ref} aria-hidden className="mt-auto flex flex-col gap-0.5 rounded-lg border bg-card p-1.5">
-      <CopyRow title="Your resume" note="Unchanged" />
-      {COPIES.map((c, i) => (
-        <motion.div
-          key={c.job}
-          initial={{ opacity: 0, y: -6 }}
-          animate={inView ? { opacity: 1, y: 0 } : undefined}
-          transition={{ duration: 0.45, ease: EASE_OUT, delay: 0.5 + i * 0.35 }}
-        >
-          <CopyRow title={`Copy for ${c.job}`} note={`${c.lines} lines tailored`} ids={c.ids} />
-        </motion.div>
-      ))}
-    </div>
-  );
-}
-
-function CopyRow({ title, note, ids }: { title: string; note: string; ids?: string[] }) {
-  return (
-    <div className="flex items-center gap-3 rounded-md px-1.5 py-1.5">
-      <div className="w-7 shrink-0 overflow-hidden rounded-[2px] border bg-white">
-        <PagePreview templateId="classic" content={SAMPLE_CONTENT} mode="thumb" highlight={ids ? { ids } : undefined} />
-      </div>
-      <div className="min-w-0 leading-snug">
-        <p className="truncate text-sm font-medium">{title}</p>
-        <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          {ids && <span className="size-2 rounded-[2px] bg-highlight" />}
-          {note}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-/** A check that pops in when its row arrives. */
-export function PopCheck({ className }: { className?: string }) {
-  return (
-    <motion.span
-      className={cn("inline-flex", className)}
-      initial={{ scale: 0.4, opacity: 0 }}
-      whileInView={{ scale: 1, opacity: 1 }}
-      viewport={{ once: true }}
-      transition={{ type: "spring", bounce: 0.45, visualDuration: 0.35, delay: 0.2 }}
-    >
-      <CheckIcon className="size-4" />
     </motion.span>
   );
 }

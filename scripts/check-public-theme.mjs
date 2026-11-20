@@ -8,15 +8,17 @@ import ts from "typescript";
 const origin = new URL(process.argv[2] ?? "http://localhost:3000");
 assert.ok(["http:", "https:"].includes(origin.protocol));
 const publicPaths = ["/?home", "/privacy", "/terms", "/guide"];
-await Promise.all(publicPaths.map(async (path) => {
-  const response = await fetch(new URL(path, origin));
-  assert.equal(response.status, 200, `${path}: page loads`);
-  const html = await response.text();
-  const openingHtml = html.match(/<html\b[^>]*>/i)?.[0] ?? "";
-  assert.match(openingHtml, /data-theme="light"/, `${path}: server declares a light default`);
-  assert.match(openingHtml, /color-scheme:only light/, `${path}: native surfaces start light`);
-  assert.match(openingHtml, /background-color:#f8f9f6/, `${path}: canvas starts in the public page color`);
-}));
+await Promise.all(
+  publicPaths.map(async (path) => {
+    const response = await fetch(new URL(path, origin));
+    assert.equal(response.status, 200, `${path}: page loads`);
+    const html = await response.text();
+    const openingHtml = html.match(/<html\b[^>]*>/i)?.[0] ?? "";
+    assert.match(openingHtml, /data-theme="light"/, `${path}: server declares a light default`);
+    assert.match(openingHtml, /color-scheme:only light/, `${path}: native surfaces start light`);
+    assert.match(openingHtml, /background-color:#f8f9f6/, `${path}: canvas starts in the public page color`);
+  }),
+);
 
 const manifestResponse = await fetch(new URL("/manifest.webmanifest", origin));
 assert.equal(manifestResponse.status, 200);
@@ -26,20 +28,36 @@ assert.equal(manifest.theme_color.toLowerCase(), "#f8f9f6", "installed app start
 
 const source = await readFile(new URL("../src/features/theme/script.ts", import.meta.url), "utf8");
 const moduleContext = { exports: {} };
-runInNewContext(ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, moduleContext);
+runInNewContext(
+  ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText,
+  moduleContext,
+);
 const { themeScript, THEME_EVENT } = moduleContext.exports;
 
 function boot(path, choice, systemDark, blockedStorage = false) {
-  const root = { dataset: { theme: "light" }, style: { colorScheme: "only light", backgroundColor: "#f8f9f6" } };
+  const root = {
+    dataset: { theme: "light" },
+    style: { colorScheme: "only light", backgroundColor: "#f8f9f6" },
+  };
   const events = new Map();
   const location = { pathname: path };
   const media = { matches: systemDark, addEventListener: (_, listener) => events.set("system", listener) };
-  runInNewContext(themeScript, {
-    document: { documentElement: root }, location,
-    localStorage: { getItem() { if (blockedStorage) throw Error("Storage blocked"); return choice; } },
-    matchMedia: () => media,
-    addEventListener: (name, listener) => events.set(name, listener),
-  }, { timeout: 1000 });
+  runInNewContext(
+    themeScript,
+    {
+      document: { documentElement: root },
+      location,
+      localStorage: {
+        getItem() {
+          if (blockedStorage) throw Error("Storage blocked");
+          return choice;
+        },
+      },
+      matchMedia: () => media,
+      addEventListener: (name, listener) => events.set(name, listener),
+    },
+    { timeout: 1000 },
+  );
   return { root, events, location, media };
 }
 
@@ -75,7 +93,11 @@ transition.events.get("pageshow")({ type: "pageshow" });
 assert.equal(transition.root.dataset.theme, "light", "restoring a public page rechecks its URL");
 
 const landingCss = await readFile(new URL("../src/features/home/landing.css", import.meta.url), "utf8");
-assert.doesNotMatch(landingCss, /(?:html|body):has\(/, "cached public markup cannot change the active app canvas");
+assert.doesNotMatch(
+  landingCss,
+  /(?:html|body):has\(/,
+  "cached public markup cannot change the active app canvas",
+);
 
 const system = boot("/settings", "system", false);
 system.media.matches = true;
@@ -85,6 +107,12 @@ const publicSystem = boot("/guide", "system", false);
 publicSystem.media.matches = true;
 publicSystem.events.get("system")();
 assert.equal(publicSystem.root.dataset.theme, "light", "public pages stay light on system changes");
-assert.equal(boot("/", null, true, true).root.style.colorScheme, "only light", "blocked storage keeps the light public fallback");
+assert.equal(
+  boot("/", null, true, true).root.style.colorScheme,
+  "only light",
+  "blocked storage keeps the light public fallback",
+);
 
-console.log("Public theme checks passed: server HTML, manifest, saved preferences, navigation, and system changes.");
+console.log(
+  "Public theme checks passed: server HTML, manifest, saved preferences, navigation, and system changes.",
+);

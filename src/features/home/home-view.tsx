@@ -1,17 +1,5 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import {
-  CopyIcon,
-  DownloadIcon,
-  FileTextIcon,
-  MoreVerticalIcon,
-  PencilIcon,
-  PlusIcon,
-  Trash2Icon,
-} from "lucide-react";
 import { AiIcon } from "@/components/ai-icon";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
@@ -25,13 +13,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -56,31 +38,98 @@ import { toast } from "@/components/ui/toast";
 import { useAuth } from "@/features/auth/auth-provider";
 import { ImportButton } from "@/features/import/import-button";
 import { useDownloadPdf } from "@/features/pdf/use-download-pdf";
+import { ResumeReadError } from "@/features/resumes/recovery";
 import { TEMPLATE_IDS, type TemplateId } from "@/features/resumes/schema";
 import { getResumeStore, type ResumeSummary } from "@/features/resumes/store";
 import { TEMPLATES } from "@/features/templates";
 import { PagePreview } from "@/features/templates/page-preview";
 import { SAMPLE_CONTENT } from "@/features/templates/sample";
 import { timeAgo } from "@/lib/time";
+import {
+  CopyIcon,
+  DownloadIcon,
+  FileTextIcon,
+  MoreVerticalIcon,
+  PencilIcon,
+  PlusIcon,
+  Trash2Icon,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export function HomeView() {
   const router = useRouter();
-  const { isGuest, openSignIn } = useAuth();
-  const [resumes, setResumes] = useState<ResumeSummary[] | null>(null);
+  const { user, ready, isGuest, openSignIn } = useAuth();
+  const identity = user?.id ?? "signed-out";
+  const sequence = useRef(0);
+  const [state, setState] = useState<{ identity: string; resumes: ResumeSummary[] | null; error: unknown }>({
+    identity,
+    resumes: null,
+    error: null,
+  });
+  const current = ready && state.identity === identity ? state : null;
+  const resumes = current?.resumes ?? null;
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [creating, setCreating] = useState<TemplateId | "blank" | null>(null);
   const [picking, setPicking] = useState(false);
 
   const load = useCallback(() => {
-    getResumeStore()
-      .list()
-      .then(setResumes)
-      .catch(() => {
-        setResumes([]);
-        toast.add({ title: "Couldn't load your resumes", description: "Refresh the page to try again.", type: "error" });
+    if (!ready) return;
+    const request = ++sequence.current;
+    Promise.resolve()
+      .then(() => getResumeStore().list())
+      .then((resumes) => {
+        if (sequence.current === request) {
+          setState({ identity, resumes, error: null });
+          setHasMore(resumes.length === 20);
+        }
+      })
+      .catch((error: unknown) => {
+        if (sequence.current === request)
+          setState((previous) => ({
+            identity,
+            resumes: previous.identity === identity ? previous.resumes : null,
+            error,
+          }));
       });
-  }, []);
+  }, [identity, ready]);
 
-  useEffect(load, [load]);
+  useEffect(() => {
+    const requests = sequence;
+    load();
+    return () => {
+      requests.current++;
+    };
+  }, [load]);
+
+  async function loadMore() {
+    if (loadingMore || !resumes) return;
+    setLoadingMore(true);
+    const request = sequence.current;
+    try {
+      const next = await getResumeStore().list({ offset: resumes.length });
+      if (request === sequence.current) {
+        setState((previous) => ({
+          ...previous,
+          resumes: [
+            ...(previous.resumes ?? []),
+            ...next.filter((r) => !previous.resumes?.some((x) => x.id === r.id)),
+          ],
+        }));
+        setHasMore(next.length === 20);
+      }
+    } catch {
+      toast.add({
+        title: "Couldn't load more resumes",
+        description: "Try again in a moment.",
+        type: "error",
+      });
+    } finally {
+      setLoadingMore(false);
+    }
+  }
 
   async function create(choice: TemplateId | "blank") {
     if (creating) return;
@@ -92,7 +141,11 @@ export function HomeView() {
       router.push(`/r/${resume.id}`);
     } catch {
       setCreating(null);
-      toast.add({ title: "Couldn't create a resume", description: "Check your connection and try again.", type: "error" });
+      toast.add({
+        title: "Couldn't create a resume",
+        description: "Check your connection and try again.",
+        type: "error",
+      });
     }
   }
 
@@ -107,7 +160,7 @@ export function HomeView() {
   }
 
   return (
-    <main className="page-in pb-20">
+    <main id="main-content" tabIndex={-1} className="page-in pb-20">
       <Dialog open={picking} onOpenChange={setPicking}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -121,7 +174,7 @@ export function HomeView() {
                   className="flex items-center gap-3 rounded-lg p-2 outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50"
                 >
                   <span className="w-10 shrink-0 overflow-hidden rounded-sm border">
-                    <PagePreview templateId={r.templateId} content={r.content} mode="thumb" />
+                    <ResumeThumbnail resume={r} />
                   </span>
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-medium">{r.title}</span>
@@ -134,12 +187,14 @@ export function HomeView() {
         </DialogContent>
       </Dialog>
 
-
       <section id="start">
         <div className="mx-auto max-w-6xl px-4 py-7 sm:px-6">
           <h2 className="mb-4 text-sm font-medium text-muted-foreground">Start a new resume</h2>
           <ul className="-mx-4 flex snap-x scroll-px-4 gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-[repeat(6,minmax(0,1fr))] sm:overflow-visible sm:px-0 lg:grid-cols-[repeat(6,minmax(0,148px))]">
-            <li className="stagger-in w-[116px] shrink-0 snap-start sm:w-auto" style={{ "--i": 0 } as React.CSSProperties}>
+            <li
+              className="stagger-in w-[116px] shrink-0 snap-start sm:w-auto"
+              style={{ "--i": 0 } as React.CSSProperties}
+            >
               <StartCard label="Blank" onClick={() => create("blank")} busy={creating === "blank"}>
                 <div className="flex aspect-[794/1123] items-center justify-center bg-white">
                   <PlusIcon className="size-8 text-primary" strokeWidth={1.5} />
@@ -147,7 +202,10 @@ export function HomeView() {
               </StartCard>
             </li>
             {/* Second, beside Blank: bringing the resume you already have is the fastest start. */}
-            <li className="stagger-in w-[116px] shrink-0 snap-start sm:w-auto" style={{ "--i": 1 } as React.CSSProperties}>
+            <li
+              className="stagger-in w-[116px] shrink-0 snap-start sm:w-auto"
+              style={{ "--i": 1 } as React.CSSProperties}
+            >
               <ImportButton variant="tile" />
             </li>
             {TEMPLATE_IDS.map((id, i) => (
@@ -184,8 +242,10 @@ export function HomeView() {
         {isGuest && resumes && resumes.length > 0 && (
           <Alert className="mb-6 flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
             <div className="flex flex-col gap-0.5">
-              <AlertTitle>Saved in this browser only</AlertTitle>
-              <AlertDescription>Sign in to keep your resumes safe and open them on any device.</AlertDescription>
+              <AlertTitle>Saved in your guest session</AlertTitle>
+              <AlertDescription>
+                Sign in to keep your resumes safe and open them on any device.
+              </AlertDescription>
             </div>
             <Button
               size="sm"
@@ -197,7 +257,8 @@ export function HomeView() {
           </Alert>
         )}
 
-        {resumes === null ? (
+        {current?.error ? <ResumeReadError error={current.error} onRetry={load} /> : null}
+        {resumes === null && current?.error ? null : resumes === null ? (
           <ul className="grid grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-3 lg:grid-cols-5">
             {Array.from({ length: 3 }, (_, i) => (
               <li key={i} className="flex flex-col gap-3">
@@ -213,7 +274,9 @@ export function HomeView() {
                 <FileTextIcon />
               </EmptyMedia>
               <EmptyTitle>Your next opportunity starts with one resume.</EmptyTitle>
-              <EmptyDescription>Pick a template above, start blank, or import the resume you already have.</EmptyDescription>
+              <EmptyDescription>
+                Pick a template above, start blank, or import the resume you already have.
+              </EmptyDescription>
             </EmptyHeader>
             <EmptyContent>
               <ImportButton />
@@ -231,13 +294,22 @@ export function HomeView() {
       {tailored.length > 0 && (
         <section className="mx-auto max-w-6xl px-4 pt-14 sm:px-6">
           <h2 className="font-heading text-2xl font-medium tracking-tight">Tailored for jobs</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Each one is a copy made for a specific job. Your originals stay as they are.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Each one is a copy made for a specific job. Your originals stay as they are.
+          </p>
           <ul className="mt-5 flex flex-col divide-y overflow-hidden rounded-xl border bg-card">
             {tailored.map((r) => (
               <TailoredRow key={r.id} resume={r} source={byId.get(r.sourceResumeId ?? "")} onChanged={load} />
             ))}
           </ul>
         </section>
+      )}
+      {hasMore && (
+        <div className="mx-auto mt-8 max-w-6xl px-4">
+          <Button variant="outline" onClick={loadMore} disabled={loadingMore}>
+            {loadingMore ? "Loading…" : "Load more resumes"}
+          </Button>
+        </div>
       )}
     </main>
   );
@@ -288,18 +360,22 @@ function ResumeCard({
   onChanged: () => void;
 }) {
   return (
-    <li className="stagger-in group relative flex flex-col gap-2.5" style={{ "--i": index } as React.CSSProperties}>
+    <li
+      className="stagger-in group relative flex flex-col gap-2.5"
+      style={{ "--i": index } as React.CSSProperties}
+    >
       <div className="relative">
         <Link
           href={`/r/${resume.id}`}
           className="block overflow-hidden rounded-lg border border-border bg-white shadow-page transition-[border-color,transform] duration-200 ease-(--ease-out) outline-none [@media(hover:hover)]:hover:-translate-y-0.5 [@media(hover:hover)]:hover:border-primary focus-visible:ring-3 focus-visible:ring-ring/50"
           aria-label={`Open ${resume.title}`}
         >
-          <PagePreview templateId={resume.templateId} content={resume.content} mode="thumb" hints />
+          <ResumeThumbnail resume={resume} />
         </Link>
         {/* Quick action on hover or keyboard focus. Touch screens use the header button or the menu instead of covering the page. */}
         <Button
           size="sm"
+
           nativeButton={false}
           render={<Link href={`/r/${resume.id}/tailor`} />}
           aria-label={`Tailor ${resume.title} to a job`}
@@ -341,7 +417,7 @@ function TailoredRow({
   return (
     <li className="group relative flex items-center gap-4 px-4 py-3 transition-colors [@media(hover:hover)]:hover:bg-muted/40">
       <div className="w-10 shrink-0 overflow-hidden rounded-sm border bg-white">
-        <PagePreview templateId={resume.templateId} content={resume.content} mode="thumb" hints />
+        <ResumeThumbnail resume={resume} />
       </div>
       <div className="min-w-0 flex-1">
         <Link
@@ -359,10 +435,14 @@ function TailoredRow({
           variant="ghost"
           size="sm"
           className="hidden sm:inline-flex"
-          onClick={() => download(resume)}
+          onClick={() => void downloadSaved(resume.id, download)}
           disabled={busyId === resume.id}
         >
-          {busyId === resume.id ? <Spinner data-icon="inline-start" /> : <DownloadIcon data-icon="inline-start" />}
+          {busyId === resume.id ? (
+            <Spinner data-icon="inline-start" />
+          ) : (
+            <DownloadIcon data-icon="inline-start" />
+          )}
           PDF
         </Button>
         <ResumeMenu resume={resume} onChanged={onChanged} />
@@ -418,7 +498,14 @@ function ResumeMenu({ resume, onChanged }: { resume: ResumeSummary; onChanged: (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger
-          render={<Button variant="ghost" size="icon-sm" className="-mr-1.5" aria-label={`More actions for ${resume.title}`} />}
+          render={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="-mr-1.5"
+              aria-label={`More actions for ${resume.title}`}
+            />
+          }
         >
           <MoreVerticalIcon />
         </DropdownMenuTrigger>
@@ -432,7 +519,10 @@ function ResumeMenu({ resume, onChanged }: { resume: ResumeSummary; onChanged: (
               <AiIcon />
               {tailored ? "Review suggestions" : "Tailor to a job"}
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => download(resume)} disabled={busyId === resume.id}>
+            <DropdownMenuItem
+              onClick={() => void downloadSaved(resume.id, download)}
+              disabled={busyId === resume.id}
+            >
               <DownloadIcon />
               Download PDF
             </DropdownMenuItem>
@@ -505,5 +595,66 @@ function ResumeMenu({ resume, onChanged }: { resume: ResumeSummary; onChanged: (
         </AlertDialogContent>
       </AlertDialog>
     </>
+  );
+}
+
+async function downloadSaved(
+  id: string,
+  download: (resume: Awaited<ReturnType<ReturnType<typeof getResumeStore>["get"]>> & {}) => Promise<void>,
+) {
+  try {
+    const resume = await getResumeStore().get(id);
+    if (!resume) throw Error("Missing resume");
+    await download(resume);
+  } catch {
+    toast.add({
+      title: "Couldn't read this resume",
+      description: "Open it for recovery options, or try again.",
+      type: "error",
+    });
+  }
+}
+
+function ResumeThumbnail({ resume }: { resume: ResumeSummary }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [content, setContent] = useState<ResumeSummary["content"]>(undefined);
+  const [failed, setFailed] = useState(false);
+  const { user } = useAuth();
+  useEffect(() => {
+    let active = true;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        observer.disconnect();
+        getResumeStore()
+          .get(resume.id)
+          .then((document) => {
+            if (active) {
+              if (!document) throw Error("Missing");
+              setContent(document.content);
+            }
+          })
+          .catch(() => {
+            if (active) setFailed(true);
+          });
+      },
+      { rootMargin: "100px" },
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => {
+      active = false;
+      observer.disconnect();
+    };
+  }, [resume.id, resume.updatedAt, user?.id]);
+  return (
+    <div ref={ref}>
+      {content ? (
+        <PagePreview templateId={resume.templateId} content={content} mode="thumb" hints />
+      ) : (
+        <div className="flex aspect-[794/1123] items-center justify-center bg-card px-2 text-center text-xs text-muted-foreground">
+          {failed ? "Open for recovery or retry" : "Preview loading…"}
+        </div>
+      )}
+    </div>
   );
 }

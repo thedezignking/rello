@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import "../components/ui/shadcn-variants.css";
 
 /* Dark mode: data-theme on <html>, set before paint from the saved choice or the system setting. */
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
@@ -262,5 +262,22 @@
       animation-timeline: view();
       animation-range: entry 0% entry 60%;
     }
+  }
+}
+
+@media (max-width: 639px) {
+  .story-art,
+  .trust-story-stage {
+    font-size: 12px;
+  }
+  .story-label,
+  .story-muted,
+  .story-topline,
+  .story-detail-row,
+  .story-kicker {
+    font-size: 12px;
+  }
+  .stage-suggestion {
+    font-size: 12px;
   }
 }

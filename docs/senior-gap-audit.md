@@ -1,65 +1,129 @@
 # Senior gap audit: Rello
 
-16 November 2026 · Launch-stage resume builder, with existing saved data and payment activation still being configured · Baseline commit `335c5a5`
+> **20 November implementation update:** the remaining code fixes and their verification are recorded in [the remediation ledger](audit-remediation.md). Findings and scores below remain the historical pre-fix snapshot. Deployment and provider activation checks are listed separately in the ledger and operations runbook.
+
+19 November 2026 · Re-audit of `e6a00eb`, compared with the [16 November report](senior-gap-audit-2026-11-16.md) · Assessed for launch and ongoing use with real saved work; actual customer/payment volume was not established.
 
 > This is a gap-finding self-check, not an assurance audit. Closing these gaps brings the app closer to what a senior engineer and designer would build; it does not certify security, production readiness or design quality.
+
+## Implementation follow-up: first fix batch
+
+The audit verdict, scores and closure table below are the **pre-fix snapshot**. The following changes were subsequently implemented on 19 November; this is not a new overall scoring exercise.
+
+| Finding                            | Implementation status                                                                                                                                                                                                                 | Verification                                                                                                                                                                                       |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| E01 — whole-document resets        | Fixed in source: write validation in both stores; lossless reads of old overlong text; explicit recovery for malformed/unknown data and newer formats; no blank fallbacks. Bad records remain listed without editable blank previews. | `npm run test:persistence` exercises both actual stores with isolated adapters, legacy reads, rejected writes, subsequent edits, stale revisions, malformed collections and newer schema versions. |
+| D01 — failed reads look missing    | Key resume paths now distinguish retryable read failures, missing rows and malformed content; PDF/AI handlers return distinct 503/404/422 outcomes.                                                                                   | Server regression checks confirm failed reads never render a blank PDF and old long text can be exported intact. Browser verification remains outstanding.                                         |
+| E23 — stale data on account change | Dashboard state is scoped to identity and ignores stale requests; editor and tailoring workspaces reset/refetch when identity changes.                                                                                                | Type/lint checks; account-switch browser journey still needs verification with disposable accounts. This does not implement E04 guest transfer.                                                    |
+| E24 — lost import corrections      | Corrections checkpoint to session storage; storage failure shows a warning, offers a recovery download and adds an unload warning. Malformed import payloads offer recovery.                                                          | Type/lint checks; refresh/quota-error interaction still needs browser verification.                                                                                                                |
+| E02/E08 — navigation and metadata  | Partly addressed: editor Back/Tailor links wait for content/title/template work, title writes are serialized and acknowledged after success, template changes appear after success, and export waits for metadata.                    | Type/lint checks. Browser Back, review navigation, conflict recovery and atomic review persistence remain open.                                                                                    |
+| D07 — field feedback               | Partly addressed: text/area/bullet length errors are linked to inputs; skill input errors preserve pasted text. Auth/job-form feedback and skip-link work remain.                                                                     | Type/lint checks; assistive-technology verification outstanding.                                                                                                                                   |
+
+AI rewrite filtering also rejects text above the shared storage limit, preventing an unpersistable suggestion from being offered. `node scripts/evaluate-tailoring.cjs` includes a regression for that boundary. All 31 mocked Paystack checks continue to succeed.
+
+No hosted records were modified, no migration was applied and no deployment was made. Recovery preserves the data that is still stored; it cannot recreate content already overwritten before this fix. The dated audit probes intentionally reproduce the old defects and are historical evidence, not the post-fix regression suite. Use `npm run test:persistence` for current behavior.
 
 ## Scope and app map
 
 Rello helps job seekers create or import a resume, tailor a separate copy to a job description, review proposed changes and export a PDF. Its main journeys are **create/import → edit → save**, **paste job → generate → review**, and **sign in → receive/buy credits → tailor**.
 
-The stack is Next.js 16.4.3, React 19.3, TypeScript, Tailwind 4, Base UI/shadcn components and Motion. Supabase provides Google/email-code/anonymous authentication and Postgres storage with row policies. OpenRouter provides extraction and rewriting. Puppeteer/Chromium renders PDFs. Paystack provides hosted checkout and webhooks. Vercel deploys the GitHub repository. These are appropriate choices for this product's size.
+The stack is Next.js 16.4.6, React 19.3, TypeScript, Tailwind 4, Base UI/shadcn components and Motion. Supabase provides Google/email-code/anonymous authentication and Postgres storage with row policies. OpenRouter provides extraction and rewriting. Puppeteer/Chromium renders PDFs. Paystack provides hosted checkout and webhooks. Vercel deploys the GitHub repository. These are appropriate choices for this product's size.
 
-The review covered 131 source files by inventory, with full reads of authentication/callback/account deletion, resume storage and autosave, billing handlers/provider/SQL, AI request and validation paths, imports and PDF export. The editor, review workspace, dashboard and shared fields were traced end to end. Marketing components, template implementations and generated UI primitives were sampled. Entry points include ten API handlers, the auth callback, public document pages, the dashboard, editor, tailoring workspace and print/metadata routes. There are no checked-in CI workflows.
+The review covered 132 TS/TSX/CSS source files by inventory and all changes since `335c5a5`, with full reads of authentication/callback/account deletion, resume storage and autosave, billing handlers/provider/SQL, AI request and validation paths, imports and PDF export. The editor, review workspace, dashboard and shared fields were traced end to end. All three SQL migrations were read. Marketing components, template implementations and generated UI primitives were sampled. Entry points include ten API handlers, the auth callback, public document pages, dashboard, editor, tailoring workspace and print/metadata routes. There are no checked-in CI workflows. See the [fresh inventory](senior-gap-audit/2026-11-19/source-inventory.json).
 
-Public pages were inspected in a fresh, isolated browser at **1440×1000** and **390×844**: landing, guest dashboard, guest billing, privacy, terms and guide. Every non-read HTTP request was blocked; no accounts were created, forms submitted, payments attempted or hosted data changed. The local server refused connections, so captures used [the live site](https://userello.vercel.app). The first desktop landing capture is an initial rendering state; a later attempt did not settle its hero within the probe deadline. It is **not** treated as proof of a permanently blank hero. Authenticated editor/review screens were assessed from code, not a fresh signed-in visual walkthrough.
+**Fresh browser inspection did not complete.** An isolated source copy with placeholder credentials reached Next's Ready state, but headless navigation to its landing/dashboard/billing/document routes timed out. Computer-use tab creation also timed out for both local and deployed pages. No new screenshot or successful UI journey was obtained. The audit's own server/capture session was stopped; the user's existing dev server was left running. These environment/tool failures are not treated as proof the deployed app is down.
 
-Evidence is saved in [`senior-gap-audit/`](senior-gap-audit/). This audit added only its report and evidence helpers/artifacts. It did not fix the implementation or modify the database.
+Historical public captures from 16 November at **1440×1000** and **390×844** were inspected again: landing and empty dashboard, with other archived public captures retained as reference. All screenshot links below are **historical**, not fresh measurements. The early desktop landing capture does not establish a permanently blank hero. Current authenticated layouts were reviewed in source.
+
+To exercise behavior despite that limitation, the actual SupabaseResumeStore was run with an in-memory query adapter: invalid content, reload, subsequent overwrite and stale-revision rejection. The actual tailoring engine was also run against deliberately incorrect mocked model output. These are production-code boundary tests, not hosted/browser end-to-end verification.
+
+Fresh evidence is saved in [`senior-gap-audit/2026-11-19/`](senior-gap-audit/2026-11-19/). This audit changed only reports and evidence helpers/artifacts; no implementation fixes or hosted writes were made. Source-backed findings below were rechecked; old HTTP/browser/Supabase evidence is labelled historical and does not establish current deployed state.
 
 ## Verdict
 
-**Senior engineer:** There is a coherent feature structure and better-than-basic payment accounting: row locking, idempotency, owner checks and server-controlled fulfillment are real strengths. The weakness is preservation of users' work. A routine overlong field can turn a loaded resume into an empty document, and saving is not coordinated with navigation or review decisions. The development/production boundary also needs attention before more testing or migrations.
+**Senior engineer:** There is a coherent feature structure and better-than-basic payment accounting: row locking, idempotency, owner checks and server-controlled fulfillment are real strengths. Email-code and billing-availability handling have improved, but preservation of users' work still blocks launch and reliable continued use. An overlong field still blanks a loaded resume; navigation, review decisions and import corrections lack a shared durable-save policy.
 
-**Senior designer:** The product has a recognizable visual language, useful document previews and clear primary tasks. It does not need another wholesale visual redesign. Its largest UX gaps are failure recovery and trust: errors can look like deleted resumes, guest sign-in overpromises retention, and some actions appear complete before their changes are durable. Public mobile layouts fit the screen, but the miniature demos sacrifice legibility and mobile navigation is weak on a long page.
+**Senior designer:** The product has a recognizable visual language, useful document previews and clear primary tasks. Its largest UX gaps are failure recovery and trust: errors can look like deleted resumes, guest sign-in overpromises retention, and actions appear complete before their changes are durable. Historical public mobile layouts fit the screen, but tiny demo labels and limited phone navigation remain in source. Recovery deserves priority over another visual redesign.
 
 **Engineering: 5/10 · Design: 6/10**
 
-Engineering is capped at 5 by E01, the reproduced data-loss path. Design is provisional for authenticated flows because no disposable test account was supplied or created. These scores judge a product approaching launch, not a throwaway prototype; they are not an average of the tables.
+Engineering is capped at 5 by E01, freshly reproduced through both storage implementations with in-memory data. Design is provisional and lower-confidence because no fresh browser journey completed. Scores remain unchanged overall: no earlier finding is fully closed; E19 and D01 are partly closed. These scores judge launch and ongoing use with important saved work; they are not an average of the tables.
 
-| Engineering area | Score | Reason |
-|---|---:|---|
-| Security and access control | 6 | Owner policies and server-controlled credit mutation are good; redirect validation, headers and migration TLS have gaps. |
-| Data model and integrity | 3 | Credit transactions are strong; resume validation and subsequent saves can destroy content. |
-| Architecture and boundaries | 7 | Clear feature modules, a store adapter and server-only service modules; persistence still has several inconsistent paths. |
-| Error handling and resilience | 4 | Errors sometimes become empty/missing states; AI deadlines exceed handler budgets. |
-| Testing and verification | 4 | Useful executable fixtures exist; critical save/account journeys lack regression coverage and CI enforcement. |
-| Code hygiene and consistency | 6 | Strict TypeScript and lint are clean; obsolete demo exports and compressed billing JSX remain. |
-| Performance | 5 | Reused Chromium and scaled previews help; lists and expensive work lack sufficient bounds. |
-| Operations and delivery | 3 | Automated deployment exists, but local/test connections target production and app-level incident reporting is deferred. |
-| Dependencies and configuration | 6 | Lockfile and env examples exist; 12 dependency advisories and inconsistent configuration behavior remain. |
-| Docs and developer experience | 4 | Billing notes help; the main README is the framework starter and important test/setup steps are fragmented. |
-| Product and scope judgement | 6 | The product focuses on useful tasks; core reliability should now take priority over additional features. |
+| Engineering area               | Score | Reason                                                                                                                           |
+| ------------------------------ | ----: | -------------------------------------------------------------------------------------------------------------------------------- |
+| Security and access control    |     6 | Owner policies and server-controlled credit mutation are good; redirect validation, headers and migration TLS have gaps.         |
+| Data model and integrity       |     3 | Credit transactions are strong; resume validation and subsequent saves can destroy content.                                      |
+| Architecture and boundaries    |     7 | Clear feature modules, a store adapter and server-only service modules; persistence still has several inconsistent paths.        |
+| Error handling and resilience  |     4 | Errors sometimes become empty/missing states; AI deadlines exceed handler budgets.                                               |
+| Testing and verification       |     5 | Six offline scripts succeed, including new auth/config checks; critical save/account journeys and CI enforcement remain missing. |
+| Code hygiene and consistency   |     6 | Strict TypeScript and lint are clean; obsolete demo exports and compressed billing JSX remain.                                   |
+| Performance                    |     5 | Reused Chromium and scaled previews help; lists and expensive work lack sufficient bounds.                                       |
+| Operations and delivery        |     3 | Vercel reports successful deployment; test-target isolation and app-level incident reporting remain unresolved.                  |
+| Dependencies and configuration |     7 | Next is updated; npm now reports 10 moderate affected packages, with no high/critical entries.                                   |
+| Docs and developer experience  |     4 | Billing notes help; the main README is the framework starter and important test/setup steps are fragmented.                      |
+| Product and scope judgement    |     6 | The product focuses on useful tasks; core reliability should now take priority over additional features.                         |
 
-| Design and UX area | Score | Reason |
-|---|---:|---|
-| Hierarchy and layout | 7 | Public pages have clear headings and a consistent frame; authenticated density was assessed only in source. |
-| Typography | 6 | Core app sizes are restrained; mobile demo labels reach 8px. |
-| Colour, contrast and theming | 7 | Intentional tokens and public light mode; two sampled landing contrast pairs are adequate, not a full contrast audit. |
-| Component consistency | 7 | Shared buttons, fields, dialogs, cards and one icon family give the interface continuity. |
-| Navigation and information architecture | 6 | Main app destinations are clear; mobile landing header removes section navigation and sign-in. |
-| Core flows and feedback | 4 | Save durability, guest conversion and destructive editing need better recovery. |
-| Forms and input | 4 | Labels and input types are mostly good; writable lengths disagree with stored schema limits. |
-| Loading, empty, error and success states | 4 | Skeletons and empty guidance exist, but operational failures are often disguised as missing data. |
-| Accessibility | 5 | Good primitives and several keyboard affordances; dead button semantics and unassociated field messages remain. Full assistive-technology testing was not done. |
-| Responsive and mobile | 6 | Completed public captures had no horizontal overflow at 390px; small text and long-page navigation remain weak. |
-| Copy and microcopy | 6 | Generally plain and specific; storage/retention and AI factuality promises exceed the actual guarantees. |
+| Design and UX area                       | Score | Reason                                                                                                                                                          |
+| ---------------------------------------- | ----: | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Hierarchy and layout                     |     7 | Public pages have clear headings and a consistent frame; authenticated density was assessed only in source.                                                     |
+| Typography                               |     6 | Core app sizes are restrained; mobile demo labels reach 8px.                                                                                                    |
+| Colour, contrast and theming             |     7 | Intentional tokens and public light mode; two sampled landing contrast pairs are adequate, not a full contrast audit.                                           |
+| Component consistency                    |     7 | Shared buttons, fields, dialogs, cards and one icon family give the interface continuity.                                                                       |
+| Navigation and information architecture  |     6 | Main app destinations are clear; mobile landing header removes section navigation and sign-in.                                                                  |
+| Core flows and feedback                  |     4 | Save durability, guest conversion and destructive editing need better recovery.                                                                                 |
+| Forms and input                          |     4 | Labels and input types are mostly good; writable lengths disagree with stored schema limits.                                                                    |
+| Loading, empty, error and success states |     5 | Billing preserves balance on refresh failure; resume failures still resemble missing data.                                                                      |
+| Accessibility                            |     5 | Good primitives and several keyboard affordances; dead button semantics and unassociated field messages remain. Full assistive-technology testing was not done. |
+| Responsive and mobile                    |     6 | Historical public captures fit 390px; current responsive code remains, but no fresh phone walkthrough completed.                                                |
+| Copy and microcopy                       |     6 | Generally plain and specific; storage/retention and AI factuality promises exceed the actual guarantees.                                                        |
+
+## Earlier findings: closure check
+
+Still open means the mechanism remains in current source. Live-only evidence that could not be refreshed is explicitly limited.
+
+| ID  | Status                  | Re-check result                                                                                     |
+| --- | ----------------------- | --------------------------------------------------------------------------------------------------- |
+| E01 | Still open              | Both storage implementations reproduce whole-document blanking and later overwrite.                 |
+| E02 | Still open              | Pending 800ms timer is cancelled; internal navigation does not flush.                               |
+| E03 | Still open              | Choice/content writes remain separate 400ms/800ms timers.                                           |
+| E04 | Still open              | Email helper improves delivery, but existing-email fallback has no guest transfer.                  |
+| E05 | Still open              | Slash-backslash external redirect reproduced offline.                                               |
+| E06 | Still open in source    | No header policy added; deployed headers not freshly obtained.                                      |
+| E07 | Still open              | Migration certificate verification still disabled.                                                  |
+| E08 | Still open              | Metadata acknowledgment/rollback behavior unchanged.                                                |
+| E09 | Still open              | Per-call retry budgets still exceed total route deadlines.                                          |
+| E10 | Still open              | Failed payment status still not saved to the order.                                                 |
+| E11 | Still open              | Key absence still triggers import/improve samples outside an explicit demo mode.                    |
+| E12 | Still open              | No CI directory/test gate; GitHub returns Vercel status and no PR workflow runs.                    |
+| E13 | Still open              | Local API/DB target match; DB tests have no production-target refusal. Live equality is historical. |
+| E14 | Still open              | Six unused demo exports and large/compressed modules remain.                                        |
+| E15 | Still open              | List still selects complete content without pagination.                                             |
+| E16 | Still open              | Parser/request/render concurrency bounds remain incomplete.                                         |
+| E17 | Still open              | Import/improve count successes after work with no atomic reservation.                               |
+| E18 | Still open              | Console-only app reporting; no checked-in incident/restore procedure.                               |
+| E19 | Partly closed           | Next updated; 10 moderate affected packages now, versus 10 moderate + 2 low.                        |
+| E20 | Still open              | Main README remains framework boilerplate.                                                          |
+| E21 | Still open              | Fresh probe accepts Java from JavaScript and unrelated covered evidence.                            |
+| E22 | Still open / unverified | Historical hydration error has no demonstrated fix; fresh browser run could not clear it.           |
+| D01 | Partly closed           | Billing outage handling/retained balance improved; resume load failures unchanged.                  |
+| D02 | Still open              | In-document deletion still lacks Undo/recoverable history.                                          |
+| D03 | Still open              | Import still lacks cancellation; no total client deadline.                                          |
+| D04 | Still open              | Tiny explanatory labels remain in current CSS.                                                      |
+| D05 | Still open              | Phone header still hides sign-in and section navigation.                                            |
+| D06 | Still open              | Sidebar diff still has a button role without an action.                                             |
+| D07 | Still open              | Field errors/descriptions still not explicitly associated; no skip link.                            |
+| D08 | Still open              | Absolute factuality claims remain stronger than enforcement.                                        |
+| D09 | Still open              | Hosted guest rows still described as browser-only storage.                                          |
+| D10 | Still open              | Skills remain bundled; mobile badge omits the pending skills plan.                                  |
+
+Two new source-backed findings appear below: **E23 account-scoped stale dashboard state** and **E24 lost import corrections**.
 
 ## Fix first
 
-1. **Engineering — E01: prevent whole-document resets from one invalid field. Critical · M.** A 2,001-character summary saves successfully, reloads as an entirely empty resume, and a subsequent normal edit overwrites the original name in the in-memory reproduction. Validate before writes, keep invalid raw content recoverable, and never silently replace the whole document. Evidence: `src/features/resumes/schema.ts:10`, `:127`; `src/features/resumes/store.ts:218`; [`source-probes.json`](senior-gap-audit/source-probes.json).
-2. **Engineering — E13: separate development and tests from production. High · M.** Local public configuration matches the project embedded in live assets; the local DB connection targets that same project. Make a disposable development/test target before running database fixtures or destructive tests again. Evidence: [`http-evidence.json`](senior-gap-audit/http-evidence.json); `scripts/test-billing-concurrency.mjs:8`.
-3. **Engineering — E02/E03: give editing and review one durable save contract. High · M–L.** Flush or guard internal navigation, and save accepted text plus review state atomically with a revision check. Evidence: `src/features/editor/use-autosave.ts:58`; `src/features/editor/editor.tsx:120`; `src/features/tailor/review.tsx:64`.
-4. **Engineering — E04: finish guest-to-existing-account recovery. High · L.** Signing into an existing email account changes identity without migrating the guest's rows. Preserve the guest work and implement a verified transfer/merge before promising that it follows the user. Evidence: `src/features/auth/sign-in-dialog.tsx:102`, `:110`, `:205`.
+1. **Engineering — E01: prevent whole-document resets from one invalid field. Critical · M.** A 2,001-character summary still saves successfully, reloads empty, and a later edit overwrites the original name. Validate writes and preserve raw invalid content. Evidence: `src/features/resumes/schema.ts:127`; `src/features/resumes/store.ts:218`; [fresh actual-store probe](senior-gap-audit/2026-11-19/system-probes.json).
+2. **Engineering — E13: separate development and tests from production. High · M.** Local API/DB targets match; the previous audit identified that target as live. Add a disposable target and a production refusal before DB fixtures run. Current deployed-project equality was not freshly verified. Evidence: [sanitized inventory](senior-gap-audit/2026-11-19/source-inventory.json); `scripts/test-billing-concurrency.mjs:8`.
+3. **Engineering — E02/E03/E08/E24: give editing, review and imports one durable save contract. High overall · L.** Flush/guard navigation, atomically save choices/content, acknowledge metadata after success and checkpoint import corrections. Evidence: `src/features/editor/use-autosave.ts:58`; `src/features/tailor/review.tsx:64`; `src/features/import/import-review.tsx:61`.
+4. **Engineering — E04/E23: finish account-transition recovery. High overall · L.** Preserve guest work through verified transfer into an existing account, and clear/refetch account-scoped views when identity changes. Evidence: `src/features/auth/email-code.ts:18`; `src/features/auth/sign-in-dialog.tsx:213`; `src/features/home/home-view.tsx:68`.
 5. **Engineering — E09: bound the entire AI task, not each individual request. High · M.** Up to four 60-second calls do not fit a 60/90-second handler. Share one total deadline, limit retries to that budget, and return a recoverable result/status when it expires. Evidence: `src/features/ai/openrouter.ts:53`, `:78`; `src/features/tailor/engine.ts:139`, `:142`; `src/app/api/tailor/route.ts:11`.
 6. **Engineering — E12: make important checks a delivery gate. High · M.** Run type checking, lint and offline fixtures in CI, then add the save/account regressions above and isolated database tests. A successful Vercel build is not evidence that those behaviors were tested. Evidence: `package.json:5`; no `.github` directory; the current commit's only returned status was Vercel success.
 7. **Design — D01/D03: design recovery from failed loads and long operations. High · M.** Keep “empty”, “missing”, “not authorised” and “couldn't load” distinct; offer an inline retry. Let users cancel imports instead of trapping them behind an indefinite modal. Evidence: `src/features/home/home-view.tsx:77`; `src/features/tailor/tailor-route.tsx:31`; `src/features/import/import-button.tsx:97`.
@@ -68,6 +132,24 @@ Engineering is capped at 5 by E01, the reproduced data-loss path. Design is prov
 
 Each finding gives severity, whether it reads as an AI-generation tell, and effort: S is under an hour, M about a day, L longer. A tell describes the impression the code gives, not proof of authorship.
 
+### New findings in this re-audit
+
+**E23 — Medium · Tell: yes · M — Dashboard records do not follow account changes.**
+
+`HomeView` loads through a stable callback once on mount, without depending on auth readiness or user ID. Closing the sign-in dialog or signing out updates auth in place, so a mounted dashboard can continue displaying the previous identity's resumes rather than fetching the new account. Ownership policies still govern later reads/writes; this is stale displayed private content and wrong-account UX, not a demonstrated server authorization bypass. This was traced in source, not reproduced through a fresh browser.
+
+Evidence: `src/features/home/home-view.tsx:68`, `:73`, `:83`; `src/features/auth/auth-provider.tsx:60`, `:73`, `:111`. The billing provider already has user/sequence guards at `src/features/billing/billing-provider.tsx:14`, `:28`.
+
+Fix: clear/refetch account-scoped state on identity changes, wait for auth readiness where needed, discard stale requests and key editor/review state to the owning identity. Test guest → new account, guest → existing account, sign-out and account switching.
+
+**E24 — High · Tell: yes · M — Import corrections disappear on reload.**
+
+Import review initializes React state from the original session-storage payload. Corrections update only component state; the corrected content is not checkpointed, and no dirty-state/unload guard protects it. Refresh restores the original extraction. A person correcting multiple imported sections can lose substantial work before Save resume. This was established by tracing the state/storage path, not a completed browser reproduction.
+
+Evidence: `src/features/import/import-review.tsx:40`, `:61`, `:65`, `:76`, `:85`. Session storage is removed on save/discard but is never updated with corrections.
+
+Fix: checkpoint corrected content in a recoverable local draft, restore it on refresh and warn before discarding unsaved corrections. Test refresh, accidental navigation, failed save and explicit discard.
+
 ### Data model and integrity
 
 **E01 — Critical · Tell: yes · M — One invalid field silently blanks the entire resume.**
@@ -75,6 +157,8 @@ Each finding gives severity, whether it reads as an AI-generation tell, and effo
 The stored schema caps most text at 2,000 characters, but shared inputs/areas do not enforce that limit and `saveContent` does not validate it. `parseContent` turns any validation failure into `emptyContent()`. A legitimate long summary therefore makes every section disappear on reload. Editing that blank fallback can overwrite previously valid fields.
 
 Evidence: `src/features/resumes/schema.ts:10`, `:127`; `src/features/editor/fields.tsx:73`, `:116`; `src/features/resumes/store.ts:78`, `:218`, `:268`, `:344`. `node docs/senior-gap-audit/probes.cjs` returned `saveReportedSuccess: true`, `wholeDocumentEmpty: true`, `subsequentEditErasesOriginalName: true`. The reproduction used only an in-memory store and blocked Supabase calls. The live store has the same unvalidated-write/read-parser combination; no destructive hosted test was performed.
+
+Fresh re-check: the [dated local probe](senior-gap-audit/2026-11-19/source-probes.json) reproduces those results. The additional [system probe](senior-gap-audit/2026-11-19/system-probes.json) exercises the actual SupabaseResumeStore with an in-memory query adapter and reports `overlongSummarySaved: true`, `reloadErasesName: true`, `subsequentEditOverwritesOriginalName: true`. It also confirms that stale revisions are rejected. This strengthens the evidence beyond the development-only store without modifying a hosted database.
 
 Fix: validate create/update inputs before persistence; enforce compatible limits in the UI; distinguish missing legacy fields from invalid data; retain/export the raw document on parse failure instead of offering an editable blank replacement. Test summary, bullet and skill limits, legacy content and a subsequent edit after a parse error.
 
@@ -96,9 +180,9 @@ Fix: atomically persist accepted/rejected decisions and content with a revision/
 
 **E04 — High · Tell: yes · L — Guest work is left behind when signing into an existing account.**
 
-On `email_exists`, the dialog signs into the existing account. There is no capture or transfer of the old anonymous account's resumes, while row policies correctly restrict those rows to their original owner. The comment says moving drafts is handled later, yet the UI promises all guest work stays with the user.
+On `email_exists`, the new email helper signs into the existing account. There is no capture or transfer of the old anonymous account's resumes, while row policies correctly restrict those rows to their original owner. The dialog still promises all guest work stays with the user. New tests verify fallback selection, not adoption of the guest's records.
 
-Evidence: `src/features/auth/sign-in-dialog.tsx:94`, `:102`, `:110`, `:205`; `src/features/resumes/store.ts:93`; `supabase/migrations/20261030000000_init.sql:163`. A source search for guest/adoption/merge paths found no migration implementation. This branch was traced, not exercised with real accounts.
+Evidence: `src/features/auth/email-code.ts:18`, `:23`; `src/features/auth/sign-in-dialog.tsx:213`; `src/features/resumes/store.ts:93`; `supabase/migrations/20261030000000_init.sql:163`; `scripts/check-email-code.mjs:25`. A source search found no transfer implementation. This branch was traced, not exercised with real accounts.
 
 Fix: design a verified account-link/merge operation that proves access to both identities, preserves copies on collisions and reports the outcome. Keep a recoverable guest export until completion. Do not solve this by weakening ownership policies.
 
@@ -122,7 +206,7 @@ Fix: resolve the candidate URL against the canonical origin and reject a differe
 
 **E06 — Medium · Tell: no · M — Public responses lack several browser security policies.**
 
-The sampled live response has HSTS, but no CSP/frame-ancestor policy, X-Frame-Options, Referrer-Policy, Permissions-Policy or X-Content-Type-Options. Missing a header is not itself proof of an exploit, but embedding and browser capability boundaries are undefined.
+The historical live response had HSTS, but no CSP/frame-ancestor policy, X-Frame-Options, Referrer-Policy, Permissions-Policy or X-Content-Type-Options. Current `next.config.ts` still adds none; present deployed headers were not obtained in this re-audit. Missing a header is not itself proof of an exploit, but the repository does not define these browser policy boundaries.
 
 Evidence: [`http-evidence.json`](senior-gap-audit/http-evidence.json); `next.config.ts:3` contains no header configuration.
 
@@ -150,7 +234,7 @@ Fix: propagate an overall deadline/abort signal through generation, review and p
 
 Verification returns a failed status for failed/abandoned provider payments but does not persist it to `credit_orders`. Checkout initialization failures also leave a pending row. The history therefore continues offering “Check payment” for attempts already known to have failed. No duplicate-credit defect was found here.
 
-Evidence: `src/features/billing/server.ts:61`, `:70`; `src/app/api/billing/checkout/route.ts:22`; `src/features/billing/billing-view.tsx:63`; order status enum in `supabase/migrations/20261116021132_billing_credits.sql:33`.
+Evidence: `src/features/billing/server.ts:64`, `:73`; `src/app/api/billing/checkout/route.ts:22`; `src/features/billing/billing-view.tsx:63`; order status enum in `supabase/migrations/20261116021132_billing_credits.sql:33`.
 
 Fix: model and persist initialization, pending and terminal outcomes idempotently; allow late verified success to recover correctly. Test refresh after abandonment and provider initialization timeout.
 
@@ -164,7 +248,7 @@ Fix: gate stand-ins to explicit development/demo mode. In production, return a s
 
 **E22 — Medium · Tell: no · M — A live hydration mismatch was observed; its cause is not established.**
 
-The stabilized mobile landing capture, with reduced motion enabled, recorded React error 418. React describes this as server/client markup mismatch followed by client regeneration. Other captured routes did not record this error. A separate cold-load probe did not reliably reproduce the exception and one capture failed to settle; those timing results are not treated as a separate product defect.
+The historical stabilized mobile landing capture, with reduced motion enabled, recorded React error 418. React describes this as server/client markup mismatch followed by client regeneration. The recent theme change has no demonstrated connection to this error. Fresh browsing did not complete, so this remains unresolved rather than a freshly reproduced failure or a confirmed fix. Historical timing/early-render results are not treated as a separate permanent-blank-hero defect.
 
 Evidence: the mobile landing entry in [`browser-evidence.json`](senior-gap-audit/browser-evidence.json); [React's error explanation](https://react.dev/errors/418). Review candidates include render-shape branches in `src/features/home/landing-stories.tsx:32` and `src/features/home/paper-stage.tsx:66`; neither is established as the root cause.
 
@@ -176,13 +260,13 @@ Fix: reproduce in the installed development build with both motion preferences, 
 
 There is no checked-in workflow, no test script in `package.json`, and no reproducible browser journey suite. The current commit's returned GitHub status is Vercel success. The existing offline billing assertions and AI harness are useful, but they do not cover save/navigation loss, guest merge, disconnected review state or account transitions.
 
-Evidence: `package.json:5`; `.github` directory absent in the inventory; GitHub combined status for `335c5a5`; `scripts/test-billing-paystack.mjs:1`; `scripts/evaluate-tailoring.cjs:32`.
+Evidence: `package.json:5`; `.github` directory absent in the fresh inventory; GitHub combined status for `e6a00eb` returned Vercel success and its PR-workflow list was empty; `scripts/test-billing-paystack.mjs:1`; `scripts/evaluate-tailoring.cjs:32`. Branch protection was not established.
 
 Fix: wire types, lint and offline tests into CI. Add a small set of costly-behavior tests rather than broad snapshot coverage. Verify branch protection separately; it was not assumed from the repository contents.
 
 **E13 — High · Tell: no · M — Development and database tests target the live data project.**
 
-The local Supabase hostname appears in the live site's compiled assets. The local DB connection also contains that same project reference. The concurrency test commits a fixture user, resume and purchase before cleanup; both DB scripts accept any supplied target without a production refusal or test-project allowlist. A cleanup block does not isolate production or cover process termination.
+The previous audit found the local Supabase hostname in live assets. Fresh sanitized inspection confirms the local DB and public API still target the same project, but current equality with deployed configuration was not re-established. The concurrency test still commits a fixture user, resume and purchase before cleanup; both DB scripts accept any supplied target without a production refusal or test-project allowlist. A cleanup block does not isolate production or cover process termination.
 
 Evidence: [`http-evidence.json`](senior-gap-audit/http-evidence.json) records both comparisons as true without recording credentials; `scripts/test-billing-concurrency.mjs:8`, `:19`; `scripts/test-billing-db.mjs:8`, `:41`; `BILLING.md:34` recommends the local env file.
 
@@ -240,9 +324,9 @@ Refund note: `BILLING.md:27` acknowledges partial/provider-unreflected refunds r
 
 **E19 — Medium · Tell: no · S–M — Dependency advisories need triage, mainly in tooling.**
 
-The fresh npm audit reports **12 vulnerable package entries: 10 moderate, 2 low, 0 high and 0 critical**. These include minimatch amplification and deepmerge prototype poisoning through ESLint/ts-morph/shadcn dependency paths. This is not evidence of twelve independent remotely exploitable application vulnerabilities. The shadcn CLI is listed as a production dependency, although generated UI is used at runtime.
+The fresh npm audit reports **10 affected package entries: 10 moderate, 0 low, 0 high and 0 critical**, down from 12. Remaining paths trace to minimatch amplification through TypeScript ESLint and ts-morph/shadcn. This is a package count, not ten independent remotely exploitable application flaws. Next is now 16.4.6. The shadcn CLI remains a production dependency despite being tooling.
 
-Evidence: `npm audit --json` exit 1 after an initial restricted-network failure; `package.json:30`; advisory URLs returned by npm: [minimatch](https://github.com/advisories/GHSA-g3hv-75wg-m249), [deepmerge](https://github.com/advisories/GHSA-gcqx-w48m-w2h4).
+Evidence: `npm.cmd audit --json --fetch-retries=0 --fetch-timeout=20000` exit 1 after an initial restricted-network failure; [fresh check record](senior-gap-audit/2026-11-19/check-results.json); `package.json:30`; [minimatch advisory](https://github.com/advisories/GHSA-g3hv-75wg-m249).
 
 Fix: separate runtime/tooling exposure, update patched transitive paths and keep the lockfile current. Do not run `npm audit fix --force` blindly: npm suggested a major shadcn downgrade to 1.0.0 for part of the graph.
 
@@ -262,6 +346,8 @@ The evidence reviewer receives line proposals and approves target IDs; requireme
 
 Evidence: `src/features/tailor/engine.ts:141`, `:144`, `:260`, `:277`, `:299`; `scripts/evaluate-tailoring.cjs:33`, `:50`.
 
+Fresh evidence: the [system probe](senior-gap-audit/2026-11-19/system-probes.json) supplies a fictional resume saying “uses JavaScript to build internal prototypes,” with deliberately wrong mocked output proposing Java and marking production Java backend development covered. Both survive application validation, with just one provider call because there are no text rewrites. This demonstrates a guardrail gap; it does **not** measure real-model hallucination frequency or claim that the live model generated this output.
+
 Fix: add targeted fixtures for wrong requirement coverage, negated/substring skill evidence, unsupported causal claims and skills-only output. Validate the evidence relationship for each output type. Retain human approval and avoid presenting the second model as factual proof.
 
 ## Design and UX findings
@@ -269,6 +355,8 @@ Fix: add targeted fixtures for wrong requirement coverage, negated/substring ski
 ### States, feedback and core flows
 
 **D01 — High · Tell: yes · M — Failed loads look like empty or missing resumes.**
+
+Partly closed: billing now returns auth-service outages as 503 and retains the prior balance during a refresh failure. Those changes do not alter the dashboard/editor/tailor branches below. Evidence: `src/features/billing/server.ts:39`; `src/features/billing/billing-provider.tsx:28`; `scripts/check-billing-auth.mjs` succeeds.
 
 The dashboard catches a load failure, sets an empty array and shows the same empty guidance as a new account after the toast goes away. The editor and tailoring route turn failures into “couldn't find this resume”, with no inline retry. A network outage can therefore look like work was deleted or belongs to another account. The server context loader likewise maps a query failure to not-found by ignoring its error object.
 
@@ -302,6 +390,8 @@ Evidence: `src/features/home/landing.css:123`, `:125`, `:127`, `:195`; computed 
 
 Fix: show fewer example rows, abbreviate secondary labels or simplify the graphic so the important explanatory text can remain readable. Preserve the illustration, fonts and compact composition.
 
+Fresh source measurement: landing CSS contains **16 distinct fixed pixel font sizes** (7–42px) and **35 distinct literal hex colours**, including alpha/shadow values. See [inventory](senior-gap-audit/2026-11-19/source-inventory.json). These counts are scoped to marketing CSS; the separate point-based document-template scale is intentional and is not counted as an app-UI inconsistency. The specific legibility finding is the 8–10px explanatory copy, not the count alone.
+
 **D05 — Medium · Tell: yes · S–M — Mobile removes navigation on a page about ten screens long.**
 
 The public header hides all section links below `md` and sign-in below `sm`, without a compact menu. The captured 390px landing page is 8,532px tall, about ten 844px screens. Users looking for pricing, answers or sign-in must scroll or enter the app first. A comment describing this as a short scroll has become stale.
@@ -324,7 +414,7 @@ Fix: render sidebar diffs as readable text, or supply a real useful action and f
 
 The shared fields use visible labels and `aria-invalid`, but errors/descriptions lack IDs referenced by `aria-describedby`. The job and sign-in forms have the same pattern and do not deliberately focus the first invalid field. The app also has no skip-to-content link. These are specific accessibility gaps; a full WCAG assessment was not performed.
 
-Evidence: `src/features/editor/fields.tsx:73`, `:83`, `:116`; `src/components/ui/field.tsx:217`; `src/features/tailor/job-form.tsx:187`, `:200`; `src/features/auth/sign-in-dialog.tsx:179`, `:191`; `src/app/layout.tsx:60`.
+Evidence: `src/features/editor/fields.tsx:73`, `:83`, `:116`; `src/components/ui/field.tsx:217`; `src/features/tailor/job-form.tsx:187`, `:200`; `src/features/auth/sign-in-dialog.tsx:188`, `:199`, `:248`; `src/app/layout.tsx:60`.
 
 Fix: give descriptions/errors stable IDs, connect them to the input, focus invalid input after failed submission and add a keyboard-visible skip link. Preserve the existing labels, focus rings and Base UI primitives.
 
@@ -356,6 +446,8 @@ Fix: make the reorder and individual additions selectable, keep their evidence v
 
 ## What reads as AI-generated
 
+The re-audit adds another concrete inconsistency: import corrections are memory-only while ordinary editing autosaves (E24), and account-scoped dashboard data ignores auth changes while billing handles user/request identity explicitly (E23). These are risks from uneven workflow completion, not just visual taste.
+
 The dominant tells are **unreconciled behavior and repository residue**, not the choice of font or illustrations:
 
 - **Failure hidden by convenient defaults:** invalid resume → blank content (E01), failed load → empty/missing (D01), missing AI config → sample success (E11).
@@ -369,47 +461,55 @@ The typography scan does **not** support a claim of random styling throughout th
 
 ## Already at senior level
 
+- **Email-code behavior and configuration have purposeful regression checks.** New helpers handle resend types, network/delivery errors, recipient cooldown and duplicate requests; sender configuration validates a verified domain and preserves redirect allowlists. Both offline check scripts succeed. This establishes local behavior, not actual email delivery or guest-account transfer. Evidence: `src/features/auth/email-code.ts:4`, `:29`; `src/features/auth/sign-in-dialog.tsx:56`; `scripts/check-email-code.mjs`; `scripts/check-auth-email-config.mjs`.
+- **Billing refresh is identity-aware and preserves the last known balance.** It rejects stale responses and distinguishes auth service failures from sign-out. Evidence: `src/features/billing/billing-provider.tsx:14`, `:28`; `src/features/billing/server.ts:39`; `scripts/check-billing-auth.mjs` succeeds.
+- **Theme transitions use the committed route, with an offline fixture.** Saved preferences, route changes, system changes and restored pages are covered by `scripts/check-public-theme.mjs`, which succeeds. Evidence: `src/features/theme/script.ts:16`; `src/features/theme/theme-sync.tsx:13`. This does not establish closure of the historical hydration finding.
+
 - **Credit spending and initial copy creation share a transaction.** Row locks, request IDs, input hashes and unique ledger references protect the expensive boundary. Amounts use integer minor units. Evidence: `supabase/migrations/20261116021132_billing_credits.sql:21`, `:30`, `:149`, `:192`, `:256`.
 - **Payment fulfillment is server-owned.** Verification checks reference, amount, currency, metadata and test/live mode, while webhook signatures use constant-time comparison. Client roles cannot execute accounting RPCs. Evidence: `src/features/billing/paystack.ts:61`, `:70`; migration `:91`, `:277`. The 31 offline boundary checks ran successfully during this audit.
-- **Ownership is in row policies, not just hidden buttons.** Source policies and read-only catalogue inspection show owner checks for resumes/jobs/sessions and permanent-account-only reads for credit tables. Anonymous-owner policies serve the guest feature and were not counted as a generic vulnerability. Evidence: initial migration `:163`; billing migration `:94`.
+- **Ownership is in row policies, not just hidden buttons.** Current source policies show owner checks for resumes/jobs/sessions and permanent-account-only reads for credit tables. The previous audit's catalogue inspection was historical; deployment parity was not rechecked. Anonymous-owner policies serve the guest feature and were not counted as a generic vulnerability. Evidence: initial migration `:163`; billing migration `:94`.
 - **Ordinary content saves use optimistic concurrency.** A revision predicate prevents silently overwriting another tab's newer content. The missing piece is safe conflict/navigation recovery, not removing the revision check. Evidence: `src/features/resumes/store.ts:223`; initial migration `:92`.
 - **Export waits for content flush, and originals are copied.** These are useful product invariants. Evidence: `src/features/editor/editor.tsx:165`; billing migration `:192`.
-- **The visual language is deliberate.** Onest/Newsreader, semantic tokens, one icon family and shared controls give continuity. Sampled landing contrast ratios are about 4.94:1 for muted text on the public background and 7.53:1 for primary blue against white. This is a limited pair measurement, not whole-app AA verification. Evidence: `src/app/layout.tsx:3`; `src/app/globals.css:20`; `src/features/home/landing.css:6`; `src/components/ui/button.tsx:6`.
+- **The visual language is deliberate.** Onest/Newsreader, semantic tokens, one icon family and shared controls give continuity. Historical sampled landing contrast ratios were about 4.94:1 for muted text on the public background and 7.53:1 for primary blue against white. This is a limited historical pair measurement, not fresh whole-app AA verification. Evidence: `src/app/layout.tsx:3`; `src/app/globals.css:20`; `src/features/home/landing.css:6`; `src/components/ui/button.tsx:6`.
 - **Empty guidance, reusable document pages and keyboard alternatives exist.** The guest dashboard offers a useful starting action; public documents share navigation and readable layout. Skills/bullets include keyboard reordering. Evidence: [dashboard](senior-gap-audit/resumes-empty-desktop.png), [guide](senior-gap-audit/guide-mobile.png); `src/features/editor/skills-editor.tsx:56`; `src/features/editor/bullets-editor.tsx:87`.
 - **Framework-specific choices were checked against installed docs.** For example, `error.tsx` uses `retry`, which is correct for the installed Next version; it was not incorrectly flagged for differing from older Next conventions. Evidence: `node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/error.md:117`.
 
 ## Verification record
 
-| Check | Fresh result |
-|---|---|
-| `npx tsc --noEmit` | Exit 0; no diagnostics. |
-| `npm run lint` | Exit 0; no errors/warnings reported for the baseline implementation. |
-| `node scripts/test-billing-paystack.mjs` | Exit 0; 31 mocked boundary checks; no real payments. |
-| `node scripts/evaluate-tailoring.cjs` | Exit 0; malformed output retry and fabricated-number/unknown-target rejection in one deterministic fixture case. No `--live` run. |
-| `npm audit --json` | Initial restricted-network failure; authorized registry retry returned exit 1 with 10 moderate and 2 low package advisories, no high/critical entries. |
-| In-memory source probes | Reproduced the 2,001-character blank-document/subsequent-overwrite path and slash-backslash external redirect. No network/DB access. |
-| Public browser captures | Fresh isolated contexts; modifying requests blocked; completed desktop/mobile public views had viewport/document widths 1440/1440 or 390/390. Desktop landing settling was incomplete; mobile landing recorded error 418. |
-| Live HTTP/config inspection | HSTS present; five sampled policies absent; local public config and DB target match the live Supabase project. No credentials recorded or transmitted. |
-| `node scripts/check-public-theme.mjs https://userello.vercel.app` | Incomplete: exit 1 from `UND_ERR_CONNECT_TIMEOUT` fetching a public page. Not counted as a theme assertion regression. |
-| GitHub combined commit status | Current commit returned Vercel success. No test workflow was present in the repository. |
-| Read-only Supabase inspection | Owner policies inspected. Advisor warnings concerned guest access policies and disabled leaked-password protection; neither was promoted to a confirmed app flaw without context. |
-| Formatter | No configured formatter/check command found; none installed for this audit. |
+| Check                                      | Fresh result                                                                                                                                                    |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npx.cmd tsc --noEmit --incremental false` | Exit 0; no diagnostics.                                                                                                                                         |
+| `npm.cmd run lint`                         | Exit 0; no errors/warnings reported.                                                                                                                            |
+| `node scripts/test-billing-paystack.mjs`   | Exit 0; 31 mocked boundary checks; no real payments.                                                                                                            |
+| `node scripts/evaluate-tailoring.cjs`      | Exit 0; malformed output retry and fabricated-number/unknown-target rejection in one deterministic fixture case. No `--live` run.                               |
+| `node scripts/check-billing-auth.mjs`      | Exit 0; auth outages, guest restrictions and verified-account fixture.                                                                                          |
+| `node scripts/check-email-code.mjs`        | Exit 0; guest upgrades, existing-email fallback, resends and delivery errors.                                                                                   |
+| `node scripts/check-auth-email-config.mjs` | Exit 0; mocked sender validation, code length, rate limits and preserved redirects.                                                                             |
+| `node scripts/check-public-theme.mjs`      | Exit 0; offline startup/preferences/route/system assertions; no live URL argument.                                                                              |
+| Dependency audit                           | Initial sandbox request reset; authorized retry exits 1 with 10 moderate affected packages, 0 low/high/critical.                                                |
+| Two dated audit probes                     | Exit 0; reproduce E01/E05/E21 and confirm stale-revision rejection. All query/provider calls are in memory or intercepted.                                      |
+| Browser attempts                           | Local headless route navigation timed out; computer-use local/deployed tab creation timed out. No fresh screenshot or completed UI interaction.                 |
+| HTTP/config                                | Local API/DB target equality checked without printing credentials; live header/asset fetches did not complete. Historical evidence is not represented as fresh. |
+| GitHub for `e6a00eb`                       | Combined status returns Vercel success; PR workflow run list empty. Branch rules not checked.                                                                   |
+| Supabase deployment                        | Migrations/policies reviewed in source only; no fresh hosted catalogue or advisor check.                                                                        |
+| Formatter                                  | No configured formatter/check command found; none installed for this audit.                                                                                     |
 
 ## Not checked
 
 - **Hosted DB writes/tests, signup/email, actual checkout, refunds and deployments were intentionally not run.** The invoked [audit skill](C:/Users/HP/.agents/skills/senior-gap-audit/SKILL.md) explicitly says: “Don't run anything that writes to a hosted database, sends email, charges money or deploys”. The existing DB test scripts perform writes even where rolled back, so their earlier results were not counted as fresh audit verification.
-- **Authenticated editor/review/payment history visuals and end-to-end journeys:** no disposable test account was supplied. Existing personal credentials were not used. Recheck in the isolated test project after E13, with fictional resumes and Paystack test keys.
+- **Fresh browser journeys:** local isolated and deployed browser attempts timed out before a reliable UI state. No fresh desktop/phone screenshot or authenticated editor/review/payment-history walkthrough completed. Production store/engine behavior was exercised offline; that is not a replacement for a browser end-to-end test. Existing personal credentials were not used.
 - **Backups, retention schedules, restore capability, branch rules and deployed secret configuration:** these were not established from repository evidence. Confirm in the hosting/provider dashboards and perform a restore exercise on disposable data.
-- **Real model factual quality and costs:** only the offline fixture was run. The old `VERIFICATION.md` is historical evidence, not a fresh result or a basis for claiming current model accuracy.
-- **Full accessibility:** no screen-reader journey, axe suite, real touch-device run, zoom/reflow sweep or comprehensive contrast matrix was completed. Sampled widths, source semantics and two contrast pairs have narrower coverage.
+- **Real model factual quality and costs:** offline fixtures used mocked outputs. The Java/JavaScript probe deliberately supplies bad output to test rejection; it does not claim the live model produced it. `VERIFICATION.md` remains historical evidence.
+- **Full accessibility:** no screen-reader journey, axe suite, real touch-device run, zoom/reflow sweep or fresh contrast matrix was completed. Historical widths/contrast pairs and current source semantics have narrower coverage.
 - **Load, file-bomb and penetration testing:** resource bounds were reviewed in code; abusive payloads were not sent to the live service.
-- **Stable desktop hero rendering and hydration root cause:** initial captures were early, and later waits did not always settle. This remains a targeted investigation, not a confirmed permanently blank document or a benchmark.
-- **Complete secret-history scan:** current tracked-file key-pattern search and main-branch `.env` filename history did not return matches. A broader all-ref history command encountered an invalid internal Codex checkpoint ref; no repository ref repair was attempted. This is not a claim that no secret was ever exposed.
+- **Stable desktop hero rendering and hydration root cause:** no fresh browser result was obtained to close the historical issue. It is not a confirmed permanently blank document.
+- **Complete secret-history scan:** `git ls-files '.env*'` lists only `.env.example`; no fresh all-ref credential-history scan was completed. This does not establish that no secret was ever exposed.
+- **New production build:** the user's running dev server already occupied the normal build directory. An isolated audit runtime did not become inspectable in the browser; no fresh production build result is claimed. GitHub deployment status and local type/lint results are separate evidence.
 
-The native-browser read was blocked by automatic approval review because it targeted an unrelated X window. The visual audit used a fresh headless browser instead; it did not inspect or reuse that session.
+The request to try the product was addressed through offline execution of actual persistence/AI code and attempted isolated browsing. It was not a completed live journey. Browser/HTTP timeouts are recorded as audit limitations, not application outage findings.
 
 ## Re-audit when
 
-Recheck E01 first after the persistence fix, then E02/E03/E04 against interrupted saves, quick navigation, two tabs and guest-to-existing-account sign-in. Re-run database/RLS/concurrency tests only against the isolated project, add a Paystack test-mode checkout in both currencies, and walk the authenticated editor/review at desktop and phone widths. Revisit this report after those changes, marking each finding closed, partly closed or still open before adding new findings.
+Recheck E01 first after the persistence fix, including recovery of already-invalid stored documents. Then verify interrupted saves, quick navigation, two tabs, failed metadata changes, accepted/undone suggestions, corrected-import refresh and guest-to-existing-account sign-in. Re-run database/RLS/concurrency tests only against an isolated project, add a Paystack test-mode checkout/webhook/reversal journey, and inspect editor/review at 1440px and 390px with keyboard and reduced motion. Mark each finding closed, partly closed or still open before adding new findings.
 
-The recommended next work is the Fix first list in order, with data preservation and environment separation ahead of more features or another landing-page redesign.
+For **launch**, require reliable create/import/edit/review/export and truthful save/sign-in feedback. For **continued use**, additionally demonstrate restoration, incident visibility, environment safeguards and bounded resource behavior. The recommended next work is the Fix first list in order; additional landing-page polish alone will not raise the reliability assessment.

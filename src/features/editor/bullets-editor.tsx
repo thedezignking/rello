@@ -1,11 +1,11 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
-import { ArrowDownIcon, ArrowUpIcon, PlusIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { FieldDescription, FieldLabel } from "@/components/ui/field";
+import { FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
-import { newId, type Bullet } from "@/features/resumes/schema";
+import { MAX_TEXT_LENGTH, newId, type Bullet } from "@/features/resumes/schema";
+import { ArrowDownIcon, ArrowUpIcon, PlusIcon, XIcon } from "lucide-react";
+import { useId, useLayoutEffect, useRef } from "react";
 import { moveItem } from "./fields";
 import { useImprove } from "./improve";
 
@@ -131,6 +131,8 @@ function BulletRow({
   move: (dir: -1 | 1) => void;
   remove: () => void;
 }) {
+  const errorId = useId();
+  const tooLong = bullet.text.length > MAX_TEXT_LENGTH;
   const { trigger, panel } = useImprove({
     text: bullet.text,
     where: `${label} bullet${where ? ` — ${where}` : ""}`,
@@ -146,6 +148,9 @@ function BulletRow({
           ref={register}
           value={bullet.text}
           rows={1}
+          maxLength={MAX_TEXT_LENGTH}
+          aria-invalid={tooLong || undefined}
+          aria-describedby={tooLong ? errorId : undefined}
           aria-label={`${label} ${index + 1}`}
           placeholder={placeholder}
           onChange={(e) => setText(e.target.value)}
@@ -154,10 +159,22 @@ function BulletRow({
         />
         <div className="flex shrink-0 opacity-0 transition-opacity group-focus-within/bullet:opacity-100 group-hover/bullet:opacity-100 has-[[aria-expanded=true]]:opacity-100 has-[[data-slot=spinner]]:opacity-100">
           {trigger}
-          <Button variant="ghost" size="icon-sm" onClick={() => move(-1)} disabled={index === 0} aria-label="Move bullet up">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => move(-1)}
+            disabled={index === 0}
+            aria-label="Move bullet up"
+          >
             <ArrowUpIcon />
           </Button>
-          <Button variant="ghost" size="icon-sm" onClick={() => move(1)} disabled={index === count - 1} aria-label="Move bullet down">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => move(1)}
+            disabled={index === count - 1}
+            aria-label="Move bullet down"
+          >
             <ArrowDownIcon />
           </Button>
           <Button variant="ghost" size="icon-sm" onClick={remove} aria-label="Remove bullet">
@@ -165,6 +182,11 @@ function BulletRow({
           </Button>
         </div>
       </div>
+      {tooLong && (
+        <FieldError id={errorId}>
+          Use {MAX_TEXT_LENGTH.toLocaleString()} characters or fewer. Your text has been kept.
+        </FieldError>
+      )}
       {panel && <div className="ml-2.5">{panel}</div>}
     </li>
   );

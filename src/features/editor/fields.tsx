@@ -1,13 +1,13 @@
 "use client";
 
-import { useId, useState } from "react";
-import { ArrowDownIcon, ArrowUpIcon, Trash2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import type { ResumeContent } from "@/features/resumes/schema";
+import { MAX_TEXT_LENGTH, type ResumeContent } from "@/features/resumes/schema";
 import { cn } from "@/lib/utils";
+import { ArrowDownIcon, ArrowUpIcon, Trash2Icon } from "lucide-react";
+import { useId, useState } from "react";
 
 export type Update = (fn: (c: ResumeContent) => ResumeContent) => void;
 
@@ -23,7 +23,14 @@ export function listOps<K extends ListKey>(key: K, update: Update) {
     patch: (id: string, p: Partial<ItemOf<K>>) =>
       set((l) => l.map((x) => (x.id === id ? { ...x, ...p } : x))),
     remove: (id: string) => set((l) => l.filter((x) => x.id !== id)),
-    move: (id: string, dir: -1 | 1) => set((l) => moveItem(l, l.findIndex((x) => x.id === id), dir)),
+    move: (id: string, dir: -1 | 1) =>
+      set((l) =>
+        moveItem(
+          l,
+          l.findIndex((x) => x.id === id),
+          dir,
+        ),
+      ),
   };
 }
 
@@ -65,7 +72,13 @@ export function TextField({
   const id = useId();
   const [touched, setTouched] = useState(false);
   const check = validate ? validators[validate](value.trim()) : true;
-  const error = touched && check !== true ? check : null;
+  const error =
+    value.length > MAX_TEXT_LENGTH
+      ? `Use ${MAX_TEXT_LENGTH.toLocaleString()} characters or fewer. Your text has been kept.`
+      : touched && check !== true
+        ? check
+        : null;
+  const feedbackId = `${id}-feedback`;
 
   return (
     <Field data-invalid={!!error || undefined} className={className}>
@@ -79,8 +92,14 @@ export function TextField({
         onChange={(e) => onChange(e.target.value)}
         onBlur={() => setTouched(true)}
         aria-invalid={!!error || undefined}
+        aria-describedby={error || description ? feedbackId : undefined}
+        maxLength={MAX_TEXT_LENGTH}
       />
-      {error ? <FieldError>{error}</FieldError> : description && <FieldDescription>{description}</FieldDescription>}
+      {error ? (
+        <FieldError id={feedbackId}>{error}</FieldError>
+      ) : (
+        description && <FieldDescription id={feedbackId}>{description}</FieldDescription>
+      )}
     </Field>
   );
 }
@@ -107,8 +126,9 @@ export function AreaField({
   below?: React.ReactNode;
 }) {
   const id = useId();
+  const tooLong = value.length > MAX_TEXT_LENGTH;
   return (
-    <Field>
+    <Field data-invalid={tooLong || undefined}>
       <div className="flex min-h-6 items-center justify-between gap-2">
         <FieldLabel htmlFor={id}>{label}</FieldLabel>
         {action}
@@ -117,12 +137,21 @@ export function AreaField({
         id={id}
         value={value}
         rows={rows}
+        maxLength={MAX_TEXT_LENGTH}
+        aria-invalid={tooLong || undefined}
+        aria-describedby={tooLong || description ? `${id}-feedback` : undefined}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         className="field-sizing-content min-h-20"
       />
       {below}
-      {description && <FieldDescription>{description}</FieldDescription>}
+      {tooLong ? (
+        <FieldError id={`${id}-feedback`}>
+          Use {MAX_TEXT_LENGTH.toLocaleString()} characters or fewer. Your text has been kept.
+        </FieldError>
+      ) : (
+        description && <FieldDescription id={`${id}-feedback`}>{description}</FieldDescription>
+      )}
     </Field>
   );
 }
@@ -149,7 +178,13 @@ export function EntryCard({
         <p className={cn("min-w-0 flex-1 truncate text-sm font-medium", !title && "text-muted-foreground")}>
           {title || "New entry"}
         </p>
-        <Button variant="ghost" size="icon-sm" onClick={() => onMove(-1)} disabled={index === 0} aria-label="Move up">
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => onMove(-1)}
+          disabled={index === 0}
+          aria-label="Move up"
+        >
           <ArrowUpIcon />
         </Button>
         <Button

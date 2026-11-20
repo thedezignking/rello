@@ -1,16 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import type { SupabaseClient } from "@supabase/supabase-js";
-import { ArrowLeftIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   Field,
   FieldDescription,
@@ -23,7 +14,11 @@ import { Input } from "@/components/ui/input";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/components/ui/toast";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { ArrowLeftIcon } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { emailCodeError, isCodeRateLimit, requestEmailCode } from "./email-code";
+import { prepareGuestTransfer } from "./guest-transfer";
 
 // Must match Supabase → Auth → Providers → Email → "Email OTP length".
 const CODE_LENGTH = 6;
@@ -72,13 +67,26 @@ export function SignInDialog({
   async function continueWithGoogle() {
     setBusy("google");
     setError(null);
-    const redirectTo = `${location.origin}/auth/callback?next=${encodeURIComponent(
+    if (isGuest) {
+      try {
+        await prepareGuestTransfer();
+      } catch {
+        setBusy(null);
+        setError(
+          "Couldn't preserve your guest work. Check your connection and available browser storage, then try again.",
+        );
+        return;
+      }
+    }
+    const redirectTo = `${location.origin}/auth/callback?guest=${isGuest ? "1" : "0"}&next=${encodeURIComponent(
       location.pathname + location.search,
     )}`;
     // A guest keeps their work by linking Google to the same user.
-    const { error } = isGuest
+    let { error } = isGuest
       ? await supabase.auth.linkIdentity({ provider: "google", options: { redirectTo } })
       : await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo } });
+    if (isGuest && error?.code === "identity_already_exists")
+      ({ error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo } }));
     if (error) {
       setBusy(null);
       setError("Google sign-in didn't start. Try again, or use your email.");
@@ -104,7 +112,9 @@ export function SignInDialog({
     const emailRedirectTo = `${location.origin}/auth/callback?next=${encodeURIComponent(here)}`;
 
     try {
-      const mode = step.kind === "code" ? (step.linking ? "resend-link" : "email") : (isGuest ? "guest" : "email");
+      if (isGuest && step.kind === "start") await prepareGuestTransfer();
+      const mode =
+        step.kind === "code" ? (step.linking ? "resend-link" : "email") : isGuest ? "guest" : "email";
       const linking = await requestEmailCode(supabase, address, emailRedirectTo, mode);
       setCode("");
       setCooldownEmail(address);
@@ -193,15 +203,23 @@ export function SignInDialog({
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     aria-invalid={!!error || undefined}
+                    aria-describedby={step.kind === "start" ? "signin-email-help" : "signin-code-help"}
                     className="h-10"
                   />
                   {error ? (
-                    <FieldError>{error}</FieldError>
+                    <FieldError id="signin-email-help">{error}</FieldError>
                   ) : (
-                    <FieldDescription>We&apos;ll email you a {CODE_LENGTH}-digit code.</FieldDescription>
+                    <FieldDescription id="signin-email-help">
+                      We&apos;ll email you a {CODE_LENGTH}-digit code.
+                    </FieldDescription>
                   )}
                 </Field>
-                <Button type="submit" size="lg" className="h-10 w-full" disabled={busy !== null || retryBlocked}>
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="h-10 w-full"
+                  disabled={busy !== null || retryBlocked}
+                >
                   {busy === "email" && <Spinner data-icon="inline-start" />}
                   {retryBlocked ? `Try again in ${resendIn}s` : "Email me a code"}
                 </Button>
@@ -210,7 +228,7 @@ export function SignInDialog({
 
             {isGuest && (
               <p className="text-xs text-muted-foreground">
-                Anything you&apos;ve made as a guest stays with you after you sign in.
+                We keep a recovery copy while your guest resumes move into your signed-in account.
               </p>
             )}
           </>
@@ -253,7 +271,12 @@ export function SignInDialog({
                 <ArrowLeftIcon data-icon="inline-start" />
                 Use a different email
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => sendCode()} disabled={busy !== null || retryBlocked}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => sendCode()}
+                disabled={busy !== null || retryBlocked}
+              >
                 {busy === "email" && <Spinner data-icon="inline-start" />}
                 {retryBlocked ? `Resend in ${resendIn}s` : "Resend code"}
               </Button>
@@ -269,10 +292,22 @@ export function SignInDialog({
 function GoogleMark() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" data-icon="inline-start">
-      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z" />
-      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z" />
-      <path fill="#FBBC05" d="M5.84 14.1A6.6 6.6 0 0 1 5.5 12c0-.73.13-1.44.34-2.1V7.07H2.18A11 11 0 0 0 1 12c0 1.78.43 3.45 1.18 4.93l3.66-2.84z" />
-      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15A10.6 10.6 0 0 0 12 1 11 11 0 0 0 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z" />
+      <path
+        fill="#4285F4"
+        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5.84 14.1A6.6 6.6 0 0 1 5.5 12c0-.73.13-1.44.34-2.1V7.07H2.18A11 11 0 0 0 1 12c0 1.78.43 3.45 1.18 4.93l3.66-2.84z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15A10.6 10.6 0 0 0 12 1 11 11 0 0 0 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"
+      />
     </svg>
   );
 }

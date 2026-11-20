@@ -1,5 +1,4 @@
 import { H1, H2 } from "./doc-headings";
-import { SuggestedText, SuggestedSkills } from "./suggested-text";
 import {
   Bullets,
   contactItems,
@@ -10,6 +9,7 @@ import {
   visibleSections,
   type TemplateProps,
 } from "./parts";
+import { SuggestedSkills, SuggestedText } from "./suggested-text";
 
 const ACCENT = "#1f4fa8";
 
@@ -46,7 +46,9 @@ export function ModernTemplate({ content: c, hints, plain }: TemplateProps) {
 
       {show.summary && (
         <Section title="Profile" k="summary">
-<p data-line="summary" className="text-[#333a47]"><SuggestedText id="summary">{c.summary}</SuggestedText></p>
+          <p data-line="summary" className="text-[#333a47]">
+            <SuggestedText id="summary">{c.summary}</SuggestedText>
+          </p>
         </Section>
       )}
 
@@ -74,7 +76,9 @@ export function ModernTemplate({ content: c, hints, plain }: TemplateProps) {
 
       {show.skills && (
         <Section title="Skills" k="skills">
-          <p className="text-[9pt] text-[#24304a]"><SuggestedSkills skills={c.skills} separator=" · " /></p>
+          <p className="text-[9pt] text-[#24304a]">
+            <SuggestedSkills skills={c.skills} separator=" · " />
+          </p>
         </Section>
       )}
 
@@ -88,7 +92,9 @@ export function ModernTemplate({ content: c, hints, plain }: TemplateProps) {
                     <span className="font-semibold">{[e.degree, e.field].filter(Boolean).join(", ")}</span>
                     {e.school && <span className="text-[#4a5160]"> · {e.school}</span>}
                   </p>
-                  <p className="shrink-0 text-[9pt] text-[#6b7280] tabular-nums">{formatRange(e.start, e.end)}</p>
+                  <p className="shrink-0 text-[9pt] text-[#6b7280] tabular-nums">
+                    {formatRange(e.start, e.end)}
+                  </p>
                 </div>
                 {e.details && <p className="text-[#333a47]">{e.details}</p>}
               </div>
@@ -106,11 +112,19 @@ export function ModernTemplate({ content: c, hints, plain }: TemplateProps) {
                   <span className="font-semibold">{p.name}</span>
                   {p.url && (
                     <span className="text-[9pt] text-[#6b7280]">
-                      {" "}· <Link plain={plain} href={p.url}>{p.url.replace(/^https?:\/\//, "")}</Link>
+                      {" "}
+                      ·{" "}
+                      <Link plain={plain} href={p.url}>
+                        {p.url.replace(/^https?:\/\//, "")}
+                      </Link>
                     </span>
                   )}
                 </p>
-{p.description && <p data-line={`${p.id}:description`} className="text-[#333a47]"><SuggestedText id={`${p.id}:description`}>{p.description}</SuggestedText></p>}
+                {p.description && (
+                  <p data-line={`${p.id}:description`} className="text-[#333a47]">
+                    <SuggestedText id={`${p.id}:description`}>{p.description}</SuggestedText>
+                  </p>
+                )}
                 <Bullets items={p.bullets} className="mt-0.5" />
               </div>
             ))}

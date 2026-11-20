@@ -1,7 +1,5 @@
 "use client";
 
-import { createContext, use, useState } from "react";
-import { CheckIcon, MessageCircleQuestionIcon, RotateCcwIcon } from "lucide-react";
 import { AiIcon } from "@/components/ai-icon";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +14,8 @@ import type { ResumeContent } from "@/features/resumes/schema";
 import { diffWords } from "@/features/tailor/diff";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { cn } from "@/lib/utils";
+import { CheckIcon, MessageCircleQuestionIcon, RotateCcwIcon } from "lucide-react";
+import { createContext, use, useRef, useState } from "react";
 
 const ACTIONS = [
   { id: "improve", label: "Improve writing" },
@@ -53,14 +53,17 @@ export function useImprove({
 }) {
   const ctx = use(ImproveContext);
   const [state, setState] = useState<State>({ status: "idle" });
+  const controller = useRef<AbortController | null>(null);
   const tooShort = text.trim().length < 3;
 
   async function run(action: Action) {
     if (!ctx || tooShort) return;
     const from = text;
     setState({ status: "loading", action });
+    controller.current = new AbortController();
     const res = await fetch("/api/improve", {
       method: "POST",
+      signal: AbortSignal.any([controller.current.signal, AbortSignal.timeout(55000)]),
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         resumeId: ctx.resumeId,
@@ -75,11 +78,20 @@ export function useImprove({
       setState({
         status: "error",
         action,
-        message: data?.error?.message ?? "We couldn't get a suggestion. Check your connection and try again.",
+        message: controller.current?.signal.aborted
+          ? "Request cancelled. Your text is unchanged."
+          : (data?.error?.message ?? "We couldn't get a suggestion. Check your connection and try again."),
       });
       return;
     }
-    setState({ status: "ready", action, from, text: data.text, question: data.question ?? "", sample: data.sample });
+    setState({
+      status: "ready",
+      action,
+      from,
+      text: data.text,
+      question: data.question ?? "",
+      sample: data.sample,
+    });
   }
 
   // Outside a saved resume (e.g. reviewing an import) there's nothing to ask about yet.
@@ -122,6 +134,9 @@ export function useImprove({
           <Spinner className="size-3.5" />
           Rewriting…
         </p>
+        <Button size="xs" variant="ghost" onClick={() => controller.current?.abort()}>
+          Cancel request
+        </Button>
       </Panel>
     );
   } else if (state.status === "error") {
@@ -163,7 +178,11 @@ export function useImprove({
             {state.question}
           </p>
         )}
-        {stale && <p className="text-xs text-muted-foreground">You&apos;ve edited the text since. Ask again to use your latest version.</p>}
+        {stale && (
+          <p className="text-xs text-muted-foreground">
+            You&apos;ve edited the text since. Ask again to use your latest version.
+          </p>
+        )}
         <div className="flex gap-1.5">
           <Button
             size="xs"
@@ -193,7 +212,12 @@ export function useImprove({
 
 function Panel({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={cn("flex flex-col gap-2 rounded-lg border border-primary/20 bg-accent/40 p-3 text-sm", className)}>
+    <div
+      className={cn(
+        "flex flex-col gap-2 rounded-lg border border-primary/20 bg-accent/40 p-3 text-sm",
+        className,
+      )}
+    >
       {children}
     </div>
   );

@@ -1,18 +1,14 @@
-import { Fragment } from "react";
-import Link from "next/link";
-import { ArrowRightIcon } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import {
-  MatchDemo,
-  SpotlightCard,
-  Appear,
-} from "./landing-motion";
-import { TemplateDemo } from "./template-demo";
+import { ArrowRightIcon } from "lucide-react";
+import Link from "next/link";
+import { Fragment } from "react";
+import { Appear, MatchDemo, SpotlightCard } from "./landing-motion";
+import { CopyStory, EvidenceStory, HowStory } from "./landing-stories";
 import { PaperStage } from "./paper-stage";
 import { PricingPlans } from "./pricing-plans";
-import { CopyStory, EvidenceStory, HowStory } from "./landing-stories";
+import { TemplateDemo } from "./template-demo";
 
 // The public landing page. Server-rendered and data-free, so it's fast and
 // readable by search engines. Every call to action uses one label and leads
@@ -95,7 +91,12 @@ export function Hero() {
           <PaperStage />
         </div>
       </div>
-      <div className="landing-proof"><span>Made for your next move.</span><span>Real, selectable PDF text</span><span>Four considered templates</span><span>You approve every change</span></div>
+      <div className="landing-proof">
+        <span>Made for your next move.</span>
+        <span>Real, selectable PDF text</span>
+        <span>Four considered templates</span>
+        <span>You approve every change</span>
+      </div>
     </section>
   );
 }
@@ -134,13 +135,20 @@ const STEPS = [
 export function HowItWorks() {
   return (
     <section id="how" className={SECTION}>
-      <SectionHeader title="Three steps to your next opportunity." lede="From the resume you have to one shaped for the job." />
+      <SectionHeader
+        title="Three steps to your next opportunity."
+        lede="From the resume you have to one shaped for the job."
+      />
       <ol className="how-grid">
         {STEPS.map((s, i) => (
           <li key={s.title} className="how-card">
             <Appear step={i}>
               <HowStory step={i} />
-              <div className="how-caption"><span className="how-number">{i + 1}</span><h3 className="text-[16px] font-medium">{s.title}</h3><p className="mt-3 text-[13px] leading-relaxed text-pretty text-muted-foreground">{s.body}</p></div>
+              <div className="how-caption">
+                <span className="how-number">{i + 1}</span>
+                <h3 className="text-[16px] font-medium">{s.title}</h3>
+                <p className="mt-3 text-[13px] leading-relaxed text-pretty text-muted-foreground">{s.body}</p>
+              </div>
             </Appear>
           </li>
         ))}
@@ -171,17 +179,19 @@ export function WhyRello() {
           <div className="max-w-md">
             <h3 className="text-lg font-medium">See what the job wants</h3>
             <p className="mt-2 text-[15px] leading-relaxed text-pretty text-muted-foreground">
-              Every requirement is checked against your resume, so you know what you show, what&apos;s thin and
-              what&apos;s missing before you apply.
+              Every requirement is checked against your resume, so you know what you show, what&apos;s thin
+              and what&apos;s missing before you apply.
             </p>
           </div>
-          <div className="match-stage"><MatchDemo rows={MATCH} /></div>
+          <div className="match-stage">
+            <MatchDemo rows={MATCH} />
+          </div>
         </SpotlightCard>
 
         <SpotlightCard className="trust-small flex flex-col gap-4 bg-card/60 p-6">
-          <h3 className="text-lg font-medium">Nothing made up</h3>
+          <h3 className="text-lg font-medium">Grounded in your experience</h3>
           <p className="text-[15px] leading-relaxed text-pretty text-muted-foreground">
-            Suggestions only use what&apos;s already on your resume. Invented numbers are blocked.
+            Suggestions are checked against your resume. Review the facts before using them.
           </p>
           <EvidenceStory />
         </SpotlightCard>
@@ -201,7 +211,10 @@ export function WhyRello() {
 export function Pricing() {
   return (
     <section id="pricing" className={SECTION}>
-      <SectionHeader title="Simple, transparent pricing." lede="Start free. Add a few tailoring credits when you need them." />
+      <SectionHeader
+        title="Simple, transparent pricing."
+        lede="Start free. Add a few tailoring credits when you need them."
+      />
       <PricingPlans />
     </section>
   );
@@ -218,7 +231,7 @@ const FAQ = [
   },
   {
     q: "Will the AI make things up?",
-    a: "It's built not to. Suggestions only use what's on your resume, invented numbers are blocked, and nothing changes until you accept it. Still read every suggestion: you know your experience best.",
+    a: "AI can misread or invent details. Rello checks proposed edits against your resume and blocks new numbers, but you should verify every claim. Nothing changes until you accept it.",
   },
   {
     q: "Does tailoring change my original resume?",
@@ -237,7 +250,9 @@ export function Faq() {
       <Accordion multiple={false} className="mt-8 border-t">
         {FAQ.map((f) => (
           <AccordionItem key={f.q} value={f.q}>
-            <AccordionTrigger className="py-5 text-[17px] font-medium hover:no-underline">{f.q}</AccordionTrigger>
+            <AccordionTrigger className="py-5 text-[17px] font-medium hover:no-underline">
+              {f.q}
+            </AccordionTrigger>
             <AccordionContent className="max-w-3xl pb-6 text-[15px] leading-relaxed text-pretty text-muted-foreground">
               {f.a}
             </AccordionContent>

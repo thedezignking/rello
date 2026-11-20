@@ -1,11 +1,19 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/features/auth/auth-provider";
 import { START_LABEL } from "@/features/home/copy";
 import { useScrolled } from "@/lib/use-scrolled";
+import { MenuIcon } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 /**
  * Header for the public landing page. Signing in here takes you to your
@@ -42,7 +50,10 @@ export function LandingHeader() {
           rello<span className="text-primary">.</span>
         </Link>
         {/* Page sections, for scanning ahead. Hidden on phones, where the page is one short scroll. */}
-        <nav aria-label="Sections" className="hidden items-center gap-7 text-sm text-muted-foreground md:flex">
+        <nav
+          aria-label="Sections"
+          className="hidden items-center gap-7 text-sm text-muted-foreground md:flex"
+        >
           {SECTIONS.map((l) => (
             <a
               key={l.href}
@@ -54,13 +65,29 @@ export function LandingHeader() {
           ))}
         </nav>
         <div className="flex items-center gap-1 sm:gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={<Button variant="ghost" size="icon" className="md:hidden" aria-label="Page sections" />}
+            >
+              <MenuIcon />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuGroup>
+                {SECTIONS.map((link) => (
+                  <DropdownMenuItem key={link.href} render={<a href={link.href} />}>
+                    {link.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
           {hasAccount ? (
             <Button nativeButton={false} render={<Link href="/resumes" />}>
               Your resumes
             </Button>
           ) : (
             <>
-              <Button variant="ghost" onClick={signIn} className="hidden sm:inline-flex">
+              <Button variant="ghost" onClick={signIn}>
                 Sign in
               </Button>
               <Button nativeButton={false} render={<Link href="/resumes" />}>

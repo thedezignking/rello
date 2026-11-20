@@ -1,0 +1,12 @@
+node_modules
+.next*
+.git
+.agents
+.codex
+.vercel
+package-lock.json
+playwright-report
+test-results
+docs/senior-gap-audit/
+.*-fixes.cjs
+PLAN.md

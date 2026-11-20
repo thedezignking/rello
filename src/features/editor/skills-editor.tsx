@@ -1,16 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import { XIcon } from "lucide-react";
-import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
+import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { newId, type Skill } from "@/features/resumes/schema";
+import { MAX_SKILL_LENGTH, newId, type Skill } from "@/features/resumes/schema";
 import { cn } from "@/lib/utils";
+import { XIcon } from "lucide-react";
+import { useState } from "react";
 import { moveItem } from "./fields";
 
 /** Skills as chips. Type and press Enter (or paste a comma list); drag or Alt+←/→ to reorder. */
 export function SkillsEditor({ skills, onChange }: { skills: Skill[]; onChange: (next: Skill[]) => void }) {
   const [draft, setDraft] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const [dragging, setDragging] = useState<number | null>(null);
 
   function add(raw: string) {
@@ -20,13 +21,25 @@ export function SkillsEditor({ skills, onChange }: { skills: Skill[]; onChange: 
       .map((s) => s.trim())
       .filter((s) => s && !existing.has(s.toLowerCase()));
     if (!names.length) return;
+    if (names.some((name) => name.length > MAX_SKILL_LENGTH)) {
+      setDraft(raw);
+      setError(`Each skill must be ${MAX_SKILL_LENGTH} characters or fewer. Your input has been kept.`);
+      return;
+    }
     onChange([...skills, ...names.map((name) => ({ id: newId("sk"), name }))]);
     setDraft("");
+    setError(null);
   }
 
   return (
     <Field>
       <FieldLabel htmlFor="skill-input">Skills</FieldLabel>
+      {skills.some((skill) => skill.name.length > MAX_SKILL_LENGTH) && (
+        <FieldError>
+          A saved skill is too long. Copy its text, then remove it and add skills of {MAX_SKILL_LENGTH}{" "}
+          characters or fewer.
+        </FieldError>
+      )}
       {skills.length > 0 && (
         <ul className="flex flex-wrap gap-1.5" aria-label="Your skills">
           {skills.map((s, i) => (
@@ -78,7 +91,12 @@ export function SkillsEditor({ skills, onChange }: { skills: Skill[]; onChange: 
         id="skill-input"
         value={draft}
         placeholder="Type a skill and press Enter"
-        onChange={(e) => setDraft(e.target.value)}
+        aria-invalid={!!error || undefined}
+        aria-describedby={error ? "skill-input-error" : "skill-input-description"}
+        onChange={(e) => {
+          setDraft(e.target.value);
+          setError(null);
+        }}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             e.preventDefault();
@@ -96,7 +114,10 @@ export function SkillsEditor({ skills, onChange }: { skills: Skill[]; onChange: 
         }}
         onBlur={() => add(draft)}
       />
-      <FieldDescription>Put the skills you most want seen first. Drag to reorder.</FieldDescription>
+      {error && <FieldError id="skill-input-error">{error}</FieldError>}
+      <FieldDescription id="skill-input-description">
+        Put the skills you most want seen first. Drag to reorder.
+      </FieldDescription>
     </Field>
   );
 }

@@ -1,6 +1,12 @@
 "use client";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 
-import { useEffect, useRef, useState } from "react";
+import { AiIcon } from "@/components/ai-icon";
+import { TEMPLATE_IDS } from "@/features/resumes/schema";
+import { TEMPLATES } from "@/features/templates";
+import { PagePreview } from "@/features/templates/page-preview";
+import { SAMPLE_CONTENT } from "@/features/templates/sample";
+import { cn } from "@/lib/utils";
 import {
   AlignLeftIcon,
   ArrowLeftIcon,
@@ -17,13 +23,8 @@ import {
   UserRoundIcon,
   WrenchIcon,
 } from "lucide-react";
-import { AnimatePresence, motion, useInView, useReducedMotion } from "motion/react";
-import { AiIcon } from "@/components/ai-icon";
-import { TEMPLATE_IDS } from "@/features/resumes/schema";
-import { TEMPLATES } from "@/features/templates";
-import { PagePreview } from "@/features/templates/page-preview";
-import { SAMPLE_CONTENT } from "@/features/templates/sample";
-import { cn } from "@/lib/utils";
+import { AnimatePresence, motion, useInView } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 
 // The templates section as a screen recording of the editor: a browser
 // window filled by the app, where the pointer opens the Template menu, picks
@@ -227,7 +228,9 @@ export function TemplateDemo() {
                     {FIELDS.map(([label, value]) => (
                       <div key={label} className="flex flex-col gap-1.5">
                         <span className="text-sm font-medium">{label}</span>
-                        <span className="flex h-9 items-center truncate rounded-lg border px-3 text-sm">{value}</span>
+                        <span className="flex h-9 items-center truncate rounded-lg border px-3 text-sm">
+                          {value}
+                        </span>
                       </div>
                     ))}
                   </div>

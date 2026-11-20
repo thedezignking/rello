@@ -1,11 +1,11 @@
-import type { Metadata, Viewport } from "next";
-import { Suspense } from "react";
-import { IBM_Plex_Sans, Inter, Newsreader, Onest, Source_Serif_4 } from "next/font/google";
 import { Toaster } from "@/components/ui/toast";
 import { AuthProvider } from "@/features/auth/auth-provider";
 import { BillingProvider } from "@/features/billing/billing-provider";
 import { themeScript } from "@/features/theme/script";
 import { ThemeSync } from "@/features/theme/theme-sync";
+import type { Metadata, Viewport } from "next";
+import { IBM_Plex_Sans, Inter, Newsreader, Onest, Source_Serif_4 } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 
 const onest = Onest({
@@ -20,7 +20,11 @@ const newsreader = Newsreader({
 });
 
 // Resume template faces. Only downloaded when a template uses them.
-const docSerif = Source_Serif_4({ variable: "--font-doc-serif", subsets: ["latin"], style: ["normal", "italic"] });
+const docSerif = Source_Serif_4({
+  variable: "--font-doc-serif",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+});
 const docSans = Inter({ variable: "--font-doc-sans", subsets: ["latin"] });
 const docPlex = IBM_Plex_Sans({
   variable: "--font-doc-plex",
@@ -58,9 +62,19 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="min-h-dvh antialiased">
-        <Suspense fallback={null}><ThemeSync /></Suspense>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded focus:bg-card focus:p-3 focus:text-foreground"
+        >
+          Skip to main content
+        </a>
+        <Suspense fallback={null}>
+          <ThemeSync />
+        </Suspense>
         <Toaster>
-          <AuthProvider><BillingProvider>{children}</BillingProvider></AuthProvider>
+          <AuthProvider>
+            <BillingProvider>{children}</BillingProvider>
+          </AuthProvider>
         </Toaster>
       </body>
     </html>

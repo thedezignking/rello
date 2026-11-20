@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
 import { ImportReview } from "@/features/import/import-review";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Check your import" };
 

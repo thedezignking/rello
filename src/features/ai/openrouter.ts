@@ -1,5 +1,10 @@
+import { currentBudget } from "@/lib/request-budget";
 import "server-only";
 import type { z } from "zod";
+
+export function demoAllowed() {
+  return process.env.NODE_ENV === "development" && process.env.AI_DEMO_MODE === "true";
+}
 
 // Free models first-to-last; OpenRouter falls through the list when one is
 // rate-limited or down. Override with OPENROUTER_MODELS (comma-separated).
@@ -47,10 +52,17 @@ export async function chatJSON<T>({
 }): Promise<{ data: T; usage: Usage }> {
   const key = process.env.OPENROUTER_API_KEY;
   if (!key) throw new AIError("not_configured", "AI isn't set up.");
-  const models = (process.env.OPENROUTER_MODELS ?? "").split(",").map((m) => m.trim()).filter(Boolean);
+  const models = (process.env.OPENROUTER_MODELS ?? "")
+    .split(",")
+    .map((m) => m.trim())
+    .filter(Boolean);
 
   let lastProblem = "";
   for (let attempt = 0; attempt < 2; attempt++) {
+    const budget = currentBudget();
+    const remaining = budget ? budget.deadline - Date.now() - 16000 : 25000;
+    if (remaining < 1000 || budget?.signal.aborted)
+      throw new AIError("upstream", "The request ran out of time. Try again.");
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -65,7 +77,10 @@ export async function chatJSON<T>({
           { role: "system", content: system },
           {
             role: "user",
-            content: attempt === 0 ? user : `${user}\n\nYour previous reply was not valid: ${lastProblem}\nReply with the JSON object only.`,
+            content:
+              attempt === 0
+                ? user
+                : `${user}\n\nYour previous reply was not valid: ${lastProblem}\nReply with the JSON object only.`,
           },
         ],
         response_format: { type: "json_object" },
@@ -75,7 +90,10 @@ export async function chatJSON<T>({
         max_tokens: maxTokens,
         temperature,
       }),
-      signal: AbortSignal.timeout(60_000),
+      signal: AbortSignal.any([
+        AbortSignal.timeout(Math.min(20000, remaining)),
+        ...(budget ? [budget.signal] : []),
+      ]),
     }).catch(() => null);
 
     if (!res) throw new AIError("upstream", "The AI service didn't respond.");
@@ -89,6 +107,7 @@ export async function chatJSON<T>({
       inputTokens: body?.usage?.prompt_tokens ?? 0,
       outputTokens: body?.usage?.completion_tokens ?? 0,
     };
+    budget?.usage.push(usage);
 
     const parsed = schema.safeParse(extractJSON(text));
     if (parsed.success) return { data: parsed.data, usage };

@@ -5,83 +5,138 @@ import { z } from "zod";
 // point at the exact line they want to change.
 
 export const SCHEMA_VERSION = 1;
+export const MAX_TEXT_LENGTH = 2000;
+export const MAX_SKILL_LENGTH = 80;
 
-const id = z.string().min(1);
-const text = z.string().max(2000).default("");
-// "YYYY-MM" from <input type="month">, or empty.
-const month = z
-  .string()
-  .regex(/^(\d{4}-\d{2})?$/, "Use a month and year")
-  .default("");
+function contentSchemas(bounded: boolean) {
+  const id = z.string().min(1);
+  const text = (bounded ? z.string().max(MAX_TEXT_LENGTH) : z.string()).default("");
+  // "YYYY-MM" from <input type="month">, or empty.
+  const month = z
+    .string()
+    .regex(/^(\d{4}-\d{2})?$/, "Use a month and year")
+    .default("");
 
-export const bulletSchema = z.object({ id, text });
+  const bulletSchema = z.object({ id, text }).strict();
 
-export const experienceSchema = z.object({
-  id,
-  title: text,
-  company: text,
-  location: text,
-  start: month,
-  end: month,
-  current: z.boolean().default(false),
-  bullets: z.array(bulletSchema).default([]),
-});
-
-export const educationSchema = z.object({
-  id,
-  school: text,
-  degree: text,
-  field: text,
-  start: month,
-  end: month,
-  details: text,
-});
-
-export const projectSchema = z.object({
-  id,
-  name: text,
-  url: text,
-  description: text,
-  bullets: z.array(bulletSchema).default([]),
-});
-
-export const certificationSchema = z.object({
-  id,
-  name: text,
-  issuer: text,
-  date: month,
-  url: text,
-});
-
-export const skillSchema = z.object({ id, name: z.string().max(80) });
-
-export const resumeContentSchema = z.object({
-  personal: z
+  const experienceSchema = z
     .object({
-      name: text,
-      headline: text,
-      email: text,
-      phone: text,
+      id,
+      title: text,
+      company: text,
       location: text,
-      linkedin: text,
-      website: text,
+      start: month,
+      end: month,
+      current: z.boolean().default(false),
+      bullets: z.array(bulletSchema).default([]),
     })
-    .default({
-      name: "",
-      headline: "",
-      email: "",
-      phone: "",
-      location: "",
-      linkedin: "",
-      website: "",
-    }),
-  summary: text,
-  experience: z.array(experienceSchema).default([]),
-  education: z.array(educationSchema).default([]),
-  skills: z.array(skillSchema).default([]),
-  projects: z.array(projectSchema).default([]),
-  certifications: z.array(certificationSchema).default([]),
-});
+    .strict();
+
+  const educationSchema = z
+    .object({
+      id,
+      school: text,
+      degree: text,
+      field: text,
+      start: month,
+      end: month,
+      details: text,
+    })
+    .strict();
+
+  const projectSchema = z
+    .object({
+      id,
+      name: text,
+      url: text,
+      description: text,
+      bullets: z.array(bulletSchema).default([]),
+    })
+    .strict();
+
+  const certificationSchema = z
+    .object({
+      id,
+      name: text,
+      issuer: text,
+      date: month,
+      url: text,
+    })
+    .strict();
+
+  const skillSchema = z
+    .object({ id, name: bounded ? z.string().max(MAX_SKILL_LENGTH) : z.string() })
+    .strict();
+
+  const resumeContentSchema = z
+    .object({
+      personal: z
+        .object({
+          name: text,
+          headline: text,
+          email: text,
+          phone: text,
+          location: text,
+          linkedin: text,
+          website: text,
+        })
+        .strict()
+        .default({
+          name: "",
+          headline: "",
+          email: "",
+          phone: "",
+          location: "",
+          linkedin: "",
+          website: "",
+        }),
+      summary: text,
+      experience: z.array(experienceSchema).default([]),
+      education: z.array(educationSchema).default([]),
+      skills: z.array(skillSchema).default([]),
+      projects: z.array(projectSchema).default([]),
+      certifications: z.array(certificationSchema).default([]),
+    })
+    .strict();
+  return {
+    bulletSchema,
+    experienceSchema,
+    educationSchema,
+    projectSchema,
+    certificationSchema,
+    skillSchema,
+    resumeContentSchema,
+  };
+}
+
+export const {
+  bulletSchema,
+  experienceSchema,
+  educationSchema,
+  projectSchema,
+  certificationSchema,
+  skillSchema,
+  resumeContentSchema,
+} = contentSchemas(true);
+// Older saves may exceed today's write limits. Reading must never truncate them.
+const storedContentSchema = contentSchemas(false).resumeContentSchema;
+
+export class ResumeContentError extends Error {
+  constructor(public readonly rawContent: unknown) {
+    super("This resume contains data we couldn't read. Download a recovery copy before making changes.");
+    this.name = "ResumeContentError";
+  }
+}
+
+export function validateContent(raw: unknown): ResumeContent {
+  const result = resumeContentSchema.safeParse(raw);
+  if (!result.success) {
+    throw new Error(
+      "Some resume fields are invalid or too long. Check the highlighted fields before saving.",
+    );
+  }
+  return result.data;
+}
 
 export type Bullet = z.infer<typeof bulletSchema>;
 export type Experience = z.infer<typeof experienceSchema>;
@@ -92,13 +147,7 @@ export type Skill = z.infer<typeof skillSchema>;
 export type ResumeContent = z.infer<typeof resumeContentSchema>;
 
 export type SectionKey =
-  | "personal"
-  | "summary"
-  | "experience"
-  | "education"
-  | "skills"
-  | "projects"
-  | "certifications";
+  "personal" | "summary" | "experience" | "education" | "skills" | "projects" | "certifications";
 
 export const TEMPLATE_IDS = ["classic", "modern", "compact", "minimal"] as const;
 export type TemplateId = (typeof TEMPLATE_IDS)[number];
@@ -125,8 +174,9 @@ export function emptyContent(): ResumeContent {
 
 /** Parses stored JSON, filling defaults so old or partial rows still load. */
 export function parseContent(raw: unknown): ResumeContent {
-  const result = resumeContentSchema.safeParse(raw ?? {});
-  return result.success ? result.data : emptyContent();
+  const result = storedContentSchema.safeParse(raw === undefined ? {} : raw);
+  if (!result.success) throw new ResumeContentError(raw);
+  return result.data;
 }
 
 export function isTemplateId(value: unknown): value is TemplateId {

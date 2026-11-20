@@ -1,6 +1,6 @@
+import type { Bullet, ResumeContent, SectionKey } from "@/features/resumes/schema";
 import { cn } from "@/lib/utils";
 import { SuggestedText } from "./suggested-text";
-import type { Bullet, ResumeContent, SectionKey } from "@/features/resumes/schema";
 
 // A4 at 96 dpi. Templates are laid out at this size and scaled to fit.
 export const PAGE_WIDTH = 794;
@@ -25,7 +25,10 @@ export function formatRange(start: string, end: string, current = false) {
 
 /** "https://www.linkedin.com/in/ada/" → "linkedin.com/in/ada" */
 export function prettyUrl(url: string) {
-  return url.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/$/, "");
+  return url
+    .replace(/^https?:\/\//, "")
+    .replace(/^www\./, "")
+    .replace(/\/$/, "");
 }
 
 export function href(url: string) {
@@ -74,10 +77,21 @@ export function Bullets({ items, className }: { items: Bullet[]; className?: str
   );
 }
 
-export function Link({ href, plain, children }: { href?: string; plain?: boolean; children: React.ReactNode }) {
+export function Link({
+  href,
+  plain,
+  children,
+}: {
+  href?: string;
+  plain?: boolean;
+  children: React.ReactNode;
+}) {
   if (!href || plain) return <>{children}</>;
   return (
-    <a href={/^(https?:|mailto:|tel:)/i.test(href) ? href : `https://${href}`} className="text-inherit no-underline">
+    <a
+      href={/^(https?:|mailto:|tel:)/i.test(href) ? href : `https://${href}`}
+      className="text-inherit no-underline"
+    >
       {children}
     </a>
   );

@@ -15,7 +15,7 @@ A Google Docs–style home for resumes: open it and you see templates and your r
 | Tailoring output | AI writes a whole new version | **Line-by-line suggestions**: Accept / Reject / Try again per line. Nothing changes until you accept |
 | Where tailored changes go | New version | **A new tailored copy** (e.g. "Product Designer — Acme"). The original is never touched |
 | Editor | Form + live preview | Same: **form left, live page right**. Clicking a section on the page jumps to its fields |
-| Payments | Credits + checkout in MVP | **Later.** Ship free, with a quiet daily AI cap. The credits module comes after we see usage |
+| Payments | Credits + checkout in MVP | **Implemented.** Verified accounts receive free credits; paid packs use server-verified Paystack checkout and an idempotent credit ledger. Use test keys in staging. |
 | Sign in | Required up front | **Try first.** Start editing as a guest, then sign in (Google/email) to save, tailor or download. The draft carries over |
 | AI | OpenAI | **OpenRouter**, using the best free model (picked by testing on sample resumes), behind a swappable interface |
 
@@ -63,7 +63,7 @@ Name, email, delete account and all data.
 - **OpenRouter** via one `ai` module (`suggest`, `improve`, `analyzeJob`, `parseResume`) with Zod-validated JSON output. Free-model rate limits mean every call needs a retry path and clear failure copy.
 - **PDF**: the resume renders as HTML from one template component. The preview and the PDF both use it. PDF output comes from headless Chromium on the server (`@sparticuz/chromium` on Vercel).
 - **Import**: `unpdf` / `mammoth` for text extraction → AI maps the text to fields → the user confirms.
-- Vercel hosting; PostHog and Sentry come later.
+- Vercel hosting; scrubbed Sentry error reporting is implemented and requires deployment configuration and tested alerts. Product analytics remain deferred.
 
 ## Data model (first cut)
 

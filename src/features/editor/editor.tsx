@@ -1,24 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import Link from "next/link";
-import {
-  ArrowLeftIcon,
-  CloudCheckIcon,
-  CircleCheckIcon,
-  CircleDashedIcon,
-  CloudOffIcon,
-  DownloadIcon,
-  TriangleAlertIcon,
-  XIcon,
-} from "lucide-react";
 import { AiIcon } from "@/components/ai-icon";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import {
@@ -32,33 +16,65 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { ViewTabs } from "@/components/view-tabs";
-import { toast } from "@/components/ui/toast";
 import { useAuth } from "@/features/auth/auth-provider";
 import { useDownloadPdf } from "@/features/pdf/use-download-pdf";
-import { isReadyForTailoring, TEMPLATE_IDS, type Resume, type SectionKey, type TemplateId } from "@/features/resumes/schema";
+import { DraftNotice } from "@/features/resumes/draft-notice";
+import { downloadRecovery, ResumeReadError } from "@/features/resumes/recovery";
+import {
+  isReadyForTailoring,
+  resumeContentSchema,
+  TEMPLATE_IDS,
+  type Resume,
+  type SectionKey,
+  type TemplateId,
+} from "@/features/resumes/schema";
 import { getResumeStore } from "@/features/resumes/store";
 import { TEMPLATES } from "@/features/templates";
 import { PagePreview } from "@/features/templates/page-preview";
 import { cn } from "@/lib/utils";
+import {
+  ArrowLeftIcon,
+  CircleCheckIcon,
+  CircleDashedIcon,
+  CloudCheckIcon,
+  CloudOffIcon,
+  DownloadIcon,
+  TriangleAlertIcon,
+  XIcon,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { ImproveProvider } from "./improve";
 import { SECTIONS } from "./sections";
 import { useAutosave, type SaveStatus } from "./use-autosave";
 
 export function Editor({ id }: { id: string }) {
-  const [state, setState] = useState<{ resume: Resume | null; loaded: boolean }>({ resume: null, loaded: false });
+  const { ready, user } = useAuth();
+  const identity = `${id}:${user?.id ?? "signed-out"}`;
+  const [attempt, setAttempt] = useState(0);
+  const [state, setState] = useState<{
+    identity: string;
+    resume: Resume | null;
+    loaded: boolean;
+    error?: unknown;
+  }>({ identity, resume: null, loaded: false });
 
   useEffect(() => {
+    if (!ready) return;
     let alive = true;
-    getResumeStore()
-      .get(id)
-      .then((resume) => alive && setState({ resume, loaded: true }))
-      .catch(() => alive && setState({ resume: null, loaded: true }));
+    Promise.resolve()
+      .then(() => getResumeStore().get(id))
+      .then((resume) => alive && setState({ identity, resume, loaded: true }))
+      .catch((error: unknown) => alive && setState({ identity, resume: null, loaded: true, error }));
     return () => {
       alive = false;
     };
-  }, [id]);
+  }, [id, identity, ready, attempt]);
 
-  if (!state.loaded) return <EditorSkeleton />;
+  if (!ready || !state.loaded || state.identity !== identity) return <EditorSkeleton />;
+  if (state.error)
+    return <ResumeReadError error={state.error} onRetry={() => setAttempt((value) => value + 1)} />;
   if (!state.resume) {
     return (
       <div className="flex min-h-dvh items-center justify-center p-6">
@@ -67,41 +83,35 @@ export function Editor({ id }: { id: string }) {
             <EmptyTitle>We couldn&apos;t find this resume</EmptyTitle>
             <EmptyDescription>It may have been deleted, or it belongs to another account.</EmptyDescription>
           </EmptyHeader>
-          <Button nativeButton={false} render={<Link href="/resumes" />}>Back to your resumes</Button>
+          <Button nativeButton={false} render={<Link href="/resumes" />}>
+            Back to your resumes
+          </Button>
         </Empty>
       </div>
     );
   }
-  return <Workspace resume={state.resume} />;
+  return <Workspace key={identity} resume={state.resume} />;
 }
 
 function Workspace({ resume }: { resume: Resume }) {
-  const { content, setContent, status, retry, flush } = useAutosave(resume);
+  const router = useRouter();
+  const draft = useAutosave(resume);
+  const { content, setContent, title, setTitle, templateId, setTemplateId, status, retry, flush } = draft;
   const { download, busyId } = useDownloadPdf();
-  const [title, setTitle] = useState(resume.title);
-  const savedTitle = useRef(resume.title);
-  const [templateId, setTemplateId] = useState<TemplateId>(resume.templateId);
   const [open, setOpen] = useState<string[]>(["personal"]);
   const [view, setView] = useState<"edit" | "preview">("edit");
   const formRef = useRef<HTMLDivElement>(null);
 
-  async function saveTitle() {
-    const next = title.trim() || "Untitled resume";
-    setTitle(next);
-    if (next === savedTitle.current) return;
-    savedTitle.current = next;
-    await getResumeStore()
-      .update(resume.id, { title: next })
-      .catch(() => toast.add({ title: "Couldn't rename", description: "Try again in a moment.", type: "error" }));
+  function saveBeforeLeaving() {
+    if (!title.trim()) setTitle("Untitled resume");
+    return flush();
   }
+  const saveTitle = saveBeforeLeaving;
+  const changeTemplate = setTemplateId;
 
-  async function changeTemplate(next: TemplateId) {
-    setTemplateId(next);
-    await getResumeStore()
-      .update(resume.id, { templateId: next })
-      .catch(() =>
-        toast.add({ title: "Couldn't switch template", description: "Try again in a moment.", type: "error" }),
-      );
+  async function navigate(event: { preventDefault: () => void }, href: string) {
+    event.preventDefault();
+    if (await saveBeforeLeaving()) router.push(href);
   }
 
   // Clicking a section on the page opens its fields.
@@ -114,10 +124,16 @@ function Workspace({ resume }: { resume: Resume }) {
   }
 
   return (
-    <div className="page-in flex h-dvh flex-col">
+    <div role="main" id="main-content" tabIndex={-1} className="page-in flex h-dvh flex-col">
       <GuestNotice />
       <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-card px-3 sm:gap-3 sm:px-4">
-        <Button variant="ghost" size="icon" nativeButton={false} render={<Link href="/resumes" />} aria-label="Back to your resumes">
+        <Button
+          variant="ghost"
+          size="icon"
+          nativeButton={false}
+          render={<Link href="/resumes" onNavigate={(event) => void navigate(event, "/resumes")} />}
+          aria-label="Back to your resumes"
+        >
           <ArrowLeftIcon />
         </Button>
         <div className="flex min-w-0 flex-1 items-center gap-2">
@@ -136,11 +152,18 @@ function Workspace({ resume }: { resume: Resume }) {
           <Button
             variant="outline"
             nativeButton={false}
-            render={<Link href={`/r/${resume.id}/tailor`} />}
+            render={
+              <Link
+                href={`/r/${resume.id}/tailor`}
+                onNavigate={(event) => void navigate(event, `/r/${resume.id}/tailor`)}
+              />
+            }
             aria-label={resume.sourceResumeId ? "Review suggestions" : "Tailor for a job"}
           >
             <AiIcon data-icon="inline-start" />
-            <span className="hidden md:inline">{resume.sourceResumeId ? "Suggestions" : "Tailor for a job"}</span>
+            <span className="hidden md:inline">
+              {resume.sourceResumeId ? "Suggestions" : "Tailor for a job"}
+            </span>
           </Button>
           <Select
             value={templateId}
@@ -161,21 +184,39 @@ function Workspace({ resume }: { resume: Resume }) {
             </SelectContent>
           </Select>
           <Button
-            onClick={() =>
-              download({ id: resume.id, title, templateId, content }, async () => {
-                await saveTitle();
-                return flush();
-              })
-            }
+            onClick={() => download({ id: resume.id, title, templateId, content }, saveBeforeLeaving)}
             disabled={busyId === resume.id}
             aria-label="Download PDF"
           >
-            {busyId === resume.id ? <Spinner data-icon="inline-start" /> : <DownloadIcon data-icon="inline-start" />}
-            <span className="hidden sm:inline">{busyId === resume.id ? "Preparing PDF…" : "Download PDF"}</span>
+            {busyId === resume.id ? (
+              <Spinner data-icon="inline-start" />
+            ) : (
+              <DownloadIcon data-icon="inline-start" />
+            )}
+            <span className="hidden sm:inline">
+              {busyId === resume.id ? "Preparing PDF…" : "Download PDF"}
+            </span>
           </Button>
         </div>
       </header>
-
+      <DraftNotice {...draft} />
+      {!resumeContentSchema.safeParse(content).success && (
+        <Alert variant="destructive" className="shrink-0 rounded-none">
+          <AlertTitle>Some saved fields need attention</AlertTitle>
+          <AlertDescription>
+            Your text has been kept. Open the sections below and shorten the highlighted fields before saving
+            new changes.
+          </AlertDescription>
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-2 w-fit"
+            onClick={() => downloadRecovery(content)}
+          >
+            Download recovery copy
+          </Button>
+        </Alert>
+      )}
 
       <ViewTabs
         value={view}
@@ -205,12 +246,7 @@ function Workspace({ resume }: { resume: Resume }) {
               {SECTIONS.map(({ key, title, Icon, Body, status: describe }) => {
                 const s = describe(content);
                 return (
-                  <AccordionItem
-                    key={key}
-                    value={key}
-                    id={`section-${key}`}
-                    className="border-b"
-                  >
+                  <AccordionItem key={key} value={key} id={`section-${key}`} className="border-b">
                     <AccordionTrigger className="items-center px-4 py-4 text-[15px] hover:no-underline sm:px-6">
                       <span className="flex items-center gap-3">
                         <Icon
@@ -218,7 +254,9 @@ function Workspace({ resume }: { resume: Resume }) {
                         />
                         <span className="flex flex-col items-start gap-0.5">
                           <span className="font-medium">{title}</span>
-                          <span className="text-xs font-normal text-muted-foreground tabular-nums">{s.label}</span>
+                          <span className="text-xs font-normal text-muted-foreground tabular-nums">
+                            {s.label}
+                          </span>
                         </span>
                       </span>
                     </AccordionTrigger>
@@ -261,7 +299,11 @@ function ReadinessNote({ ready }: { ready: boolean }) {
         ready ? "text-accent-foreground" : "text-muted-foreground",
       )}
     >
-      {ready ? <CircleCheckIcon className="size-3.5 shrink-0" /> : <CircleDashedIcon className="size-3.5 shrink-0" />}
+      {ready ? (
+        <CircleCheckIcon className="size-3.5 shrink-0" />
+      ) : (
+        <CircleDashedIcon className="size-3.5 shrink-0" />
+      )}
       {ready
         ? "Ready to tailor. Use “Tailor for a job” whenever a role catches your eye."
         : "Add your name, one role, school or project, and a few skills to start tailoring."}
@@ -276,7 +318,7 @@ function ReadinessNote({ ready }: { ready: boolean }) {
  * than text appearing and disappearing. Icon-only on phones for calm states.
  */
 export function SaveIndicator({ status, onRetry }: { status: SaveStatus; onRetry: () => void }) {
-  const problem = status === "error" || status === "conflict";
+  const problem = status === "error" || status === "conflict" || status === "invalid";
   const busy = status === "saving" || status === "unsaved";
   return (
     <span
@@ -296,6 +338,11 @@ export function SaveIndicator({ status, onRetry }: { status: SaveStatus; onRetry
           <Spinner className="size-3" />
           <span className="sr-only sm:not-sr-only">Saving…</span>
         </>
+      ) : status === "invalid" ? (
+        <>
+          <TriangleAlertIcon className="size-3.5" />
+          Check long fields
+        </>
       ) : status === "error" ? (
         <>
           <CloudOffIcon className="pop-in size-3.5" />
@@ -308,9 +355,9 @@ export function SaveIndicator({ status, onRetry }: { status: SaveStatus; onRetry
         <>
           <TriangleAlertIcon className="pop-in size-3.5" />
           Changed in another tab
-          <button type="button" className="underline underline-offset-2 hover:no-underline" onClick={() => location.reload()}>
-            Reload
-          </button>
+          <a href="#draft-recovery" className="underline underline-offset-2">
+            Recover draft
+          </a>
         </>
       ) : (
         <>
@@ -351,7 +398,7 @@ function GuestNotice() {
   return (
     <div className="relative flex min-h-10 items-center justify-center bg-primary px-12 py-2 text-center text-sm text-primary-foreground">
       <p>
-        Saved in this browser only.{" "}
+        Saved in your guest session. Sign in to keep access across devices.{" "}
         <button
           type="button"
           className="font-medium underline underline-offset-2 hover:no-underline"

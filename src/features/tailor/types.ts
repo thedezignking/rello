@@ -27,7 +27,8 @@ export type SkillsPlan = {
   /** Proposed order of existing skill ids, or null when the order is fine. */
   order: string[] | null;
   /** Skills the resume already shows evidence of but doesn't list. */
-  add: { name: string; evidence: string }[];
+  add: { name: string; evidence: string; selected?: boolean }[];
+  useOrder?: boolean;
   status: SuggestionStatus;
   /** The skills as they were before accepting, so Undo can restore them. */
   before?: ResumeContent["skills"];
@@ -43,6 +44,7 @@ export type TailorResult = {
 };
 
 export type TailorSession = TailorResult & {
+  revision?: number;
   id: string;
   /** The tailored copy these suggestions apply to. */
   resumeId: string;
@@ -59,14 +61,24 @@ export type Line = { id: string; section: LineSection; text: string; context: st
 /** Every line tailoring may rewrite, in page order, with stable ids. */
 export function rewritableLines(c: ResumeContent): Line[] {
   const lines: Line[] = [];
-  if (c.summary.trim()) lines.push({ id: "summary", section: "summary", text: c.summary, context: "Professional summary" });
+  if (c.summary.trim())
+    lines.push({ id: "summary", section: "summary", text: c.summary, context: "Professional summary" });
   for (const e of c.experience) {
     const context = [e.title, e.company].filter(Boolean).join(" at ");
-    for (const b of e.bullets) if (b.text.trim()) lines.push({ id: b.id, section: "experience", text: b.text, context });
+    for (const b of e.bullets)
+      if (b.text.trim()) lines.push({ id: b.id, section: "experience", text: b.text, context });
   }
   for (const p of c.projects) {
-    if (p.description.trim()) lines.push({ id: `${p.id}:description`, section: "projects", text: p.description, context: `Project: ${p.name}` });
-    for (const b of p.bullets) if (b.text.trim()) lines.push({ id: b.id, section: "projects", text: b.text, context: `Project: ${p.name}` });
+    if (p.description.trim())
+      lines.push({
+        id: `${p.id}:description`,
+        section: "projects",
+        text: p.description,
+        context: `Project: ${p.name}`,
+      });
+    for (const b of p.bullets)
+      if (b.text.trim())
+        lines.push({ id: b.id, section: "projects", text: b.text, context: `Project: ${p.name}` });
   }
   return lines;
 }
@@ -80,7 +92,13 @@ export function applyLine(c: ResumeContent, targetId: string, text: string): Res
         ? { ...it, bullets: it.bullets.map((b) => (b.id === targetId ? { ...b, text } : b)) }
         : it,
     );
-  return { ...c, experience: mapBullets(c.experience), projects: mapBullets(c.projects).map((p) => `${p.id}:description` === targetId ? { ...p, description: text } : p) };
+  return {
+    ...c,
+    experience: mapBullets(c.experience),
+    projects: mapBullets(c.projects).map((p) =>
+      `${p.id}:description` === targetId ? { ...p, description: text } : p,
+    ),
+  };
 }
 
 /** The current text of a line, or null if it no longer exists. */

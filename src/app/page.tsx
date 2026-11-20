@@ -1,11 +1,11 @@
-import { Suspense } from "react";
-import type { Viewport } from "next";
 import { LandingHeader } from "@/components/landing-header";
 import { SiteFooter } from "@/components/site-footer";
 import { AuthNotice } from "@/features/auth/auth-notice";
 import { Faq, FinalCta, Hero, HowItWorks, Pricing, Templates, WhyRello } from "@/features/home/landing";
 import { LandingMotion } from "@/features/home/landing-motion";
 import "@/features/home/landing.css";
+import type { Viewport } from "next";
+import { Suspense } from "react";
 
 export const viewport: Viewport = { colorScheme: "light", themeColor: "#f8f9f6" };
 
@@ -16,7 +16,7 @@ export default function LandingPage() {
     <div className="landing-shell">
       <div className="landing-guides" aria-hidden="true" />
       <LandingHeader />
-      <main className="relative isolate overflow-x-clip">
+      <main id="main-content" tabIndex={-1} className="relative isolate overflow-x-clip">
         <LandingMotion>
           <Hero />
           <HowItWorks />

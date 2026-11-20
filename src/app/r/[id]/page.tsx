@@ -1,6 +1,6 @@
-import { Suspense } from "react";
-import type { Metadata } from "next";
 import { Editor, EditorSkeleton } from "@/features/editor/editor";
+import type { Metadata } from "next";
+import { Suspense } from "react";
 
 export const metadata: Metadata = { title: "Edit resume" };
 

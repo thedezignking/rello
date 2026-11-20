@@ -1,27 +1,28 @@
 "use client";
 
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
-import { useRouter } from "next/navigation";
-import { FileCheckIcon } from "lucide-react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { ViewTabs } from "@/components/view-tabs";
 import { toast } from "@/components/ui/toast";
+import { ViewTabs } from "@/components/view-tabs";
 import { EditorSkeleton } from "@/features/editor/editor";
 import type { Update } from "@/features/editor/fields";
 import { SECTIONS } from "@/features/editor/sections";
-import { parseContent, type ResumeContent } from "@/features/resumes/schema";
+import { downloadRecovery, ResumeReadError } from "@/features/resumes/recovery";
+import {
+  parseContent,
+  ResumeContentError,
+  resumeContentSchema,
+  type ResumeContent,
+} from "@/features/resumes/schema";
 import { getResumeStore } from "@/features/resumes/store";
 import { PagePreview } from "@/features/templates/page-preview";
 import { cn } from "@/lib/utils";
+import { FileCheckIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { IMPORT_KEY, type PendingImport } from "./pending";
 
 function titleFor(content: ResumeContent, fileName: string) {
@@ -42,9 +43,13 @@ export function ImportReview() {
   );
   const pending = useMemo(() => {
     try {
-      return raw ? (JSON.parse(raw) as PendingImport) : null;
+      if (!raw) return null;
+      const value = JSON.parse(raw) as PendingImport;
+      if (!value || typeof value.fileName !== "string" || !("content" in value))
+        throw new ResumeContentError(raw);
+      return { value, content: parseContent(value.content) };
     } catch {
-      return null;
+      return { error: new ResumeContentError(raw) };
     }
   }, [raw]);
 
@@ -53,19 +58,46 @@ export function ImportReview() {
   }, [raw, pending, router]);
 
   if (!pending) return <EditorSkeleton />;
-  return <ImportEditor pending={pending} />;
+  if ("error" in pending) return <ResumeReadError error={pending.error} onRetry={() => location.reload()} />;
+  return <ImportEditor pending={pending.value} initialContent={pending.content} />;
 }
 
-function ImportEditor({ pending }: { pending: PendingImport }) {
+function ImportEditor({
+  pending,
+  initialContent,
+}: {
+  pending: PendingImport;
+  initialContent: ResumeContent;
+}) {
   const router = useRouter();
-  const [content, setContent] = useState(() => parseContent(pending.content));
+  const [content, setContent] = useState(initialContent);
+  const latest = useRef(initialContent);
+  const [checkpointFailed, setCheckpointFailed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [view, setView] = useState<"edit" | "preview">("edit");
 
-  const update: Update = (fn) => setContent(fn);
+  const update: Update = (fn) => {
+    const next = fn(latest.current);
+    latest.current = next;
+    setContent(next);
+    try {
+      sessionStorage.setItem(IMPORT_KEY, JSON.stringify({ ...pending, content: next }));
+      setCheckpointFailed(false);
+    } catch {
+      setCheckpointFailed(true);
+    }
+  };
+
+  useEffect(() => {
+    if (!checkpointFailed) return;
+    const warn = (event: BeforeUnloadEvent) => event.preventDefault();
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [checkpointFailed]);
+  const valid = resumeContentSchema.safeParse(content).success;
 
   async function save() {
-    if (saving) return;
+    if (saving || !valid) return;
     setSaving(true);
     try {
       const resume = await getResumeStore().create({
@@ -78,7 +110,11 @@ function ImportEditor({ pending }: { pending: PendingImport }) {
       router.replace(`/r/${resume.id}`);
     } catch {
       setSaving(false);
-      toast.add({ title: "Couldn't save", description: "Nothing was lost. Try again.", type: "error" });
+      toast.add({
+        title: "Couldn't save",
+        description: "Your corrections are still on this page. Try again.",
+        type: "error",
+      });
     }
   }
 
@@ -91,19 +127,41 @@ function ImportEditor({ pending }: { pending: PendingImport }) {
     <div className="flex h-dvh flex-col">
       <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-card px-3 sm:px-4">
         <div className="min-w-0 flex-1">
-          <p className="truncate font-heading text-lg leading-tight font-medium tracking-tight">Check your import</p>
+          <p className="truncate font-heading text-lg leading-tight font-medium tracking-tight">
+            Check your import
+          </p>
           <p className="truncate text-xs text-muted-foreground">From {pending.fileName} · not saved yet</p>
         </div>
         <Button variant="ghost" onClick={discard} disabled={saving}>
           Discard
         </Button>
-        <Button onClick={save} disabled={saving}>
+        <Button onClick={save} disabled={saving || !valid}>
           {saving ? <Spinner data-icon="inline-start" /> : <FileCheckIcon data-icon="inline-start" />}
           Save resume
         </Button>
       </header>
 
       <div className="border-b bg-card px-4 py-3 sm:px-6">
+        {(!valid || checkpointFailed) && (
+          <Alert variant="destructive" className="mb-3">
+            <AlertTitle>
+              {!valid ? "Check the highlighted fields" : "Couldn't keep a recovery draft"}
+            </AlertTitle>
+            <AlertDescription>
+              {!valid
+                ? "Some imported fields are too long. Your text has been kept; shorten those fields before saving."
+                : "Keep this page open until you save your resume. Your latest corrections couldn't be kept for a reload."}
+            </AlertDescription>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-2 w-fit"
+              onClick={() => downloadRecovery(content)}
+            >
+              Download recovery copy
+            </Button>
+          </Alert>
+        )}
         <Alert className="border-primary/25 bg-accent/40">
           <AlertTitle>Check every section before saving</AlertTitle>
           <AlertDescription>

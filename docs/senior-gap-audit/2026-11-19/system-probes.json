@@ -1,0 +1,30 @@
+{
+  "persistence": {
+    "implementation": "actual SupabaseResumeStore with in-memory query adapter; no hosted DB",
+    "overlongSummarySaved": true,
+    "reloadErasesName": true,
+    "subsequentEditOverwritesOriginalName": true,
+    "staleRevisionRejected": true
+  },
+  "evidenceValidation": {
+    "suppliedResume": "Product designer who uses JavaScript to build internal prototypes.",
+    "acceptedRequirement": {
+      "id": "539ed926-698b-476d-a7b7-139518c98515",
+      "text": "Production Java backend development",
+      "kind": "required",
+      "status": "covered",
+      "evidence": [
+        "summary"
+      ]
+    },
+    "acceptedSkills": [
+      {
+        "name": "Java",
+        "evidence": "summary"
+      }
+    ],
+    "providerCalls": 1,
+    "note": "Deliberately incorrect mocked model output tests the application boundary; this is not a measurement of real model behavior."
+  },
+  "sideEffects": "In-memory fixtures only. All fetch calls intercepted; no credentials, hosted writes, emails, charges, or model requests."
+}

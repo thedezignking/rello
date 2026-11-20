@@ -1,8 +1,8 @@
-import Link from "next/link";
-import { ArrowLeftIcon } from "lucide-react";
 import { LandingHeader } from "@/components/landing-header";
 import { SiteFooter } from "@/components/site-footer";
 import "@/features/home/landing.css";
+import { ArrowLeftIcon } from "lucide-react";
+import Link from "next/link";
 
 const DOCUMENTS = [
   { href: "/guide", label: "Getting started" },
@@ -10,7 +10,13 @@ const DOCUMENTS = [
   { href: "/terms", label: "Terms of service" },
 ];
 
-export function DocumentPage({ title, href, description, updated, children }: {
+export function DocumentPage({
+  title,
+  href,
+  description,
+  updated,
+  children,
+}: {
   title: string;
   href: string;
   description?: string;
@@ -21,11 +27,21 @@ export function DocumentPage({ title, href, description, updated, children }: {
     <div className="landing-shell">
       <div className="landing-guides" aria-hidden="true" />
       <LandingHeader />
-      <main className="document-page">
+      <main id="main-content" tabIndex={-1} className="document-page">
         <aside className="document-sidebar">
-          <Link href="/?home" className="document-back"><ArrowLeftIcon className="size-3.5" /> Back to Rello</Link>
+          <Link href="/?home" className="document-back">
+            <ArrowLeftIcon className="size-3.5" /> Back to Rello
+          </Link>
           <nav aria-label="Resources" className="document-nav">
-            {DOCUMENTS.map((document) => <Link key={document.href} href={document.href} aria-current={href === document.href ? "page" : undefined}>{document.label}</Link>)}
+            {DOCUMENTS.map((document) => (
+              <Link
+                key={document.href}
+                href={document.href}
+                aria-current={href === document.href ? "page" : undefined}
+              >
+                {document.label}
+              </Link>
+            ))}
           </nav>
         </aside>
         <article className="document-article">

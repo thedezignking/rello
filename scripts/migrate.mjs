@@ -9,22 +9,18 @@
 import fs from "node:fs";
 import path from "node:path";
 import pg from "pg";
+import { migrationConfig } from "./migration-config.mjs";
 
 const dry = process.argv.includes("--dry");
 const dir = path.resolve("supabase/migrations");
 
-function dbUrl() {
-  if (process.env.SUPABASE_DB_URL) return process.env.SUPABASE_DB_URL;
-  const line = fs.readFileSync(".env.local", "utf8").match(/^\s*SUPABASE_DB_URL\s*=\s*(.+)$/m);
-  if (!line) throw new Error("Set SUPABASE_DB_URL in .env.local");
-  return line[1].trim().replace(/^["']|["']$/g, "");
-}
-
-const client = new pg.Client({ connectionString: dbUrl(), ssl: { rejectUnauthorized: false } });
+const client = new pg.Client(migrationConfig(process.env, process.argv));
 
 try {
   await client.connect();
-  await client.query(`
+  if (dry) await client.query("begin read only");
+  else
+    await client.query(`
     create schema if not exists supabase_migrations;
     create table if not exists supabase_migrations.schema_migrations (
       version text primary key,
@@ -32,10 +28,18 @@ try {
       name text
     );
   `);
-  const { rows } = await client.query("select version from supabase_migrations.schema_migrations");
+  const exists = await client.query(
+    "select to_regclass('supabase_migrations.schema_migrations') as relation",
+  );
+  const { rows } = exists.rows[0].relation
+    ? await client.query("select version from supabase_migrations.schema_migrations")
+    : { rows: [] };
   const applied = new Set(rows.map((r) => r.version));
 
-  const files = fs.readdirSync(dir).filter((f) => /^\d+_.+\.sql$/.test(f)).sort();
+  const files = fs
+    .readdirSync(dir)
+    .filter((f) => /^\d+_.+\.sql$/.test(f))
+    .sort();
   const pending = files.filter((f) => !applied.has(f.split("_")[0]));
 
   if (!pending.length) {

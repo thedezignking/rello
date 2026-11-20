@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { flushSync } from "react-dom";
 import type { ResumeContent, TemplateId } from "@/features/resumes/schema";
 import { ResumeDocument } from "@/features/templates";
 import { PAGE_WIDTH } from "@/features/templates/parts";
+import { useEffect, useState } from "react";
+import { flushSync } from "react-dom";
 
 export type PrintPayload = { templateId: TemplateId; content: ResumeContent };
 

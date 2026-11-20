@@ -1,8 +1,8 @@
 "use client";
 
-import { useId, useLayoutEffect, useRef, useState } from "react";
-import { cn } from "@/lib/utils";
 import type { ResumeContent, TemplateId } from "@/features/resumes/schema";
+import { cn } from "@/lib/utils";
+import { useId, useLayoutEffect, useRef, useState } from "react";
 import { ResumeDocument } from "./index";
 import { PAGE_HEIGHT, PAGE_WIDTH, PRINT_MARGIN } from "./parts";
 
@@ -79,23 +79,25 @@ export function PagePreview({
   const esc = (v: string) => v.replace(/["\\]/g, "\\$&");
   const sel = (ids: string[]) =>
     ids.map((id) => `[data-preview="${esc(scope)}"] [data-line="${esc(id)}"]`).join(",");
-  const highlightCss =
-    highlight
-      ? [
-          highlight.ids.length &&
-            `${sel(highlight.ids)}{background:linear-gradient(transparent 8%,var(--paper-mark-soft) 8%,var(--paper-mark-soft) 92%,transparent 92%);cursor:pointer;border-radius:2px;transition:background .15s}`,
-          highlight.active?.length &&
-            `${sel(highlight.active)}{background:linear-gradient(transparent 8%,var(--paper-mark) 8%,var(--paper-mark) 92%,transparent 92%)}`,
-        ]
-          .filter(Boolean)
-          .join("")
-      : "";
+  const highlightCss = highlight
+    ? [
+        highlight.ids.length &&
+          `${sel(highlight.ids)}{background:linear-gradient(transparent 8%,var(--paper-mark-soft) 8%,var(--paper-mark-soft) 92%,transparent 92%);cursor:pointer;border-radius:2px;transition:background .15s}`,
+        highlight.active?.length &&
+          `${sel(highlight.active)}{background:linear-gradient(transparent 8%,var(--paper-mark) 8%,var(--paper-mark) 92%,transparent 92%)}`,
+      ]
+        .filter(Boolean)
+        .join("")
+    : "";
 
   return (
     <div
       ref={frame}
       className={cn("relative w-full overflow-hidden bg-white", className)}
-      style={{ height: scale ? height * scale : undefined, aspectRatio: scale ? undefined : `${PAGE_WIDTH} / ${PAGE_HEIGHT}` }}
+      style={{
+        height: scale ? height * scale : undefined,
+        aspectRatio: scale ? undefined : `${PAGE_WIDTH} / ${PAGE_HEIGHT}`,
+      }}
     >
       <div
         ref={doc}

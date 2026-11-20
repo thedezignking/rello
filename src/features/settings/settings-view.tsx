@@ -1,9 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { LogOutIcon, MonitorIcon, MoonIcon, SunIcon, Trash2Icon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -26,13 +22,21 @@ import { useBilling } from "@/features/billing/billing-provider";
 import { useTheme, type ThemeChoice } from "@/features/theme/theme";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { LogOutIcon, MonitorIcon, MoonIcon, SunIcon, Trash2Icon } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export function SettingsView() {
   const { ready, user, hasAccount, isGuest, openSignIn, signOut } = useAuth();
   const { summary } = useBilling();
 
   return (
-    <main className="page-in mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-10 sm:px-6 sm:py-14">
+    <main
+      id="main-content"
+      tabIndex={-1}
+      className="page-in mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-10 sm:px-6 sm:py-14"
+    >
       <h1 className="font-heading text-3xl font-medium tracking-tight sm:text-4xl">Settings</h1>
 
       {!ready ? (
@@ -51,7 +55,7 @@ export function SettingsView() {
             <CardTitle>{isGuest ? "You're using Rello as a guest" : "You're not signed in"}</CardTitle>
             <CardDescription>
               {isGuest
-                ? "Your resumes are saved in this browser only. Sign in to keep them safe and open them on any device."
+                ? "Your resumes belong to this guest session. Sign in to keep access and open them on other devices."
                 : "Sign in to save your resumes and come back to them anywhere."}
             </CardDescription>
           </CardHeader>
@@ -61,7 +65,23 @@ export function SettingsView() {
         </Card>
       )}
 
-      <Card><CardHeader><CardTitle>Tailoring credits</CardTitle><CardDescription>{hasAccount ? summary ? `${summary.available} credits available. Add a pack or view your payments.` : "Manage your credits and payments." : "Sign in to receive 10 free tailoring credits, once per account."}</CardDescription></CardHeader><CardFooter><Button variant="outline" nativeButton={false} render={<Link href="/settings/billing" />}>Manage credits</Button></CardFooter></Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Tailoring credits</CardTitle>
+          <CardDescription>
+            {hasAccount
+              ? summary
+                ? `${summary.available} credits available. Add a pack or view your payments.`
+                : "Manage your credits and payments."
+              : "Sign in to receive 10 free tailoring credits, once per account."}
+          </CardDescription>
+        </CardHeader>
+        <CardFooter>
+          <Button variant="outline" nativeButton={false} render={<Link href="/settings/billing" />}>
+            Manage credits
+          </Button>
+        </CardFooter>
+      </Card>
       <AppearanceCard />
 
       <DeleteCard hasData={hasAccount || isGuest || !isSupabaseConfigured()} isGuest={isGuest} />
@@ -108,7 +128,13 @@ function AccountCard({
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor="settings-name">Name</FieldLabel>
-              <Input id="settings-name" value={name} maxLength={120} onChange={(e) => setName(e.target.value)} autoComplete="name" />
+              <Input
+                id="settings-name"
+                value={name}
+                maxLength={120}
+                onChange={(e) => setName(e.target.value)}
+                autoComplete="name"
+              />
             </Field>
             <Field>
               <FieldLabel htmlFor="settings-email">Email</FieldLabel>
@@ -144,7 +170,9 @@ function AppearanceCard() {
     <Card>
       <CardHeader>
         <CardTitle>Appearance</CardTitle>
-        <CardDescription>System follows your device. Resume pages always stay white, like paper.</CardDescription>
+        <CardDescription>
+          System follows your device. Resume pages always stay white, like paper.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <ToggleGroup
@@ -172,6 +200,7 @@ function AppearanceCard() {
 
 function DeleteCard({ hasData, isGuest }: { hasData: boolean; isGuest: boolean }) {
   const router = useRouter();
+  const { signOut } = useAuth();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -190,9 +219,14 @@ function DeleteCard({ hasData, isGuest }: { hasData: boolean; isGuest: boolean }
     }
     // Clear anything kept in this browser too.
     for (const key of Object.keys(localStorage)) if (key.startsWith("rello.")) localStorage.removeItem(key);
-    sessionStorage.removeItem("rello.import");
-    await createClient().auth.signOut().catch(() => {});
-    toast.add({ title: "Everything's deleted", description: "Your account and resumes are gone.", type: "success" });
+    for (const key of Object.keys(sessionStorage))
+      if (key.startsWith("rello.")) sessionStorage.removeItem(key);
+    await signOut().catch(() => {});
+    toast.add({
+      title: "Everything's deleted",
+      description: "Your account and resumes are gone.",
+      type: "success",
+    });
     router.replace("/");
     router.refresh();
   }
@@ -202,8 +236,8 @@ function DeleteCard({ hasData, isGuest }: { hasData: boolean; isGuest: boolean }
       <CardHeader>
         <CardTitle>{isGuest ? "Delete your data" : "Delete account"}</CardTitle>
         <CardDescription>
-          Permanently removes {isGuest ? "your guest session" : "your account"}, every resume, tailored copy and saved
-          job description. This can&apos;t be undone.
+          Permanently removes {isGuest ? "your guest session" : "your account"}, every resume, tailored copy
+          and saved job description. This can&apos;t be undone.
         </CardDescription>
       </CardHeader>
       <CardFooter>
@@ -218,7 +252,8 @@ function DeleteCard({ hasData, isGuest }: { hasData: boolean; isGuest: boolean }
           <AlertDialogHeader>
             <AlertDialogTitle>Delete everything?</AlertDialogTitle>
             <AlertDialogDescription>
-              All your resumes and tailored copies will be deleted for good. Download any PDFs you want to keep first.
+              All your resumes and tailored copies will be deleted for good. Download any PDFs you want to
+              keep first.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

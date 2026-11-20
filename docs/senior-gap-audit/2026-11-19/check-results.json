@@ -1,0 +1,92 @@
+{
+  "date": "2026-11-19",
+  "commit": "e6a00eb",
+  "checks": {
+    "lint": {
+      "chunk_id": "325777",
+      "wall_time_seconds": 0.0000165,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    "types": {
+      "chunk_id": "7b1f22",
+      "wall_time_seconds": 0.000027,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    "tailoring": {
+      "chunk_id": "d9b54e",
+      "wall_time_seconds": 3.9084372,
+      "exit_code": 0,
+      "original_token_count": 38,
+      "output": "[tailor] suggestions kept 1 of 3 {\"new number\":1,\"unknown line\":1}\nPASS: malformed response retries; fabricated numbers and unknown targets rejected.\n"
+    },
+    "paystack": {
+      "chunk_id": "bba971",
+      "wall_time_seconds": 0.0000521,
+      "exit_code": 0,
+      "original_token_count": 15,
+      "output": "31 Paystack boundary checks passed; no real payments made.\n"
+    },
+    "billing-auth": {
+      "chunk_id": "9ce573",
+      "wall_time_seconds": 0.0000468,
+      "exit_code": 0,
+      "original_token_count": 28,
+      "output": "Billing auth checks passed: connection failures, signed-out users, guest restrictions, and verified accounts.\n"
+    },
+    "email-code": {
+      "chunk_id": "8e7bdd",
+      "wall_time_seconds": 0.0000429,
+      "exit_code": 0,
+      "original_token_count": 30,
+      "output": "Email code checks passed: guest upgrades, existing accounts, resend types, delivery failures, and actionable errors.\n"
+    },
+    "auth-config": {
+      "chunk_id": "178ead",
+      "wall_time_seconds": 0.0001767,
+      "exit_code": 0,
+      "original_token_count": 27,
+      "output": "Auth email configuration checks passed: verified sender, code length, rate limits, and preserved redirects.\n"
+    },
+    "public-theme": {
+      "chunk_id": "8f247a",
+      "wall_time_seconds": 6.7300174,
+      "exit_code": 0,
+      "original_token_count": 26,
+      "output": "Public theme checks passed: server HTML, manifest, saved preferences, navigation, and system changes.\n"
+    }
+  },
+  "dependencyAudit": {
+    "command": "npm.cmd audit --json --fetch-retries=0 --fetch-timeout=20000",
+    "exitCode": 1,
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 10,
+      "high": 0,
+      "critical": 0,
+      "total": 10
+    },
+    "rootAdvisory": "https://github.com/advisories/GHSA-g3hv-75wg-m249",
+    "note": "Initial sandbox attempt returned ECONNRESET; authorized registry retries returned this result. Count is affected package entries."
+  },
+  "github": {
+    "combinedStatuses": [
+      {
+        "context": "Vercel",
+        "state": "success",
+        "target_url": "https://vercel.com/divineukanwa-1779s-projects/rello/4AeVGeAsfZH7Xr2grLitmSck9Wzk"
+      }
+    ],
+    "prWorkflowRuns": []
+  },
+  "browser": {
+    "localHeadless": "Navigation timeout of 45000 ms exceeded for landing, resumes, billing, privacy, terms, guide; no screenshots obtained.",
+    "computerUse": "Local createBrowserTab timed out and reset kernel; deployed createBrowserTab also timed out and reset kernel.",
+    "note": "No completed UI journey; not evidence of deployed application outage."
+  },
+  "sideEffects": "No hosted writes, emails, charges, deployments, migrations or implementation fixes. In-memory fixtures and report/evidence files only."
+}

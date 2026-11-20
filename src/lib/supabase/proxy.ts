@@ -1,4 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
+import { isSupabaseConfigured } from "./config";
 import { NextResponse, type NextRequest } from "next/server";
 
 // Refreshes the Supabase session cookie on every matched request so Server
@@ -6,6 +7,7 @@ import { NextResponse, type NextRequest } from "next/server";
 // Guests are allowed everywhere; pages that need a real account check it
 // themselves. The one redirect is landing → /resumes for returning visitors.
 export async function updateSession(request: NextRequest) {
+  if (!isSupabaseConfigured()) return NextResponse.next({ request });
   // A sign-in email link can land on the homepage with ?code=… (when the
   // callback URL isn't on Supabase's redirect allow-list). Hand it to the
   // callback so the sign-in still completes.
@@ -32,9 +34,7 @@ export async function updateSession(request: NextRequest) {
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
           response = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options),
-          );
+          cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
         },
       },
     },

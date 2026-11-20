@@ -1,7 +1,7 @@
 import type { ResumeContent, TemplateId } from "@/features/resumes/schema";
 import { ClassicTemplate } from "./classic";
-import { PlainHeadingsProvider } from "./doc-headings";
 import { CompactTemplate } from "./compact";
+import { PlainHeadingsProvider } from "./doc-headings";
 import { MinimalTemplate } from "./minimal";
 import { ModernTemplate } from "./modern";
 import type { TemplateProps } from "./parts";

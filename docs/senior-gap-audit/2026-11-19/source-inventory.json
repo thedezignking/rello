@@ -1,0 +1,121 @@
+{
+  "sourceFiles": 132,
+  "routeHandlers": 10,
+  "largestFiles": [
+    {
+      "file": "src/features/tailor/review.tsx",
+      "lines": 604
+    },
+    {
+      "file": "src/features/home/landing-motion.tsx",
+      "lines": 549
+    },
+    {
+      "file": "src/features/home/home-view.tsx",
+      "lines": 510
+    },
+    {
+      "file": "src/features/editor/editor.tsx",
+      "lines": 413
+    },
+    {
+      "file": "src/features/resumes/store.ts",
+      "lines": 397
+    },
+    {
+      "file": "src/features/tailor/engine.ts",
+      "lines": 368
+    }
+  ],
+  "landingFixedPixelFontSizes": [
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "28",
+    "30",
+    "32",
+    "40",
+    "42",
+    "7",
+    "8",
+    "9"
+  ],
+  "sourceArbitraryFontClasses": [
+    "0.8rem",
+    "10.5pt",
+    "10pt",
+    "10px",
+    "11pt",
+    "11px",
+    "12pt",
+    "13px",
+    "15px",
+    "16px",
+    "17px",
+    "19pt",
+    "2.5rem",
+    "23pt",
+    "25pt",
+    "26pt",
+    "26px",
+    "2rem",
+    "3.2rem",
+    "4.25rem",
+    "8.5pt",
+    "8.75pt",
+    "9.25pt",
+    "9.5pt",
+    "9.75pt",
+    "9pt"
+  ],
+  "landingLiteralHexColors": [
+    "#1d3aab",
+    "#1f7a4d",
+    "#202d38",
+    "#20364708",
+    "#2036470a",
+    "#20364712",
+    "#20364716",
+    "#2036471a",
+    "#2036471c",
+    "#20364720",
+    "#20364724",
+    "#20364726",
+    "#2546c8",
+    "#354a61",
+    "#626e78",
+    "#b42318",
+    "#b9d5c2",
+    "#c4ccd0",
+    "#c6ccd5",
+    "#c9dfce",
+    "#d5dadf",
+    "#d9dedf",
+    "#dae4e9",
+    "#dbe5e9",
+    "#dfe4e8",
+    "#e4e7ec",
+    "#e6e9ee",
+    "#e8edfc",
+    "#eef2fc",
+    "#f0f3ed",
+    "#f8f9f6",
+    "#ffe27a",
+    "#fff",
+    "#fff4c7",
+    "#ffffffed"
+  ],
+  "localConfiguration": {
+    "supabaseConfigured": true,
+    "dbConfigured": true,
+    "dbMatchesPublicProject": true,
+    "liveProjectMatch": "Not freshly established; see 16 November historical HTTP evidence"
+  },
+  "formatterConfigured": false,
+  "ciDirectoryPresent": false
+}

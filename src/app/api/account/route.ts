@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
 import { fail } from "@/features/ai/guard";
-import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { reportError } from "@/lib/error-reporting";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
+import { NextResponse } from "next/server";
 
 /**
  * Deletes the caller's account and everything in it. Every table references
@@ -20,11 +21,12 @@ export async function DELETE() {
   if (!data.user) return fail(401, "signed_out", "Sign in to delete your account.");
 
   const admin = createAdminClient();
-  if (!admin) return fail(500, "not_configured", "Account deletion isn't available right now. Contact support.");
+  if (!admin)
+    return fail(500, "not_configured", "Account deletion isn't available right now. Contact support.");
 
   const { error } = await admin.auth.admin.deleteUser(data.user.id);
   if (error) {
-    console.error("[account] delete failed", error);
+    reportError(error, "account.delete");
     return fail(500, "delete_failed", "We couldn't delete your account. Nothing was removed. Try again.");
   }
   await supabase.auth.signOut().catch(() => {});

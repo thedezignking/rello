@@ -1,7 +1,7 @@
-import { Suspense } from "react";
-import type { Metadata } from "next";
 import { EditorSkeleton } from "@/features/editor/editor";
 import { TailorRoute } from "@/features/tailor/tailor-route";
+import type { Metadata } from "next";
+import { Suspense } from "react";
 
 export const metadata: Metadata = { title: "Tailor resume" };
 

@@ -1,5 +1,9 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { newId, type ResumeContent, type SectionKey } from "@/features/resumes/schema";
 import {
   AlignLeftIcon,
   AwardIcon,
@@ -11,13 +15,9 @@ import {
   WrenchIcon,
   type LucideIcon,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Field, FieldLabel } from "@/components/ui/field";
-import { newId, type ResumeContent, type SectionKey } from "@/features/resumes/schema";
 import { BulletsEditor } from "./bullets-editor";
-import { useImprove } from "./improve";
 import { AreaField, EntryCard, listOps, TextField, type Update } from "./fields";
+import { useImprove } from "./improve";
 import { SkillsEditor } from "./skills-editor";
 
 type Props = { content: ResumeContent; update: Update };
@@ -118,14 +118,49 @@ function PersonalSection({ content, update }: Props) {
   return (
     <div className="flex flex-col gap-4">
       <Grid>
-        <TextField label="Full name" value={p.name} onChange={set("name")} autoComplete="name" placeholder="Amara Okafor" />
-        <TextField label="Headline" value={p.headline} onChange={set("headline")} placeholder="Product Designer" />
-        <TextField label="Email" type="email" validate="email" value={p.email} onChange={set("email")} autoComplete="email" />
+        <TextField
+          label="Full name"
+          value={p.name}
+          onChange={set("name")}
+          autoComplete="name"
+          placeholder="Amara Okafor"
+        />
+        <TextField
+          label="Headline"
+          value={p.headline}
+          onChange={set("headline")}
+          placeholder="Product Designer"
+        />
+        <TextField
+          label="Email"
+          type="email"
+          validate="email"
+          value={p.email}
+          onChange={set("email")}
+          autoComplete="email"
+        />
         <TextField label="Phone" type="tel" value={p.phone} onChange={set("phone")} autoComplete="tel" />
-        <TextField label="City, country" value={p.location} onChange={set("location")} placeholder="Lagos, Nigeria" />
-        <TextField label="LinkedIn" validate="url" value={p.linkedin} onChange={set("linkedin")} placeholder="linkedin.com/in/you" />
+        <TextField
+          label="City, country"
+          value={p.location}
+          onChange={set("location")}
+          placeholder="Lagos, Nigeria"
+        />
+        <TextField
+          label="LinkedIn"
+          validate="url"
+          value={p.linkedin}
+          onChange={set("linkedin")}
+          placeholder="linkedin.com/in/you"
+        />
       </Grid>
-      <TextField label="Website or portfolio" validate="url" value={p.website} onChange={set("website")} placeholder="yourname.com" />
+      <TextField
+        label="Website or portfolio"
+        validate="url"
+        value={p.website}
+        onChange={set("website")}
+        placeholder="yourname.com"
+      />
     </div>
   );
 }
@@ -168,9 +203,19 @@ function ExperienceSection({ content, update }: Props) {
           <Grid>
             <TextField label="Job title" value={e.title} onChange={(v) => ops.patch(e.id, { title: v })} />
             <TextField label="Company" value={e.company} onChange={(v) => ops.patch(e.id, { company: v })} />
-            <TextField label="Start" type="month" value={e.start} onChange={(v) => ops.patch(e.id, { start: v })} />
+            <TextField
+              label="Start"
+              type="month"
+              value={e.start}
+              onChange={(v) => ops.patch(e.id, { start: v })}
+            />
             {!e.current && (
-              <TextField label="End" type="month" value={e.end} onChange={(v) => ops.patch(e.id, { end: v })} />
+              <TextField
+                label="End"
+                type="month"
+                value={e.end}
+                onChange={(v) => ops.patch(e.id, { end: v })}
+              />
             )}
           </Grid>
           <Field orientation="horizontal">
@@ -183,7 +228,12 @@ function ExperienceSection({ content, update }: Props) {
               I currently work here
             </FieldLabel>
           </Field>
-          <TextField label="Location" value={e.location} onChange={(v) => ops.patch(e.id, { location: v })} placeholder="City, or Remote" />
+          <TextField
+            label="Location"
+            value={e.location}
+            onChange={(v) => ops.patch(e.id, { location: v })}
+            placeholder="City, or Remote"
+          />
           <BulletsEditor
             bullets={e.bullets}
             onChange={(bullets) => ops.patch(e.id, { bullets })}
@@ -227,10 +277,29 @@ function EducationSection({ content, update }: Props) {
         >
           <TextField label="School" value={e.school} onChange={(v) => ops.patch(e.id, { school: v })} />
           <Grid>
-            <TextField label="Degree or qualification" value={e.degree} onChange={(v) => ops.patch(e.id, { degree: v })} placeholder="B.Sc." />
-            <TextField label="Field of study" value={e.field} onChange={(v) => ops.patch(e.id, { field: v })} />
-            <TextField label="Start (optional)" type="month" value={e.start} onChange={(v) => ops.patch(e.id, { start: v })} />
-            <TextField label="Graduated or expected" type="month" value={e.end} onChange={(v) => ops.patch(e.id, { end: v })} />
+            <TextField
+              label="Degree or qualification"
+              value={e.degree}
+              onChange={(v) => ops.patch(e.id, { degree: v })}
+              placeholder="B.Sc."
+            />
+            <TextField
+              label="Field of study"
+              value={e.field}
+              onChange={(v) => ops.patch(e.id, { field: v })}
+            />
+            <TextField
+              label="Start (optional)"
+              type="month"
+              value={e.start}
+              onChange={(v) => ops.patch(e.id, { start: v })}
+            />
+            <TextField
+              label="Graduated or expected"
+              type="month"
+              value={e.end}
+              onChange={(v) => ops.patch(e.id, { end: v })}
+            />
           </Grid>
           <AreaField
             label="Details (optional)"
@@ -271,7 +340,12 @@ function ProjectsSection({ content, update }: Props) {
         >
           <Grid>
             <TextField label="Project name" value={p.name} onChange={(v) => ops.patch(p.id, { name: v })} />
-            <TextField label="Link (optional)" validate="url" value={p.url} onChange={(v) => ops.patch(p.id, { url: v })} />
+            <TextField
+              label="Link (optional)"
+              validate="url"
+              value={p.url}
+              onChange={(v) => ops.patch(p.id, { url: v })}
+            />
           </Grid>
           <ProjectDescription
             name={p.name}
@@ -309,7 +383,16 @@ function ProjectDescription({
     where: `Project description${name ? `: ${name}` : ""}`,
     onAccept: onChange,
   });
-  return <AreaField label="Description" value={value} rows={2} onChange={onChange} action={trigger} below={panel} />;
+  return (
+    <AreaField
+      label="Description"
+      value={value}
+      rows={2}
+      onChange={onChange}
+      action={trigger}
+      below={panel}
+    />
+  );
 }
 
 function CertificationsSection({ content, update }: Props) {
@@ -328,14 +411,22 @@ function CertificationsSection({ content, update }: Props) {
           <Grid>
             <TextField label="Certification" value={x.name} onChange={(v) => ops.patch(x.id, { name: v })} />
             <TextField label="Issued by" value={x.issuer} onChange={(v) => ops.patch(x.id, { issuer: v })} />
-            <TextField label="Date (optional)" type="month" value={x.date} onChange={(v) => ops.patch(x.id, { date: v })} />
-            <TextField label="Verification link" validate="url" value={x.url} onChange={(v) => ops.patch(x.id, { url: v })} />
+            <TextField
+              label="Date (optional)"
+              type="month"
+              value={x.date}
+              onChange={(v) => ops.patch(x.id, { date: v })}
+            />
+            <TextField
+              label="Verification link"
+              validate="url"
+              value={x.url}
+              onChange={(v) => ops.patch(x.id, { url: v })}
+            />
           </Grid>
         </EntryCard>
       ))}
-      <AddButton
-        onClick={() => ops.add({ id: newId("cert"), name: "", issuer: "", date: "", url: "" })}
-      >
+      <AddButton onClick={() => ops.add({ id: newId("cert"), name: "", issuer: "", date: "", url: "" })}>
         Add certification
       </AddButton>
     </div>

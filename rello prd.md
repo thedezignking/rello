@@ -1,5 +1,7 @@
 # RELLO
+
 ## Product Requirements Document (PRD)
+
 **Version:** 1.0  
 **Status:** Ready for Design & Development Planning  
 **Product:** Rello — AI Resume Builder  
@@ -144,17 +146,17 @@ Users should be able to:
 
 The following are initial targets to validate during beta and refine after launch.
 
-| Metric | Initial Target |
-|---|---|
-| Signup-to-first-saved-resume activation | At least 40% |
-| Completed resume creation/import | At least 60% of signups |
-| Successful tailoring API requests | At least 98% |
-| Returning-user tailoring journey | Median under 60 seconds |
-| AI generation processing | P95 under 45 seconds |
-| Successful PDF exports | At least 99% |
-| Human-rated output relevance | At least 4/5 |
-| Free-to-paid conversion | Initial hypothesis: 5% |
-| Serious unsupported claims | Zero in reviewed launch test cases |
+| Metric                                  | Initial Target                     |
+| --------------------------------------- | ---------------------------------- |
+| Signup-to-first-saved-resume activation | At least 40%                       |
+| Completed resume creation/import        | At least 60% of signups            |
+| Successful tailoring API requests       | At least 98%                       |
+| Returning-user tailoring journey        | Median under 60 seconds            |
+| AI generation processing                | P95 under 45 seconds               |
+| Successful PDF exports                  | At least 99%                       |
+| Human-rated output relevance            | At least 4/5                       |
+| Free-to-paid conversion                 | Initial hypothesis: 5%             |
+| Serious unsupported claims              | Zero in reviewed launch test cases |
 
 A successful MVP demonstrates that real users can reliably tailor and download useful resumes and that some are willing to pay for repeated usage.
 
@@ -1474,41 +1476,52 @@ At minimum:
 ## 16.1 Recommended Technology Stack
 
 **Frontend**
+
 - Next.js.
 - TypeScript.
 - Tailwind CSS.
 - shadcn/ui.
 
 **Backend**
+
 - Next.js route handlers or a clearly separated server-side service layer.
 - TypeScript.
 - Zod input and output validation.
 
 **Database**
+
 - Supabase PostgreSQL.
 
 **Authentication**
+
 - Supabase Auth.
 
 **File Storage**
+
 - Supabase Storage with private buckets.
 
 **Artificial Intelligence**
+
 - OpenAI API, behind a provider-independent service interface.
 
 **PDF Generation**
+
 - Server-side HTML-to-PDF using Playwright or Puppeteer, with a compatible deployment environment.
 
 **Analytics**
+
 - PostHog or equivalent.
 
 **Error Monitoring**
+
 - Sentry or equivalent.
 
 **Hosting**
+
 - Vercel or another suitable Next.js hosting platform.
 
 **Payments**
+
 - A provider supporting the launch markets, desired currencies, one-time checkout, reliable webhooks, and low-ticket transaction economics.
 
 The exact payment provider should be finalized after checking fees, merchant eligibility, supported countries, and payout conditions.
@@ -2377,19 +2390,19 @@ They are not commitments to build.
 
 # 26. Risks and Mitigations
 
-| Risk | Impact | Mitigation |
-|---|---|---|
-| AI invents experience | High | Evidence-based generation, validation, human review |
-| Imported resume loses information | High | User confirmation, extraction warnings, test fixtures |
-| PDF formatting breaks | High | Shared renderer, pagination tests, export regression tests |
-| Users abuse free credits | Medium | Reasonable account protections, rate limits |
-| High AI processing cost | Medium | Model benchmarking, token limits, usage monitoring |
-| Users do not pay | High | Early paid beta, pricing experiments |
-| Payment fees undermine margins | High | Provider comparison, credit bundles |
-| Large competitors offer similar features | Medium | Superior simplicity, speed, affordability |
-| Sensitive user data is exposed | Critical | Access control, private storage, security testing |
-| Product becomes too complex | Medium | Strict MVP scope and feature prioritization |
-| AI generation is too slow | Medium | Optimization, status polling, infrastructure tuning |
+| Risk                                     | Impact   | Mitigation                                                 |
+| ---------------------------------------- | -------- | ---------------------------------------------------------- |
+| AI invents experience                    | High     | Evidence-based generation, validation, human review        |
+| Imported resume loses information        | High     | User confirmation, extraction warnings, test fixtures      |
+| PDF formatting breaks                    | High     | Shared renderer, pagination tests, export regression tests |
+| Users abuse free credits                 | Medium   | Reasonable account protections, rate limits                |
+| High AI processing cost                  | Medium   | Model benchmarking, token limits, usage monitoring         |
+| Users do not pay                         | High     | Early paid beta, pricing experiments                       |
+| Payment fees undermine margins           | High     | Provider comparison, credit bundles                        |
+| Large competitors offer similar features | Medium   | Superior simplicity, speed, affordability                  |
+| Sensitive user data is exposed           | Critical | Access control, private storage, security testing          |
+| Product becomes too complex              | Medium   | Strict MVP scope and feature prioritization                |
+| AI generation is too slow                | Medium   | Optimization, status polling, infrastructure tuning        |
 
 ---
 

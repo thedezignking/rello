@@ -71,7 +71,10 @@ if (env.SMTP_HOST) {
       headers: { Authorization: `Bearer ${env.SMTP_PASS}` },
     });
     const domains = await response.json();
-    if (!response.ok || !domains.data?.some((d) => d.name === sender.split("@")[1] && d.status === "verified")) {
+    if (
+      !response.ok ||
+      !domains.data?.some((d) => d.name === sender.split("@")[1] && d.status === "verified")
+    ) {
       throw new Error("The SMTP_FROM domain must be verified in Resend before configuring sign-in emails.");
     }
   }
@@ -111,15 +114,21 @@ const current = await currentResponse.json();
 console.log("Before:", summary(current));
 
 if (!process.argv.includes("--dry")) {
-  const site = process.argv.find((arg) => arg.startsWith("--site-url="))?.slice(11) || env.NEXT_PUBLIC_SITE_URL;
+  const site =
+    process.argv.find((arg) => arg.startsWith("--site-url="))?.slice(11) || env.NEXT_PUBLIC_SITE_URL;
   if (site) settings.site_url = new URL(site).origin;
-  settings.uri_allow_list = [...new Set([
-    ...(current.uri_allow_list || "").split(",").filter(Boolean),
-    "http://localhost:3000/auth/callback",
-    "http://localhost:3001/auth/callback",
-    ...(site ? [`${new URL(site).origin}/auth/callback`] : []),
-  ])].join(",");
-  if (settings.rate_limit_email_sent !== undefined && (!Number.isInteger(settings.rate_limit_email_sent) || settings.rate_limit_email_sent < 2)) {
+  settings.uri_allow_list = [
+    ...new Set([
+      ...(current.uri_allow_list || "").split(",").filter(Boolean),
+      "http://localhost:3000/auth/callback",
+      "http://localhost:3001/auth/callback",
+      ...(site ? [`${new URL(site).origin}/auth/callback`] : []),
+    ]),
+  ].join(",");
+  if (
+    settings.rate_limit_email_sent !== undefined &&
+    (!Number.isInteger(settings.rate_limit_email_sent) || settings.rate_limit_email_sent < 2)
+  ) {
     throw new Error("AUTH_EMAIL_RATE_LIMIT must be an integer of at least 2.");
   }
   const res = await fetch(api, { method: "PATCH", headers, body: JSON.stringify(settings) });
