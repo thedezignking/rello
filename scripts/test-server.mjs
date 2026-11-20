@@ -7,6 +7,7 @@ const env = {
   NODE_ENV: "development",
   NEXT_BUILD_DIR: ".next-e2e",
   AI_DEMO_MODE: "true",
+  PDF_TEST_MODE: "true",
   NEXT_PUBLIC_SUPABASE_URL: "",
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "",
   SUPABASE_SECRET_KEY: "",

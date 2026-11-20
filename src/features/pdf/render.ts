@@ -32,7 +32,17 @@ async function launch() {
   }
   const executablePath = LOCAL_BROWSERS.find((p) => p && existsSync(p));
   if (!executablePath) throw new Error("No Chrome found. Set CHROME_PATH in .env.local.");
-  return puppeteer.launch({ executablePath, headless: true });
+  // Chrome for Testing cannot use Ubuntu's user-namespace sandbox on the
+  // disposable CI runner. This exception requires the isolated test server.
+  const ciFixture =
+    process.env.NODE_ENV === "development" &&
+    process.env.CI === "true" &&
+    process.env.PDF_TEST_MODE === "true";
+  return puppeteer.launch({
+    executablePath,
+    headless: true,
+    args: ciFixture ? ["--no-sandbox", "--disable-setuid-sandbox"] : [],
+  });
 }
 
 function getBrowser() {

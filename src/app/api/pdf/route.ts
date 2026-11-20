@@ -94,6 +94,23 @@ async function handlePost(request: NextRequest) {
       },
     });
   } catch (error) {
+    if (
+      process.env.NODE_ENV === "development" &&
+      process.env.CI === "true" &&
+      process.env.PDF_TEST_MODE === "true"
+    ) {
+      const message = error instanceof Error ? error.message.toLowerCase() : "";
+      const reason = message.includes("sandbox")
+        ? "sandbox"
+        : message.includes("timeout") || message.includes("timed out")
+          ? "timeout"
+          : message.includes("libraries")
+            ? "browser_dependency"
+            : message.includes("not found")
+              ? "missing_browser"
+              : "unknown";
+      console.error(JSON.stringify({ event: "pdf.fixture.failed", reason }));
+    }
     reportError(error, "pdf");
     return fail(500, "render_failed", "We couldn't prepare your PDF. Your resume is still saved.");
   }
