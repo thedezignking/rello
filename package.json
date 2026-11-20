@@ -10,7 +10,7 @@
     "test:persistence": "node scripts/check-resume-persistence.cjs && node scripts/check-resume-read-errors.cjs",
     "db:migrate": "node scripts/migrate.mjs",
     "auth:emails": "node scripts/auth-emails.mjs",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
